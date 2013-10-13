@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -e
+
+if [ -d ~/Programs/Emacs ]
+    cd ~/Programs/Emacs/
+    bzr pull
+else
+    bzr branch bzr://bzr.savannah.gnu.org/emacs/trunk/ ~/Programs/Emacs
+    cd ~/Programs/Emacs/
+fi
+
+if [ -f Makefile ]
+then
+    make distclean
+fi
+
+find -name '*.elc' -exec rm {} \;
+if [ ! -f configure ]
+then
+    ./autogen.sh
+fi
+
+./configure
+
+make

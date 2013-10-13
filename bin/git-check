@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# check.sh origin
+#
+# This will fetch commits from origin, and then display the log of
+# changes from origin back to when it first deviated from the current
+# branch.
+
+if [ -z "$1" ]
+then
+    echo "usage: check <remote> [remotebranch]"
+    echo
+    echo "Possible values for remote:"
+    echo
+    git remote | sed 's/^/  /'
+    exit 1
+fi
+
+REMOTE="$1"
+
+if [ -z "$2" ]
+then
+    REMOTEBRANCH="master"
+else
+    REMOTEBRANCH="$2"
+fi
+
+git fetch "$REMOTE"
+
+HEAD=$(git rev-parse HEAD)
+CURRENT=$(git rev-parse "$REMOTE/$REMOTEBRANCH")
+BASE=$(git merge-base "$REMOTE/$REMOTEBRANCH" HEAD)
+
+if [ "$BASE" = "$CURRENT" ]
+then
+    echo "No changes"
+    exit 0
+fi
+
+if [ "$HEAD" != "$BASE" ]
+then
+    echo "NO FAST FORWARD POSSIBLE"
+else
+    echo "Merge would be fast-forward"
+fi
+
+git log "$BASE..$REMOTE/$REMOTEBRANCH"
+
+# git diff $COMMIT^..$COMMIT
+# git cherry-pick $COMMIT
