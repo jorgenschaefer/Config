@@ -2,7 +2,7 @@
 
 # Initialize my home directory structure
 
-GITREPO_URL="git+ssh://git@www.jorgenschaefer.de/srv/git/Config"
+GITREPO_URL="https://github.com/jorgenschaefer/Config.git"
 
 # Ignored for now: Music Pictures Videos
 for dir in bin tmp \
