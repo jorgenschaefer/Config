@@ -31,7 +31,7 @@ fi
 export HISTCONTROL=ignoredups
 export LESS="-MIRnX"
 export LESSCHARSET=utf-8
-export SCREENDIR="$TMPDIR"
+export SCREENDIR="$HOME/tmp/screen"
 export TMP="$HOME/tmp"
 export TMPDIR="$HOME/tmp"
 
