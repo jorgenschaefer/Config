@@ -1050,9 +1050,9 @@ Or other words I used repeatedly"
                '((((min-colors 64)) (:background "#ffafaf" :inherit nil))
                  (t (:foreground "red" :bold t))))
 (face-spec-set 'org-tag '((t nil)))
-(face-spec-set 'rst-level-2 ((t (:foreground "cyan"))))
-(face-spec-set 'rst-level-3 ((t (:foreground "cyan"))))
-(face-spec-set 'rst-level-4 ((t (:foreground "cyan"))))
+(face-spec-set 'rst-level-2 '((t (:foreground "cyan"))))
+(face-spec-set 'rst-level-3 '((t (:foreground "cyan"))))
+(face-spec-set 'rst-level-4 '((t (:foreground "cyan"))))
 
 (put 'narrow-to-region 'disabled nil)
 (put 'scroll-left 'disabled nil)
