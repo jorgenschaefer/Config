@@ -91,11 +91,11 @@ then
     # And now, the prompt
     if type tput &>/dev/null && tput setaf 1 >&/dev/null
     then
-        c_reset="`tput sgr0`"
-        c_bold="`tput bold`"
-        c_red="`tput setaf 1`"
-        c_green="`tput setaf 2`"
-        c_blue="`tput setaf 4`"
+        c_reset="\\[`tput sgr0`\\]"
+        c_bold="\\[`tput bold`\\]"
+        c_red="\\[`tput setaf 1`\\]"
+        c_green="\\[`tput setaf 2`\\]"
+        c_blue="\\[`tput setaf 4`\\]"
     else
         c_reset=""
         c_bold=""
@@ -106,23 +106,41 @@ then
 
     export PROMPT_COMMAND=set_prompt
     function set_prompt () {
-        retval='<$?>'
-        host='\h'
-        wdir='\w'
-
+        if [ -n "$VIRTUAL_ENV" ]
+        then
+            local venv="$(basename "$VIRTUAL_ENV")"
+        else
+            local venv=""
+        fi
         if git rev-parse --git-dir > /dev/null 2>&1
         then
-            git_branch=$(git branch 2>/dev/null | sed -ne 's/^\* //p')
+            local git_branch=$(git branch 2>/dev/null | sed -ne 's/^\* //p')
             if [ $(git status --porcelain 2>/dev/null | wc -l) -gt 0 ]
             then
-                git=' [\[${c_red}\]$git_branch\[${c_blue}\]]'
+                local git="${c_red}$git_branch${c_reset}"
             else
-                git=' [$git_branch]'
+                local git="$git_branch"
             fi
         else
-            git=""
+            local git=""
         fi
 
-        PS1='\[${c_blue}\]<$?>\h:\w'"$git"'\$\[${c_reset}\] '
+        if [ -n "$venv" -a -n "$git" ]
+        then
+            local info=" [$venv:$git]"
+        elif [ -n "$venv" ]
+        then
+            local info=" ($venv)"
+        elif [ -n "$git" ]
+        then
+            local info=" [$git]"
+        else
+            local info=""
+        fi
+
+        retval='<$?>'
+        hostpath='\h:\w'
+        prompt='\$'
+        PS1="$c_blue$retval$hostpath$info$c_blue$prompt$c_reset "
     }
 fi
