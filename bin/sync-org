@@ -1,6 +1,9 @@
 #!/bin/sh
 
-. ~/.private.sh
+if [ -f ~/.private.sh ]
+then
+    . ~/.private.sh
 
-wget -qO - "$GOOGLE_ICAL" \
-| ~/bin/ical2org > ~/Documents/Notes/google-calendar.org
+    wget -qO - "$GOOGLE_ICAL" \
+        | ~/bin/ical2org > ~/Documents/Notes/google-calendar.org
+fi
