@@ -3,6 +3,7 @@
 set -e
 
 if [ -d ~/Programs/Emacs ]
+then
     cd ~/Programs/Emacs/
     bzr pull
 else
@@ -21,6 +22,11 @@ then
     ./autogen.sh
 fi
 
-./configure
+if [ -z "$DISPLAY" ]
+then
+    ./configure --with-x-toolkit=no --with-xpm=no --with-jpeg=no --with-gif=no --with-tiff=no
+else
+    ./configure
+fi
 
 make
