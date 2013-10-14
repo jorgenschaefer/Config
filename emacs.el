@@ -149,9 +149,6 @@
 (setq comment-auto-fill-only-comments t)
 (add-hook 'prog-mode-hook 'auto-fill-mode)
 
-;; Have TAB expand symbols in M-: buffers
-(define-key read-expression-map (kbd "TAB") #'lisp-complete-symbol)
-
 ;; Full-line completion is *annoying*
 (setq hippie-expand-try-functions-list
       (delq 'try-expand-line
