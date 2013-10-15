@@ -65,6 +65,7 @@ def archive_older(src, dest, old):
         st = os.stat(full)
         mtime = datetime.datetime.fromtimestamp(st.st_mtime)
         if mtime < old:
+            print "Archiving " + filename
             archive(full, os.path.join(dest, filename))
 
 
