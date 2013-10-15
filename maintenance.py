@@ -8,7 +8,7 @@ import subprocess
 
 def main():
     commit_pull_push(os.path.expanduser("~/Projects/Config/"))
-    commit_pull_push(os.path.expanduser("~/Documents/"))
+    commit(os.path.expanduser("~/Documents/"))
     one_week = (datetime.datetime.now() -
                 datetime.timedelta(days=7))
     archive_older(os.path.expanduser("~/"),
@@ -18,14 +18,9 @@ def main():
     # bigger than 1M, create a nice tarball in ~/Files/Archive/Stuff/
 
 
-def commit_pull_push(repo):
-    """Auto-commit all changes in repo and merge with upstream.
-
-    To merge with upstream, we first pull and rebase, then push the
-    new repository.
-
-    """
-    if not os.path.isdir(repo):
+def commit(repo):
+    """Simply commit this git repository."""
+    if not os.path.isdir(os.path.join(repo, ".git")):
         return
     os.chdir(repo)
     run("git", "add", "*")
@@ -34,6 +29,19 @@ def commit_pull_push(repo):
         subprocess.call(["git", "commit", "-q", "-a",
                          "-m", "Automatic commit"],
                         stdout=devnull)
+
+
+def commit_pull_push(repo):
+    """Auto-commit all changes in repo and merge with upstream.
+
+    To merge with upstream, we first pull and rebase, then push the
+    new repository.
+
+    """
+    if not os.path.isdir(os.path.join(repo, ".git")):
+        return
+    os.chdir(repo)
+    commit(repo)
     run("git", "pull", "-q", "--rebase")
     run("git", "push", "-q")
 
