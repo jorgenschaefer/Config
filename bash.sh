@@ -82,7 +82,7 @@ then
     then
         eval `dircolors -b`
         alias ls='ls -F --color=auto'
-        alias grep='grep --color --exclude-dir=.svn --exclude-dir=.git'
+        alias grep='grep --color --exclude-dir=.svn --exclude-dir=.git --exclude="*.pyc"'
     else
         alias ls='ls -F'
         alias grep='grep --exclude-dir=.svn --exclude-dir=.git'
