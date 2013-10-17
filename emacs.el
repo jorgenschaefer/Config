@@ -417,6 +417,8 @@ This uses `htmlfontify'."
 
 (load "python" nil t)
 
+(setq python-check-command "flake8")
+
 (define-key python-mode-map (kbd "C-c S") 'fc/python-insert-super)
 (defun fc/python-insert-super ()
   "Insert a Python super() statement for the current class."
