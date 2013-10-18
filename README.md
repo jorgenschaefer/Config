@@ -26,7 +26,7 @@ and I don’t care.
 - `Projects/`: Stuff I work on. Usually git repositores.
 - `Public/`: A publicly-available directory. Similar to what others call `public_html`.
 
-I also use `Music/`, `Pictures/` and `Videos/` when applicable.
+I also use `Books/`, `Music/`, `Pictures/` and `Videos/` when applicable.
 
 ## License
 
