@@ -3,10 +3,15 @@
 import datetime
 import errno
 import os
+import random
 import subprocess
+import time
 
 
 def main():
+    # Add a random delay to reduce the risk of colliding with git
+    # access from other hosts.
+    time.sleep(random.randint(0, 30))
     commit_pull_push(os.path.expanduser("~/Projects/Config/"))
     commit(os.path.expanduser("~/Documents/"))
     one_week = (datetime.datetime.now() -
