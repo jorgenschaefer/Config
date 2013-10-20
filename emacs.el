@@ -641,7 +641,6 @@ glyph."
                                        (agenda "")
                                        (todo "WAITING")))))
   (dolist (filename '("~/Documents/Notes/Todo"
-                      "~/Documents/Notes/EVE"
                       "~/Documents/Notes/google-calendar.org"))
     (when (file-exists-p filename)
       (add-to-list 'org-agenda-files filename t))))
