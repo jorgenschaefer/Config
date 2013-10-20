@@ -667,6 +667,9 @@ glyph."
   (elpy-enable)
   (elpy-clean-modeline))
 
+(when (load "pyvenv" t t)
+  (defalias 'workon 'pyvenv-workon))
+
 ;;;;;;;;;
 ;;; iedit
 (when (load "iedit" t t)
