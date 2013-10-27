@@ -8,7 +8,7 @@
 ;;; Global configuration
 
 (when (window-system)
-  (set-default-font "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
+  (set-frame-font "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (setq x-select-enable-primary t
@@ -105,7 +105,7 @@
  scroll-preserve-screen-position 'keep
  ;; My email address
  user-mail-address (with-temp-buffer
-                     (insert-file "~/.email")
+                     (insert-file-contents "~/.email")
                      (goto-char (point-min))
                      (buffer-substring-no-properties
                       (point) (point-at-eol)))
@@ -410,6 +410,23 @@ This uses `htmlfontify'."
 (define-key emacs-lisp-mode-map (kbd "M-.") 'dabbrev-expand)
 (define-key lisp-interaction-mode-map (kbd "M-.") 'dabbrev-expand)
 
+(defun elisp-check ()
+  "Check the current buffer for possible elisp problems.
+
+This actually byte compiles the buffer, but throws away the
+result and keeps only the warnings."
+  (interactive)
+  (let ((lisp (buffer-substring-no-properties (point-min)
+                                              (point-max))))
+   (with-temp-buffer
+     (setq buffer-file-coding-system nil)
+     (set-buffer-multibyte t)
+     (insert lisp)
+     (let ((byte-compile-log-buffer (format "*Check for %s*"
+                                            (buffer-name)))
+           (byte-compile-verbose nil))
+       (byte-compile-from-buffer (current-buffer))))))
+
 ;;;;;;;;;;;;;;;
 ;;; Python Mode
 
@@ -447,7 +464,8 @@ This uses `htmlfontify'."
 (font-lock-add-keywords 'scheme-mode '(("[()]" . 'paren-face)))
 (defface paren-face
   '((t (:foreground "gray60")))
-  "The face used for parenthesises.")
+  "The face used for parenthesises."
+  :group 'scheme)
 
 ;;;;;;;;;;
 ;;; C Mode
@@ -470,8 +488,7 @@ This uses `htmlfontify'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Version Control Mode
-(setq vc-diff-switches diff-switches
-      vc-initial-comment t)
+(setq vc-diff-switches diff-switches)
 
 ;; Git extension
 (when (load "gitty" t t)
