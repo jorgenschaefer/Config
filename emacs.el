@@ -926,9 +926,12 @@ a prefix argument is given."
     (circe "Bitlbee")
     )
 
-  (setq freenode-passwd nil
-        bitlbee-passwd nil
-        coldfront-passwd nil
+  (setq freenode-pass nil
+        freenode-password nil
+        bitlbee-password nil
+        coldfront-pass nil
+        coldfront-password nil
+        ircnet-pass nil
         bitly-pass nil)
   (when (file-exists-p "~/.private.el")
     (load-file "~/.private.el"))
