@@ -54,6 +54,11 @@ then
     . virtualenvwrapper.sh
 fi
 
+if [ -f "/etc/bash_completion" ]
+then
+    . /etc/bash_completion
+fi
+
 # Only in interactive shells
 if [ -n "$PS1" ]
 then
