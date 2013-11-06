@@ -946,7 +946,7 @@ a prefix argument is given."
         `(("Freenode"
            :host "loki.jorgenschaefer.de" :port 7778 :tls t
            :pass ,freenode-pass
-           :nick "jorgen"
+           :nick "forcer"
            :channels ("#emacs" "#emacs-circe"
                       :after-auth "#emacs-ops")
            :nickserv-password ,freenode-password
