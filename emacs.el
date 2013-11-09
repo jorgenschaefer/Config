@@ -634,35 +634,6 @@ glyph."
     (t
      (insert (format "&#x%02x;" char)))))
 
-;;;;;;;;;;;;
-;;; Org Mode
-(when (load "org" t t)
-  (define-key org-mode-map (kbd "C-c a") 'fc/org-agenda)
-  (defun fc/org-agenda ()
-    (interactive)
-    (when (get-buffer "google-calendar.org")
-      (kill-buffer "google-calendar.org"))
-    (org-agenda nil (caar org-agenda-custom-commands)))
-
-  (setq org-fontify-emphasized-text nil
-        org-tags-column 40
-        org-agenda-files nil
-        org-descriptive-links nil
-        org-agenda-include-diary nil
-        org-agenda-start-on-weekday nil
-        org-todo-keywords '((sequence "TODO"
-                                      "DONE"
-                                      "WAITING"))
-        org-agenda-custom-commands '(("t" "General TODO agenda"
-                                      ((todo "TODO")
-                                       (agenda "")
-                                       (todo "WAITING")))))
-  (dolist (filename '("~/Documents/Notes/Todo"
-                      "~/Documents/Notes/google-calendar.org"))
-    (when (file-exists-p filename)
-      (add-to-list 'org-agenda-files filename t))))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Third party extensions
 (when (file-directory-p "~/.emacs.d/site-lisp")
@@ -701,6 +672,35 @@ glyph."
 ;;            (load "fill-column-indicator" t t))
 ;;   (setq-default fci-rule-column 80)
 ;;   (add-hook 'prog-mode-hook 'fci-mode))
+
+;;;;;;;;;;;;
+;;; Org Mode
+
+(when (load "org" t t)
+  (define-key org-mode-map (kbd "C-c a") 'fc/org-agenda)
+  (defun fc/org-agenda ()
+    (interactive)
+    (when (get-buffer "google-calendar.org")
+      (kill-buffer "google-calendar.org"))
+    (org-agenda nil (caar org-agenda-custom-commands)))
+
+  (setq org-fontify-emphasized-text nil
+        org-tags-column 40
+        org-agenda-files nil
+        org-descriptive-links nil
+        org-agenda-include-diary nil
+        org-agenda-start-on-weekday nil
+        org-todo-keywords '((sequence "TODO"
+                                      "DONE"
+                                      "WAITING"))
+        org-agenda-custom-commands '(("t" "General TODO agenda"
+                                      ((todo "TODO")
+                                       (agenda "")
+                                       (todo "WAITING")))))
+  (dolist (filename '("~/Documents/Notes/Todo"
+                      "~/Documents/Notes/google-calendar.org"))
+    (when (file-exists-p filename)
+      (add-to-list 'org-agenda-files filename t))))
 
 ;;;;;;;;;;;;;
 ;;; Typo Mode
@@ -1054,9 +1054,9 @@ Or other words I used repeatedly"
 
 (when (file-exists-p "~/Documents/Notes/Todo")
   (find-file "~/Documents/Notes/Todo")
-  (org-mode)
-  (org-content 1)
-  (org-agenda nil "t")
+  ;; (org-mode)
+  ;; (org-content 1)
+ ;; (org-agenda nil "t")
   (other-window 1)
   (setq default-directory "~/"))
 
