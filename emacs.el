@@ -692,7 +692,8 @@ glyph."
         org-agenda-start-on-weekday nil
         org-todo-keywords '((sequence "TODO"
                                       "DONE"
-                                      "WAITING"))
+                                      "WAITING"
+                                      "ONGOING"))
         org-agenda-custom-commands '(("t" "General TODO agenda"
                                       ((todo "TODO")
                                        (agenda "")
