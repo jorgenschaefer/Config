@@ -13,7 +13,6 @@
 
 import os
 import subprocess
-import StringIO
 import sys
 
 
@@ -23,69 +22,40 @@ def main():
     else:
         packagefile = sys.argv[1]
 
-    data = StringIO.StringIO()
-
-    check_orphans(data, packagefile)
-    check_litter(data)
-    check_bad_origin(data)
-
-    if os.isatty(sys.stdout.fileno()):
-        less = subprocess.Popen(["less", "-F"], stdin=subprocess.PIPE)
-        less.stdin.write(data.getvalue())
-        less.stdin.close()
-        less.communicate()
-    else:
-        sys.stdout.write(data.getvalue())
-
-
-def check_orphans(stdout, packagefile):
-    proc = subprocess.Popen(["deborphan", "-Ha", "--ignore-suggests",
-                             "--no-show-section", "-k", packagefile],
-                            stdout=subprocess.PIPE)
-    data, ignored = proc.communicate()
-    if proc.returncode != 0:
-        exit("deborphan failed")
-    if data.strip():
-        stdout.write("Orphaned Packages\n"
-                     "=================\n"
-                     "\n")
-        stdout.write(data)
-        stdout.write("\n")
-
-
-def check_litter(stdout):
-    proc = subprocess.Popen(
+    run("Orphaned Packages",
+        ["deborphan", "-Ha", "--ignore-suggests",
+         "--no-show-section", "-k", packagefile])
+    run("Litter Packages",
         ["""dpkg -l | sed '1,5d' | grep -v ^ii | awk '{print $1 " " $2}'"""],
-        shell=True,
-        stdout=subprocess.PIPE)
-    data, ignored = proc.communicate()
-    if proc.returncode != 0:
-        exit("dpkg failed")
-    if data.strip():
-        stdout.write("Litter Packages\n"
-                     "===============\n"
-                     "\n")
-        stdout.write(data)
-        stdout.write("\n")
+        shell=True)
+
+    check_bad_origin()
+
+    run("Partial Installs",
+        ["dpkg", "--audit"])
+
+    run("Deselected Packages",
+        ["""dpkg --get-selections | grep -v '\tinstall$'"""],
+        shell=True)
 
 
-def check_bad_origin(stdout):
+def check_bad_origin():
     lines = []
     available = get_available_packages()
     for pkg, ver in get_installed_packages():
         if pkg not in available:
-            lines.append("{0} version {1} installed, but not available\n"
+            lines.append("{0} installed: {1} available: None\n"
                          .format(pkg, ver))
         elif ver not in available[pkg]:
-            lines.append("{0} version {1} installed, but only {2} available\n"
+            lines.append("{0} installed: {1} available: {2}\n"
                          .format(pkg, ver, ", ".join(available[pkg])))
 
     if lines:
-        stdout.write("Uninstallable Packages\n"
-                     "======================\n"
-                     "\n")
-        stdout.write("".join(lines))
-        stdout.write("\n")
+        sys.stdout.write("Uninstallable Packages\n"
+                         "======================\n"
+                         "\n")
+        sys.stdout.write("".join(lines))
+        sys.stdout.write("\n")
 
 
 def get_available_packages():
@@ -120,6 +90,24 @@ def get_installed_packages():
             if ":" in pkg:
                 pkg, arch = pkg.split(":", 1)
             yield pkg, ver
+
+
+def run(header, *args, **kwargs):
+    proc = subprocess.Popen(*args,
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT,
+                            **kwargs)
+    output, ignored = proc.communicate()
+    if output.strip():
+        sys.stdout.write(header)
+        sys.stdout.write("\n" + "=" * len(header) + "\n\n")
+        sys.stdout.write(output)
+        sys.stdout.write("\n")
+    if proc.returncode == 0:
+        return True
+    else:
+        return False
 
 
 if __name__ == '__main__':
