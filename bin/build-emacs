@@ -2,13 +2,13 @@
 
 set -e
 
-if [ -d ~/Programs/Emacs ]
+if [ -d ~/Programs/Emacs/trunk ]
 then
-    cd ~/Programs/Emacs/
+    cd ~/Programs/Emacs/trunk
     bzr pull
 else
-    bzr branch bzr://bzr.savannah.gnu.org/emacs/trunk/ ~/Programs/Emacs
-    cd ~/Programs/Emacs/
+    bzr branch bzr://bzr.savannah.gnu.org/emacs/trunk/ ~/Programs/Emacs/trunk
+    cd ~/Programs/Emacs/trunk
 fi
 
 if [ -f Makefile ]
@@ -24,9 +24,9 @@ fi
 
 if [ -z "$DISPLAY" ]
 then
-    ./configure --with-x-toolkit=no --with-xpm=no --with-jpeg=no --with-gif=no --with-tiff=no
+    ./configure --without-x
 else
-    ./configure --with-gif=no
+    ./configure
 fi
 
 make
