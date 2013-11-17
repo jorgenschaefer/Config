@@ -162,7 +162,9 @@
         (define-key function-key-map
           (read-kbd-macro (cadr map))
           (read-kbd-macro (car map))))
-      '(("<S-up>"     "ESC [1;2A")
+      '(("<backtabe>" "ESC [ Z")
+
+        ("<S-up>"     "ESC [1;2A")
         ("<S-down>"   "ESC [1;2B")
         ("<S-right>"  "ESC [1;2C")
         ("<S-left>"   "ESC [1;2D")
