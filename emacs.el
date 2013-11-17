@@ -4,15 +4,23 @@
 (when (featurep 'xemacs)
   (error "This .emacs file does not work with XEmacs."))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Global configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; User interface
+
+;; I dislike this fancy stuff. It's not always defined, though.
+(dolist (mode '(tool-bar-mode scroll-bar-mode menu-bar-mode
+                              blink-cursor-mode))
+  (when (fboundp mode)
+    (funcall mode -1)))
 
 (when (window-system)
-  (set-frame-font "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
+  (set-frame-font
+   "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
   (setq x-select-enable-primary t
-        x-select-enable-clipboard t))
+        x-select-enable-clipboard t
+        x-stretch-cursor t
+        mouse-yank-at-point t
+        mouse-highlight 1))
 
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
@@ -20,146 +28,10 @@
 (prefer-coding-system 'latin-1)
 (prefer-coding-system 'utf-8)
 
-(menu-bar-mode -1)
-(blink-cursor-mode -1)
-(global-font-lock-mode 1)
-(auto-compression-mode 1)
-(column-number-mode 1)
-(line-number-mode 1)
-(display-time)
-(random t)
-(epa-file-enable)
-
-;; I like seeing the region
-(transient-mark-mode 1)
-;; But I also like working with the region when I don't see it
-(setq mark-even-if-inactive t)
-
-(setq show-paren-delay 0
-      show-paren-style 'parenthesis)
-(show-paren-mode 1)
-
-;; Selecting with the mouse is nice
+;; Standard selection semantics for the mouse
 (when (fboundp 'mouse-sel-mode)
   (mouse-sel-mode 1))
 
-;; get rid of yes-or-no questions - y or n is enough
-(defalias 'yes-or-no-p 'y-or-n-p)
-
-;; I use this for some file
-(add-hook 'before-save-hook 'time-stamp)
-
-;; Use aspell when available
-(when (executable-find "aspell")
-  (setq-default ispell-program-name "aspell"))
-
-;; I dislike the flyspell word completion stuff.
-(when (load "flyspell" t t)
-  (define-key flyspell-mode-map (kbd "M-TAB") 'ispell-complete-word)
-  )
-
-;; Put backup files neatly away
-(let ((backup-dir "~/tmp/emacs/backups")
-      (auto-saves-dir "~/tmp/emacs/auto-saves/")
-      (auto-save-list-dir "~/tmp/emacs/auto-save-list/")
-      (tramp-autosaves-dir "~/tmp/emacs/tramp-auto-saves/")
-      (tramp-backup-dir "~/tmp/emacs/tramp-backups/"))
-  (dolist (dir (list backup-dir
-                     auto-saves-dir
-                     auto-save-list-dir
-                     tramp-autosaves-dir
-                     tramp-backup-dir))
-    (when (not (file-directory-p dir))
-      (make-directory dir t)))
-  (setq backup-directory-alist `((".*" . ,backup-dir))
-        auto-save-file-name-transforms `((".*" ,auto-saves-dir t))
-        auto-save-list-file-prefix (concat auto-save-list-dir ".saves-")
-        tramp-backup-directory-alist `((".*" . ,tramp-backup-dir))
-        tramp-auto-save-directory tramp-autosaves-dir))
-
-(setq backup-by-copying t    ; Don't delink hardlinks
-      delete-old-versions t  ; Clean up the backups
-      version-control t      ; Use version numbers on backups,
-      kept-new-versions 5    ; keep some new versions
-      kept-old-versions 2)   ; and some old ones, too
-
-(setq-default
- ;; we usually want a final newline...
- require-final-newline 'ask
- ;; No, please, no tabs in my programs!
- indent-tabs-mode nil
- ;; If you don't know, just give me text-mode
- major-mode 'text-mode
- ;; I don't like emacs destroying my window setup
- even-window-heights nil
- ;; Same here
- resize-mini-windows nil
- ;; Two spaces after a colon is wrong[tm] in german.  There's even a
- ;; DIN for that... (DIN 5008)
- sentence-end-double-space nil
- ;; No am/pm here
- display-time-24hr-format t
- ;; A tab is 8 spaces is 8 spaces is 8 spaces
- tab-width 8
- ;; Scrolling is moving the document, not moving my eyes
- scroll-preserve-screen-position 'keep
- ;; My email address
- user-mail-address (with-temp-buffer
-                     (insert-file-contents "~/.email")
-                     (goto-char (point-min))
-                     (buffer-substring-no-properties
-                      (point) (point-at-eol)))
- ;; I kinda know my emacs
- inhibit-startup-message t
- ;; unified diff for the masses
- diff-switches "-u"
- ;; nice comment format
- comment-style 'extra-line
- ;; case insensitivity for the masses!
- case-fold-search t
- read-file-name-completion-ignore-case t
- read-buffer-completion-ignore-case t
- completion-ignore-case t
- ;; Don't show a cursor in other windows
- cursor-in-non-selected-windows nil
- ;; A wide characters ask for a wide cursor
- x-stretch-cursor t
- ;; i want a mouse yank to be inserted where the point is, not where i click
- mouse-yank-at-point t
- ;; Don't highlight stuff that I can click on all the time. I don't click
- ;; anyways.
- mouse-highlight 1
- ;; I prefer bash-style to zsh-style
- pcomplete-cycle-completions nil
- ;; > may show up in prompts (my default prompt)
- shell-prompt-pattern "^[^#$%\n]*[#$%>] *"
- ;; C-h a should check for more stuff
- apropos-do-all t
- ;; Single dash starts a paragraph
- paragraph-start "^[#;]* *-\\|\f\\|[      ]*$"
- ;; Some nice times for M-x display-time-world
- display-time-world-list '(("America/New_York" "Sarasota")
-                           ("Europe/Berlin" "Hamburg")
-                           ("Europe/Helsinki" "Helsinki")
-                           ("Etc/GMT+12" "Wellington")
-                           )
- ;; Let's try to kill a whole line
- kill-whole-line t
- )
-
-;; Auto-filling in prog mode is great for comments.
-(setq comment-auto-fill-only-comments t)
-(add-hook 'prog-mode-hook 'auto-fill-mode)
-
-;; Full-line completion is *annoying*
-(setq hippie-expand-try-functions-list
-      (delq 'try-expand-line
-            hippie-expand-try-functions-list))
-
-(setq delete-trailing-lines t)
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
-
-;; Fix some keyboard sequences for various terminals
 (mapc (lambda (map)
         (define-key function-key-map
           (read-kbd-macro (cadr map))
@@ -191,18 +63,74 @@
         ("<C-delete>" "ESC [3;5~")
         ))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Core Emacs Functionality
+
+(random t)
+(column-number-mode 1)
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; I like an active region, but I also use the mark when it's not
+;; active.
+(transient-mark-mode 1)
+(setq mark-even-if-inactive t)
+
+;; Put backup files neatly away
+(let ((backup-dir "~/tmp/emacs/backups")
+      (auto-saves-dir "~/tmp/emacs/auto-saves/")
+      (auto-save-list-dir "~/tmp/emacs/auto-save-list/")
+      (tramp-autosaves-dir "~/tmp/emacs/tramp-auto-saves/")
+      (tramp-backup-dir "~/tmp/emacs/tramp-backups/"))
+  (dolist (dir (list backup-dir
+                     auto-saves-dir
+                     auto-save-list-dir
+                     tramp-autosaves-dir
+                     tramp-backup-dir))
+    (when (not (file-directory-p dir))
+      (make-directory dir t)))
+  (setq backup-directory-alist `((".*" . ,backup-dir))
+        auto-save-file-name-transforms `((".*" ,auto-saves-dir t))
+        auto-save-list-file-prefix (concat auto-save-list-dir ".saves-")
+        tramp-backup-directory-alist `((".*" . ,tramp-backup-dir))
+        tramp-auto-save-directory tramp-autosaves-dir))
+
+(setq backup-by-copying t    ; Don't delink hardlinks
+      delete-old-versions t  ; Clean up the backups
+      version-control t      ; Use version numbers on backups,
+      kept-new-versions 5    ; keep some new versions
+      kept-old-versions 2)   ; and some old ones, too
+
+;; Random default values
+(setq-default
+ major-mode 'text-mode
+ sentence-end-double-space nil
+ display-time-24hr-format t
+ scroll-preserve-screen-position 'keep
+ user-mail-address (when (file-exists-p "~/.email")
+                     (with-temp-buffer
+                       (insert-file-contents "~/.email")
+                       (goto-char (point-min))
+                       (buffer-substring-no-properties
+                        (point) (point-at-eol))))
+ inhibit-startup-message t
+ case-fold-search t
+ read-file-name-completion-ignore-case t
+ read-buffer-completion-ignore-case t
+ completion-ignore-case t
+ cursor-in-non-selected-windows nil
+ kill-whole-line t
+ switch-to-buffer-preserve-window-point t)
+
+;; Clean up whitespace
+
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+(setq indent-tabs-mode nil
+      delete-trailing-lines t
+      require-final-newline t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Custom commands
-
-(global-set-key (kbd "C-x <up>") 'windmove-up)
-(global-set-key (kbd "C-x <down>") 'windmove-down)
-(global-set-key (kbd "C-x <left>") 'windmove-left)
-(global-set-key (kbd "C-x <right>") 'windmove-right)
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "M-/") 'hippie-expand)
-(global-set-key (kbd "C-c f") 'find-file-at-point)
-(global-set-key (kbd "<f5>") 'recompile)
 
 (global-set-key (kbd "C-x r a") 'fc/add-rectangle)
 (defun fc/add-rectangle (start end)
@@ -316,8 +244,6 @@ Also, rename the buffer and attach it to the new file."
   (setq buffer-file-name new-file-name)
   (normal-mode))
 
-;; By Stefan Monnier It is the opposite of fill-paragraph: Takes a
-;; multi-line paragraph and makes it into a single line of text.
 (global-set-key (kbd "C-c u") 'unfill-paragraph)
 (defun unfill-paragraph ()
   (interactive)
@@ -374,156 +300,76 @@ This uses `htmlfontify'."
             (switch-to-buffer (htmlfontify-buffer))))
       (switch-to-buffer (htmlfontify-buffer)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Various major modes shipped with Emacs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Various global modes shipped with Emacs
 
-;;;;;;;;;;;;;;;
-;;; Comint mode
+;;;;;;;;;;;;;
+;; compile.el
 
-(defun fc/init-comint ()
-  ;; Don't jump around when output in a buffer happens
-  (set (make-local-variable 'scroll-conservatively) 1000))
-
-(add-hook 'comint-mode-hook 'fc/init-comint)
+(global-set-key (kbd "<f5>") 'recompile)
 
 ;;;;;;;;;;;;
 ;;; CUA mode
+
+(load "cua-base" nil t)
 
 ;; Those are terribly annoying, as they make it difficult to use a lot
 ;; of Emacs commands that operate on the active region. Including
 ;; user-defined stuff under C-c *.
 (setq cua-enable-cua-keys nil)
-;; Can't hit <C-return> in terminals
-(setq cua-rectangle-mark-key (kbd "C-x r RET"))
 
-(cua-mode 1)
+;; Can't hit <C-return> in terminals
 ;; Using customize, because this has a non-trivial :set method.
 (customize-set-variable 'cua-rectangle-mark-key (kbd "C-x r RET"))
 
-;;;;;;;;;
-;;; Dired
+(cua-mode 1)
 
-(load-library "dired")
-(define-key dired-mode-map (kbd "a") 'dired-find-alternate-file)
-(define-key dired-mode-map (kbd "RET") 'dired-find-file)
+;;;;;;;;;;
+;; diff.el
+
+(setq diff-switches "-u")
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;;; Electric Pair Mode
 
-(when (load "electric" t t)
-  (electric-pair-mode 1)
-  (setq electric-pair-inhibit-predicate #'fc/electric-pair-inhibit)
-  (defun fc/electric-pair-inhibit (char)
-    (let ((last-char (char-before (1- (point)))))
-      (or
-       ;; Not after a smiley
-       (equal last-char ?-)
-       (equal last-char ?:)
-       ;; Not before a word
-       (equal (char-syntax (following-char)) ?w)))))
+(electric-pair-mode 1)
+(setq electric-pair-inhibit-predicate #'fc/electric-pair-inhibit)
+(defun fc/electric-pair-inhibit (char)
+  (let ((last-char (char-before (1- (point)))))
+    (or
+     ;; Not after a smiley
+     (equal last-char ?-)
+     (equal last-char ?:)
+     ;; Not before a word
+     (equal (char-syntax (following-char)) ?w))))
 
 ;;;;;;;;;;;;;;
-;;; Emacs Lisp
+;; epa-file.el
 
-(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
-(define-key emacs-lisp-mode-map (kbd "M-.") 'dabbrev-expand)
-(define-key lisp-interaction-mode-map (kbd "M-.") 'dabbrev-expand)
+(epa-file-enable)
 
-(defun elisp-check ()
-  "Check the current buffer for possible elisp problems.
+;;;;;;;
+;; ffap
 
-This actually byte compiles the buffer, but throws away the
-result and keeps only the warnings."
-  (interactive)
-  (let ((lisp (buffer-substring-no-properties (point-min)
-                                              (point-max))))
-   (with-temp-buffer
-     (setq buffer-file-coding-system nil)
-     (set-buffer-multibyte t)
-     (insert lisp)
-     (let ((byte-compile-log-buffer (format "*Check for %s*"
-                                            (buffer-name)))
-           (byte-compile-verbose nil))
-       (byte-compile-from-buffer (current-buffer))))))
+(global-set-key (kbd "C-c f") 'find-file-at-point)
 
 ;;;;;;;;;;;;;;;
-;;; Python Mode
+;; hippie-exp.el
 
-;; Uses elpy, see below
-
-(load "python" nil t)
-
-(setq python-check-command "flake8")
-
-(define-key python-mode-map (kbd "C-c S") 'fc/python-insert-super)
-(defun fc/python-insert-super ()
-  "Insert a Python super() statement for the current class."
-  (interactive)
-  (let (name split)
-    (setq name (save-excursion
-                 ;; For some silly reason, p-i-c-d does not work if
-                 ;; the method has no text in it?!
-                 (insert "x")
-                 (prog1 (python-info-current-defun)
-                   (delete-char -1))))
-    (when (not name)
-      (error "Can't find class and method names"))
-    (setq split (split-string name "\\."))
-    (when (not (cadr split))
-      (error "Not in a method"))
-    (insert (format "super(%s, self).%s()\n"
-                    (car split)
-                    (cadr split)))
-    (indent-for-tab-command)))
+(global-set-key (kbd "M-/") 'hippie-expand)
+;; Full-line completion is *annoying*
+(setq hippie-expand-try-functions-list
+      (delq 'try-expand-line
+            hippie-expand-try-functions-list))
 
 ;;;;;;;;;;
-;;; Scheme
+;; ibuffer
 
-;; Make parens less visible
-(font-lock-add-keywords 'scheme-mode '(("[()]" . 'paren-face)))
-(defface paren-face
-  '((t (:foreground "gray60")))
-  "The face used for parenthesises."
-  :group 'scheme)
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
-;;;;;;;;;;
-;;; C Mode
-(add-hook 'c-mode-hook 'fc/c-setup)
-(defun fc/c-setup ()
-  "Set up C mode for my needs."
-  (c-set-style "k&r")
-  (setq c-basic-offset 4)
-  (c-set-offset 'case-label '+)
-  (c-set-offset 'inextern-lang 0))
+;;;;;;;;;;;
+;; ido-mode
 
-;;;;;;;;
-;;; Perl
-(add-to-list 'auto-mode-alist '("\\.pl$" . cperl-mode))
-
-;;;;;;;;;;;;
-;;; Uniquify
-(when (load "uniquify" t t)
-  (setq-default uniquify-buffer-name-style 'post-forward))
-
-;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Version Control Mode
-(setq vc-diff-switches diff-switches)
-
-;; Git extension
-(when (load "gitty" t t)
-  (gitty-mode))
-
-;;;;;;;;;;;;;;;
-;;; Comint Mode
-(add-to-list 'comint-output-filter-functions
-             'comint-watch-for-password-prompt)
-(ansi-color-for-comint-mode-on)
-
-(when (load "comint-scroll-to-bottom" t t)
-  (add-hook 'comint-mode-hook 'comint-add-scroll-to-bottom))
-
-;;;;;;;;;;;;
-;;; ido-mode
 (ido-mode 1)
 (setq ido-everywhere t
       ido-case-fold t
@@ -570,48 +416,146 @@ symbol, not word, as I need this for programming the most."
        (goto-char isearch-other-end))
      (thing-at-point 'symbol))))
 
-;;;;;;;;;;;;;;
-;;; shell-mode
+;;;;;;;;;;;
+;; ispell.el
 
-(global-set-key (kbd "C-c s") 'fc/toggle-shell)
-(defun fc/toggle-shell ()
-  "Switch between the last active buffer and the shell."
-  (interactive)
-  (if (eq major-mode 'shell-mode)
-      (let ((buf (catch 'return
-                   (dolist (buf (cdr (buffer-list)))
-                     (when (not (string-prefix-p " " (buffer-name buf)))
-                       (throw 'return buf)))
-                   nil)))
-        (when buf
-          (switch-to-buffer buf)))
-    (shell)))
-
-(when (load "shell" t t)
-  (define-key shell-mode-map (kbd "C-c C-y") 'fc/shell-switch-dir)
-  (defun fc/shell-switch-dir ()
-    "Switch `shell-mode' to the `default-directory' of the last buffer."
-    (interactive)
-    (when (eq major-mode 'shell-mode)
-      (let* ((dir (catch 'return
-                    (dolist (buf (buffer-list))
-                      (with-current-buffer buf
-                        (when buffer-file-name
-                          (throw 'return default-directory)))))))
-        (goto-char (process-mark (get-buffer-process (current-buffer))))
-        (insert (format "cd %s" (shell-quote-argument dir)))
-        (let ((comint-eol-on-send nil))
-          (comint-send-input))))))
+;; Use aspell when available
+(when (executable-find "aspell")
+  (setq-default ispell-program-name "aspell"))
 
 ;;;;;;;;;;;;;;;;
-;;; Emacs Server
-(load "server" t t)
+;; newcomment.el
+
+(setq comment-style 'extra-line
+      comment-auto-fill-only-comments t)
+(add-hook 'prog-mode-hook 'auto-fill-mode)
+
+;;;;;;;;;;;
+;; paren.el
+
+(setq show-paren-delay 0
+      show-paren-style 'parenthesis)
+(show-paren-mode 1)
+
+;;;;;;;;;;;;;;;
+;; pcomplete.el
+
+;; I prefer bash-style to zsh-style
+(setq pcomplete-cycle-completions nil)
+
+;;;;;;;;;;;;;;;;
+;; paragraphs.el
+
+;; Single dash starts a paragraph
+(setq paragraph-start "- \\|\f\\|[ \t]*$"
+      paragraph-separate "[\f\t ]*$")
+
+;;;;;;;;;;;;;
+;;; server.el
+
+(load "server" nil t)
 (when (not (server-running-p server-name))
   (server-start))
 
+;;;;;;;;;;;
+;; shell.el
+
+;; > may show up in some (my default prompt)
+(setq shell-prompt-pattern "^[^#$%\n]*[#$%>] *")
+
+;;;;;;;;;;
+;; time.el
+
+(display-time)
+;; Some nice times for M-x display-time-world
+(setq display-time-world-list '(("America/New_York" "Sarasota")
+                                ("Europe/Berlin" "Hamburg")
+                                ("Europe/Helsinki" "Helsinki")
+                                ("Etc/GMT+12" "Wellington")
+                                ))
+
+;;;;;;;;;;;;
+;;; Uniquify
+
+(load "uniquify" nil t)
+(setq-default uniquify-buffer-name-style 'post-forward)
+
+;;;;;;;;;;;;;;
+;; windmove.el
+
+(global-set-key (kbd "C-x <up>") 'windmove-up)
+(global-set-key (kbd "C-x <down>") 'windmove-down)
+(global-set-key (kbd "C-x <left>") 'windmove-left)
+(global-set-key (kbd "C-x <right>") 'windmove-right)
+
+
+;;;;;;;;
+;; vc.el
+
+(setq vc-diff-switches diff-switches)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Various major modes shipped with Emacs
+
+;;;;;;;;;;
+;;; c-mode
+(add-hook 'c-mode-hook 'fc/c-setup)
+(defun fc/c-setup ()
+  "Set up C mode for my needs."
+  (c-set-style "k&r")
+  (setq c-basic-offset 4)
+  (c-set-offset 'case-label '+)
+  (c-set-offset 'inextern-lang 0))
+
+;;;;;;;;;;;;;;
+;; comint-mode
+
+(load "comint" nil t)
+
+(add-hook 'comint-mode-hook 'fc/init-comint)
+(defun fc/init-comint ()
+  ;; Don't jump around when output in a buffer happens
+  (set (make-local-variable 'scroll-conservatively) 1000))
+
+(add-to-list 'comint-output-filter-functions
+             'comint-watch-for-password-prompt)
+(ansi-color-for-comint-mode-on)
+
+;;;;;;;;;;;;;
+;; dired-mode
+
+(load "dired" nil t)
+(define-key dired-mode-map (kbd "a") 'dired-find-alternate-file)
+(define-key dired-mode-map (kbd "RET") 'dired-find-file)
+
+;;;;;;;;;;;;;;;;;;
+;; emacs-lisp-mode
+
+(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+(define-key emacs-lisp-mode-map (kbd "M-.") 'dabbrev-expand)
+(define-key lisp-interaction-mode-map (kbd "M-.") 'dabbrev-expand)
+
+(defun elisp-check ()
+  "Check the current buffer for possible elisp problems.
+
+This actually byte compiles the buffer, but throws away the
+result and keeps only the warnings."
+  (interactive)
+  (let ((lisp (buffer-substring-no-properties (point-min)
+                                              (point-max))))
+   (with-temp-buffer
+     (setq buffer-file-coding-system nil)
+     (set-buffer-multibyte t)
+     (insert lisp)
+     (let ((byte-compile-log-buffer (format "*Check for %s*"
+                                            (buffer-name)))
+           (byte-compile-verbose nil))
+       (byte-compile-from-buffer (current-buffer))))))
+
 ;;;;;;;;;;;;;
 ;;; html-mode
-(load "sgml-mode" t t)
+
+(load "sgml-mode" nil t)
 
 (define-key html-mode-map (kbd "C-c RET") 'fc/html-toggle-paragraph)
 (define-key text-mode-map (kbd "C-c p") 'fc/html-toggle-paragraph)
@@ -653,289 +597,103 @@ glyph."
     (t
      (insert (format "&#x%02x;" char)))))
 
+;;;;;;;;;;;;;;;
+;;; python-mode
+
+(load "python" nil t)
+
+(when (executable-find "flake8")
+  (setq python-check-command "flake8"))
+
+(define-key python-mode-map (kbd "C-c S") 'fc/python-insert-super)
+(defun fc/python-insert-super ()
+  "Insert a Python super() statement for the current class."
+  (interactive)
+  (let (name split)
+    (setq name (save-excursion
+                 ;; For some silly reason, p-i-c-d does not work if
+                 ;; the method has no text in it?!
+                 (insert "x")
+                 (prog1 (python-info-current-defun)
+                   (delete-char -1))))
+    (when (not name)
+      (error "Can't find class and method names"))
+    (setq split (split-string name "\\."))
+    (when (not (cadr split))
+      (error "Not in a method"))
+    (insert (format "super(%s, self).%s()\n"
+                    (car split)
+                    (cadr split)))
+    (indent-for-tab-command)))
+
+;;;;;;;;;;;;;;
+;; scheme-mode
+
+;; Make parens less visible
+(font-lock-add-keywords 'scheme-mode '(("[()]" . 'paren-face)))
+(defface paren-face
+  '((t (:foreground "gray60")))
+  "The face used for parenthesises."
+  :group 'scheme)
+
+;;;;;;;;;;;;;
+;; shell-mode
+
+(load "shell" nil t)
+
+(global-set-key (kbd "C-c s") 'fc/toggle-shell)
+(defun fc/toggle-shell ()
+  "Switch between the last active buffer and the shell."
+  (interactive)
+  (if (eq major-mode 'shell-mode)
+      (let ((buf (catch 'return
+                   (dolist (buf (cdr (buffer-list)))
+                     (when (not (string-prefix-p " " (buffer-name buf)))
+                       (throw 'return buf)))
+                   nil)))
+        (when buf
+          (switch-to-buffer buf)))
+    (shell)))
+
+(define-key shell-mode-map (kbd "C-c C-y") 'fc/shell-switch-dir)
+(defun fc/shell-switch-dir ()
+  "Switch `shell-mode' to the `default-directory' of the last buffer."
+  (interactive)
+  (when (eq major-mode 'shell-mode)
+    (let* ((dir (catch 'return
+                  (dolist (buf (buffer-list))
+                    (with-current-buffer buf
+                      (when buffer-file-name
+                        (throw 'return default-directory)))))))
+      (goto-char (process-mark (get-buffer-process (current-buffer))))
+      (insert (format "cd %s" (shell-quote-argument dir)))
+      (let ((comint-eol-on-send nil))
+        (comint-send-input)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Third party extensions
+
 (when (file-directory-p "~/.emacs.d/site-lisp")
   (add-to-list 'load-path "~/.emacs.d/site-lisp")
   (dolist (dirname (directory-files "~/.emacs.d/site-lisp" t "^[^.]"))
     (when (file-directory-p dirname)
       (add-to-list 'load-path dirname))))
 
-(when (load "package" t t)
-  (add-to-list 'package-archives
-               '("marmalade" . "http://marmalade-repo.org/packages/")
-               t)
-  (package-initialize))
-
-;;;;;;;;
-;;; Elpy
-(when (load "elpy" t t)
-  (setq nose-use-verbose nil)
-  (elpy-enable)
-  (elpy-clean-modeline))
-
-(when (load "pyvenv" t t)
-  (defalias 'workon 'pyvenv-workon))
+(load "package" nil t)
+(add-to-list 'package-archives
+             '("marmalade" . "http://marmalade-repo.org/packages/")
+             t)
+(package-initialize)
 
 ;;;;;;;;;
-;;; iedit
-(when (load "iedit" t t)
-  (dolist (map (list global-map isearch-mode-map
-                     esc-map help-map))
-    (define-key map (kbd "M-,") 'iedit-mode)))
+;;; bitly
 
-;;;;;;;;;;;;
-;;; fci mode
-
-;; (when (and window-system
-;;            (load "fill-column-indicator" t t))
-;;   (setq-default fci-rule-column 80)
-;;   (add-hook 'prog-mode-hook 'fci-mode))
-
-;;;;;;;;;;;;
-;;; Org Mode
-
-(when (load "org" t t)
-  (define-key org-mode-map (kbd "C-c a") 'fc/org-agenda)
-  (defun fc/org-agenda ()
-    (interactive)
-    (when (get-buffer "google-calendar.org")
-      (kill-buffer "google-calendar.org"))
-    (org-agenda nil (caar org-agenda-custom-commands)))
-
-  (setq org-fontify-emphasized-text nil
-        org-tags-column 40
-        org-agenda-files nil
-        org-descriptive-links nil
-        org-agenda-include-diary nil
-        org-agenda-start-on-weekday nil
-        org-todo-keywords '((sequence "TODO"
-                                      "DONE"
-                                      "WAITING"
-                                      "ONGOING"))
-        org-agenda-custom-commands '(("t" "General TODO agenda"
-                                      ((todo "TODO")
-                                       (agenda "")
-                                       (todo "WAITING")))))
-  (dolist (filename '("~/Documents/Notes/Todo"
-                      "~/Documents/Notes/google-calendar.org"))
-    (when (file-exists-p filename)
-      (add-to-list 'org-agenda-files filename t))))
-
-;;;;;;;;;;;;;
-;;; Typo Mode
-(when (load "typo" t t)
-  (dolist (hook '(markdown-mode-hook html-mode-hook))
-    (add-hook hook 'typo-mode)))
-
-;;;;;;;;;;;;;;;;;;
-;;; Win Point Mode
-
-;; Is this obsoleted by `switch-to-buffer-preserve-window-point'?
-(when (load "winpoint" t t)
-  (window-point-remember-mode 1))
-
-;;;;;;;;;;;;
-;;; Legalese
-(load "legalese" t t)
-
-;;;;;;;;;
-;;; Bitly
 (when (load "bitly" t t)
   (global-set-key (kbd "C-c U") 'bitly-url-at-point))
 
-;;;;;;;;;;;;;;;;
-;;; Paredit mode
-(when (load "paredit" t t)
-  (define-key paredit-mode-map (kbd "RET") 'newline)
-  (define-key paredit-mode-map (kbd "C-j") 'paredit-newline)
-  (define-key paredit-mode-map (kbd "<C-left>") 'paredit-forward-barf-sexp)
-  (define-key paredit-mode-map (kbd "<C-right>") 'paredit-forward-slurp-sexp)
-  (define-key paredit-mode-map (kbd "M-q") 'paredit-reindent-defun)
+;;;;;;;;
+;; Circe
 
-  (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-  (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
-  (add-hook 'scheme-mode-hook 'enable-paredit-mode))
-
-;;;;;;;;;;;;;;
-;;; JavaScript
-
-(when (load "js2-mode" t t)
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-  (add-hook 'js2-mode-hook 'auto-complete-mode)
-  (setq js2-highlight-level 3
-        js2-mode-indent-ignore-first-tab t
-        js2-mode-indent-inhibit-undo t
-        js2-global-externs '("$")
-        )
-  (define-key js2-mode-map (kbd "C-c C-n") 'js2-next-error)
-
-  (defadvice js2-mode-toggle-element (before ad-move-to-toggle-element
-                                             activate)
-    "Move to a sensible location first"
-    (interactive)
-    (let* ((start (line-beginning-position))
-           (end (line-end-position))
-           (invisible (next-single-property-change start 'invisible nil end))
-           (brace (save-excursion
-                    (goto-char start)
-                    (re-search-forward "{" end t))))
-      (cond
-       (invisible (goto-char invisible))
-       (brace (goto-char brace))))))
-
-;;;;;;;;;
-;;; magit
-(when (load "magit" t t)
-  (global-set-key (kbd "C-x v g") 'magit-status)
-  (global-set-key (kbd "C-x v a") 'vc-annotate))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; edit-server (for Chrome)
-(when (load "edit-server" t t)
-  (setq edit-server-new-frame nil)
-  (edit-server-start))
-
-;;;;;;;;;;;;;;;;;
-;;; markdown-mode
-
-(when (load "markdown-mode" t t)
-  (add-hook 'markdown-mode-hook 'flyspell-mode)
-  (setq markdown-command "markdown_py"
-        markdown-italic-underscore t
-        markdown-indent-on-enter nil
-        markdown-follow-wiki-link-on-enter nil
-        )
-  (add-to-list 'auto-mode-alist '("\\.md" . markdown-mode))
-  (define-key markdown-mode-map (kbd "TAB") 'markdown-cycle)
-  (define-key markdown-mode-map (kbd "<backtab>") 'markdown-shifttab)
-  (define-key markdown-mode-map (kbd "C-M-f") 'forward-sexp)
-  (define-key markdown-mode-map (kbd "C-M-b") 'backward-sexp)
-
-  (define-key markdown-mode-map (kbd "C-c C-x") 'fc/markdown-code-block)
-  (defun fc/markdown-code-block (beg end)
-    "Wrap the current region into a code block."
-    (interactive "r")
-    (save-excursion
-      (goto-char end)
-      (when (not (bolp))
-        (insert "\n"))
-      (insert "```\n")
-      (goto-char beg)
-      (forward-line 0)
-      (insert "```\n")))
-
-  (define-key markdown-mode-map (kbd "C-c C-n") 'fc/markdown-next-header)
-  (defun fc/markdown-next-header ()
-    "Go to the next header in the file."
-    (interactive)
-    (let ((next-header (save-excursion
-                         (forward-line 1)
-                         (re-search-forward "^#" nil t))))
-      (if (not next-header)
-          (error "No next header")
-        (goto-char next-header)
-        (goto-char (point-at-bol)))))
-
-  (define-key markdown-mode-map (kbd "C-c C-p") 'fc/markdown-previous-header)
-  (defun fc/markdown-previous-header ()
-    "Go to the previous header in the file."
-    (interactive)
-    (let ((previous-header (save-excursion
-                             (forward-line -1)
-                             (re-search-backward "^#" nil t))))
-      (if (not previous-header)
-          (error "No previous header")
-        (goto-char previous-header)
-        (goto-char (point-at-bol)))))
-
-  (defun markdown-check-change-for-wiki-link (&rest ignored)
-    "Do nothing.
-
-The default markdown implementation exhibits a bug. You can
-reproduce it using the following:
-
-M-: (when (looking-at \"\") (replace-match \"abc\"))
-
-This will insert \"abc\" at the current point, but move point
-down one line. Removing `markdown-check-change-for-wiki-link'
-from `after-change-functions' fixes that."
-    nil)
-  )
-
-;;;;;;;;;;;;;
-;;; emacs-w3m
-(when (load "w3m" t t)
-  (setq-default browse-url-browser-function 'w3m-browse-url)
-
-  ;; This might help in saving cookies
-  (add-hook 'kill-emacs-hook
-            (lambda ()
-              (w3m-quit t)))
-
-  (setq w3m-use-cookies t
-        w3m-cookie-accept-bad-cookies t
-        w3m-use-tab nil
-        w3m-use-tab-menubar nil
-        w3m-auto-show nil)
-
-  (define-key w3m-mode-map (kbd "C-c C-@") 'lui-track-next-buffer)
-  (define-key w3m-mode-map (kbd "C-c c") 'fc/copy-url)
-  (define-key w3m-mode-map (kbd "<down>") 'next-line)
-  (define-key w3m-mode-map (kbd "<up>") 'previous-line)
-  (define-key w3m-mode-map (kbd "<right>") 'forward-char)
-  (define-key w3m-mode-map (kbd "<left>") 'backward-char)
-  (define-key w3m-mode-map (kbd "C-x b") 'ido-switch-buffer)
-
-  ;; Change w3m buffers to the url they show
-  ;; Thanks to marienz (#emacs) on .emacs for the idea
-  (add-hook 'w3m-display-hook 'fc/w3m-rename-buffer)
-  (defun fc/w3m-rename-buffer (url)
-    (rename-buffer url t))
-
-  (add-hook 'w3m-form-input-textarea-mode-hook 'fc/remove-cr)
-  (defun fc/remove-cr ()
-    "Remove all occurrences of ^M in the current buffer."
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward "\r" nil t)
-        (replace-match ""))))
-
-  (defun fc/copy-url (n)
-    "Copy the current URL to the kill ring, or the current anchor URL if
-a prefix argument is given."
-    (interactive "p")
-    (let ((url (if (= n 1)
-                   w3m-current-url
-                 (w3m-anchor))))
-      (if url
-          (kill-new url)
-        (error "No url.")))))
-
-;;;;;;;;;;;;;;;;;
-;;; Expand Region
-(when (load "expand-region" t t)
-  (global-set-key (kbd "C-@") 'fc/set-mark-command)
-  (global-set-key (kbd "C-SPC") 'fc/set-mark-command)
-  (defun fc/set-mark-command (arg)
-    "Call `set-mark-command' on first call, else `er/expand-region'."
-    (interactive "P")
-    (if (and (not arg)
-             (eq last-command 'fc/set-mark-command))
-        (er/expand-region 1)
-      (if cua-mode
-          (cua-set-mark arg)
-        (set-mark-command arg)))))
-
-;;;;;;;;;;;
-;;; Keyfreq
-
-(when (load "keyfreq" t t)
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode 1))
-
-;;;;;;;;;
-;;; Circe
 (when (load "circe" t t)
   (defun irc ()
     "Connect to IRC."
@@ -1068,16 +826,259 @@ Or other words I used repeatedly"
 
   (setq bitly-access-token bitly-pass))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; comint-scroll-to-bottom
+
+(when (load "comint-scroll-to-bottom" t t)
+  (add-hook 'comint-mode-hook 'comint-add-scroll-to-bottom))
+
+;;;;;;;
+;; elpy
+
+(when (load "elpy" t t)
+  (setq nose-use-verbose nil)
+  (elpy-enable)
+  (elpy-clean-modeline))
+
+;;;;;;;;
+;; gitty
+
+(when (load "gitty" t t)
+  (gitty-mode))
+
+;;;;;;;;
+;; iedit
+
+(when (load "iedit" t t)
+  (dolist (map (list global-map isearch-mode-map
+                     esc-map help-map))
+    (define-key map (kbd "M-,") 'iedit-mode)))
+
+;;;;;;;;;;;
+;; js2-mode
+
+(when (load "js2-mode" t t)
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  (add-hook 'js2-mode-hook 'auto-complete-mode)
+  (setq js2-highlight-level 3
+        js2-mode-indent-ignore-first-tab t
+        js2-mode-indent-inhibit-undo t
+        js2-global-externs '("$")
+        )
+  (define-key js2-mode-map (kbd "C-c C-n") 'js2-next-error)
+
+  (defadvice js2-mode-toggle-element (before ad-move-to-toggle-element
+                                             activate)
+    "Move to a sensible location first"
+    (interactive)
+    (let* ((start (line-beginning-position))
+           (end (line-end-position))
+           (invisible (next-single-property-change start 'invisible nil end))
+           (brace (save-excursion
+                    (goto-char start)
+                    (re-search-forward "{" end t))))
+      (cond
+       (invisible (goto-char invisible))
+       (brace (goto-char brace))))))
+
+;;;;;;;;;;;
+;; legalese
+
+(load "legalese" t t)
+
+;;;;;;;;
+;; magit
+
+(when (load "magit" t t)
+  (global-set-key (kbd "C-x v g") 'magit-status)
+  (global-set-key (kbd "C-x v a") 'vc-annotate))
+
+;;;;;;;;;;;;;;;;;
+;;; markdown-mode
+
+(when (load "markdown-mode" t t)
+  (add-hook 'markdown-mode-hook 'flyspell-mode)
+  (setq markdown-command "markdown_py"
+        markdown-italic-underscore t
+        markdown-indent-on-enter nil
+        markdown-follow-wiki-link-on-enter nil
+        )
+  (add-to-list 'auto-mode-alist '("\\.md" . markdown-mode))
+  (define-key markdown-mode-map (kbd "TAB") 'markdown-cycle)
+  (define-key markdown-mode-map (kbd "<backtab>") 'markdown-shifttab)
+  (define-key markdown-mode-map (kbd "C-M-f") 'forward-sexp)
+  (define-key markdown-mode-map (kbd "C-M-b") 'backward-sexp)
+
+  (define-key markdown-mode-map (kbd "C-c C-x") 'fc/markdown-code-block)
+  (defun fc/markdown-code-block (beg end)
+    "Wrap the current region into a code block."
+    (interactive "r")
+    (save-excursion
+      (goto-char end)
+      (when (not (bolp))
+        (insert "\n"))
+      (insert "```\n")
+      (goto-char beg)
+      (forward-line 0)
+      (insert "```\n")))
+
+  (define-key markdown-mode-map (kbd "C-c C-n") 'fc/markdown-next-header)
+  (defun fc/markdown-next-header ()
+    "Go to the next header in the file."
+    (interactive)
+    (let ((next-header (save-excursion
+                         (forward-line 1)
+                         (re-search-forward "^#" nil t))))
+      (if (not next-header)
+          (error "No next header")
+        (goto-char next-header)
+        (goto-char (point-at-bol)))))
+
+  (define-key markdown-mode-map (kbd "C-c C-p") 'fc/markdown-previous-header)
+  (defun fc/markdown-previous-header ()
+    "Go to the previous header in the file."
+    (interactive)
+    (let ((previous-header (save-excursion
+                             (forward-line -1)
+                             (re-search-backward "^#" nil t))))
+      (if (not previous-header)
+          (error "No previous header")
+        (goto-char previous-header)
+        (goto-char (point-at-bol)))))
+
+  (defun markdown-check-change-for-wiki-link (&rest ignored)
+    "Do nothing.
+
+The default markdown implementation exhibits a bug. You can
+reproduce it using the following:
+
+M-: (when (looking-at \"\") (replace-match \"abc\"))
+
+This will insert \"abc\" at the current point, but move point
+down one line. Removing `markdown-check-change-for-wiki-link'
+from `after-change-functions' fixes that."
+    nil)
+  )
+
+;;;;;;;;;;;
+;; Org Mode
+
+;; This actually comes with Emacs, but we want to use the one from GNU
+;; ELPA to be more current, hence it's down here.
+(when (load "org" t t)
+ (define-key org-mode-map (kbd "C-c a") 'fc/org-agenda)
+ (defun fc/org-agenda ()
+   (interactive)
+   (when (get-buffer "google-calendar.org")
+     (kill-buffer "google-calendar.org"))
+   (org-agenda nil (caar org-agenda-custom-commands)))
+
+ (setq org-fontify-emphasized-text nil
+       org-tags-column 40
+       org-agenda-files nil
+       org-descriptive-links nil
+       org-agenda-include-diary nil
+       org-agenda-start-on-weekday nil
+       org-todo-keywords '((sequence "TODO"
+                                     "DONE"
+                                     "WAITING"
+                                     "ONGOING"))
+       org-agenda-custom-commands '(("t" "General TODO agenda"
+                                     ((todo "TODO")
+                                      (agenda "")
+                                      (todo "WAITING")))))
+ (dolist (filename '("~/Documents/Notes/Todo"
+                     "~/Documents/Notes/google-calendar.org"))
+   (when (file-exists-p filename)
+     (add-to-list 'org-agenda-files filename t))))
+
+;;;;;;;;;;
+;; paredit
+
+(when (load "paredit" t t)
+  (define-key paredit-mode-map (kbd "RET") 'newline)
+  (define-key paredit-mode-map (kbd "C-j") 'paredit-newline)
+  (define-key paredit-mode-map (kbd "<C-left>") 'paredit-forward-barf-sexp)
+  (define-key paredit-mode-map (kbd "<C-right>") 'paredit-forward-slurp-sexp)
+  (define-key paredit-mode-map (kbd "M-q") 'paredit-reindent-defun)
+
+  (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
+  (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
+  (add-hook 'scheme-mode-hook 'enable-paredit-mode))
+
+;;;;;;;;;
+;; pyvenv
+
+(when (load "pyvenv" t t)
+  (defalias 'workon 'pyvenv-workon))
+
+;;;;;;;;;;
+;; typo.el
+
+(when (load "typo" t t)
+  (dolist (hook '(markdown-mode-hook html-mode-hook))
+    (add-hook hook 'typo-mode)))
+
+;;;;;;;
+;;; w3m
+
+(when (load "w3m" t t)
+  (setq-default browse-url-browser-function 'w3m-browse-url)
+
+  ;; This might help in saving cookies
+  (add-hook 'kill-emacs-hook
+            (lambda ()
+              (w3m-quit t)))
+
+  (setq w3m-use-cookies t
+        w3m-cookie-accept-bad-cookies t
+        w3m-use-tab nil
+        w3m-use-tab-menubar nil
+        w3m-auto-show nil)
+
+  (define-key w3m-mode-map (kbd "C-c C-@") 'lui-track-next-buffer)
+  (define-key w3m-mode-map (kbd "C-c c") 'fc/copy-url)
+  (define-key w3m-mode-map (kbd "<down>") 'next-line)
+  (define-key w3m-mode-map (kbd "<up>") 'previous-line)
+  (define-key w3m-mode-map (kbd "<right>") 'forward-char)
+  (define-key w3m-mode-map (kbd "<left>") 'backward-char)
+  (define-key w3m-mode-map (kbd "C-x b") 'ido-switch-buffer)
+
+  ;; Change w3m buffers to the url they show
+  ;; Thanks to marienz (#emacs) on .emacs for the idea
+  (add-hook 'w3m-display-hook 'fc/w3m-rename-buffer)
+  (defun fc/w3m-rename-buffer (url)
+    (rename-buffer url t))
+
+  (add-hook 'w3m-form-input-textarea-mode-hook 'fc/remove-cr)
+  (defun fc/remove-cr ()
+    "Remove all occurrences of ^M in the current buffer."
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "\r" nil t)
+        (replace-match ""))))
+
+  (defun fc/copy-url (n)
+    "Copy the current URL to the kill ring, or the current anchor URL if
+a prefix argument is given."
+    (interactive "p")
+    (let ((url (if (= n 1)
+                   w3m-current-url
+                 (w3m-anchor))))
+      (if url
+          (kill-new url)
+        (error "No url.")))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Startup code
+;;; Start environment
 
 (when (file-exists-p "~/Documents/Notes/Todo")
-  (find-file "~/Documents/Notes/Todo")
-  ;; (org-mode)
-  ;; (org-content 1)
- ;; (org-agenda nil "t")
-  (other-window 1)
-  (setq default-directory "~/"))
+  (with-current-buffer (find-file "~/Documents/Notes/Todo")
+    (org-mode)
+    (org-content 1)
+    (setq default-directory "~/"))
+  (org-agenda nil "t")
+  (other-window 1))
 
 ;; Faces
 
