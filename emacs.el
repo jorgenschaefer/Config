@@ -143,6 +143,8 @@
                            ("Europe/Helsinki" "Helsinki")
                            ("Etc/GMT+12" "Wellington")
                            )
+ ;; Let's try to kill a whole line
+ kill-whole-line t
  )
 
 ;; Auto-filling in prog mode is great for comments.
@@ -162,7 +164,7 @@
         (define-key function-key-map
           (read-kbd-macro (cadr map))
           (read-kbd-macro (car map))))
-      '(("<backtabe>" "ESC [ Z")
+      '(("<backtab>"  "ESC [ Z")
 
         ("<S-up>"     "ESC [1;2A")
         ("<S-down>"   "ESC [1;2B")
@@ -408,7 +410,17 @@ This uses `htmlfontify'."
 ;;;;;;;;;;;;;;;;;;;;;;
 ;;; Electric Pair Mode
 
-(electric-pair-mode 1)
+(when (load "electric" t t)
+  (electric-pair-mode 1)
+  (setq electric-pair-inhibit-predicate #'fc/electric-pair-inhibit)
+  (defun fc/electric-pair-inhibit (char)
+    (let ((last-char (char-before (1- (point)))))
+      (or
+       ;; Not after a smiley
+       (equal last-char ?-)
+       (equal last-char ?:)
+       ;; Not before a word
+       (equal (char-syntax (following-char)) ?w)))))
 
 ;;;;;;;;;;;;;;
 ;;; Emacs Lisp
