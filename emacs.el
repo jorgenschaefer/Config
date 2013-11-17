@@ -950,23 +950,22 @@ a prefix argument is given."
         circe-reduce-lurker-spam t
         circe-network-options
         `(("Freenode"
-           :host "loki.jorgenschaefer.de" :port 7778 :tls t
-           :pass ,freenode-pass
+           :host "irc.freenode.net" :port 6697 :tls t
            :nick "forcer"
+           :pass ,freenode-password
            :channels ("#emacs" "#emacs-circe"
+                      "#django" "#debian" "#ansible"
                       :after-auth "#emacs-ops")
-           :nickserv-password ,freenode-password
+           ;; :nickserv-password ,freenode-password
            :nickserv-ghost-style immediate
            )
           ("IRCnet"
-           :host "loki.jorgenschaefer.de" :port 7778 :tls t
-           :pass ,ircnet-pass
+           :host "irc.uni-erlangen.de" :port 6667
            :nick "forcer"
            :channels ("#kollektiv")
            )
           ("Coldfront"
-           :host "loki.jorgenschaefer.de" :port 7778 :tls t
-           :pass ,coldfront-pass
+           :host "irc.coldfront.net" :port 7778 :tls t
            :nick "Arkady"
            :nickserv-password ,coldfront-password
            :channels ("#grd" "#electusmatari" "#em-private")
