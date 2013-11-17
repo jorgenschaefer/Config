@@ -403,6 +403,11 @@ This uses `htmlfontify'."
 (define-key dired-mode-map (kbd "a") 'dired-find-alternate-file)
 (define-key dired-mode-map (kbd "RET") 'dired-find-file)
 
+;;;;;;;;;;;;;;;;;;;;;;
+;;; Electric Pair Mode
+
+(electric-pair-mode 1)
+
 ;;;;;;;;;;;;;;
 ;;; Emacs Lisp
 
