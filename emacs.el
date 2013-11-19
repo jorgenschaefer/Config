@@ -339,9 +339,7 @@ This uses `htmlfontify'."
     (or
      ;; Not after a smiley
      (equal last-char ?-)
-     (equal last-char ?:)
-     ;; Not before a word
-     (equal (char-syntax (following-char)) ?w))))
+     (equal last-char ?:))))
 
 ;;;;;;;;;;;;;;
 ;; epa-file.el
