@@ -329,17 +329,10 @@ This uses `htmlfontify'."
 
 (setq diff-switches "-u")
 
-;;;;;;;;;;;;;;;;;;;;;;
-;;; Electric Pair Mode
+;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Electric Indent Mode
 
-(electric-pair-mode 1)
-(setq electric-pair-inhibit-predicate #'fc/electric-pair-inhibit)
-(defun fc/electric-pair-inhibit (char)
-  (let ((last-char (char-before (1- (point)))))
-    (or
-     ;; Not after a smiley
-     (equal last-char ?-)
-     (equal last-char ?:))))
+(electric-indent-mode 1)
 
 ;;;;;;;;;;;;;;
 ;; epa-file.el
