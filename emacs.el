@@ -19,8 +19,7 @@
   (setq x-select-enable-primary t
         x-select-enable-clipboard t
         x-stretch-cursor t
-        mouse-yank-at-point t
-        mouse-highlight 1))
+        mouse-yank-at-point t))
 
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
@@ -28,39 +27,35 @@
 (prefer-coding-system 'latin-1)
 (prefer-coding-system 'utf-8)
 
-;; Standard selection semantics for the mouse
-(when (fboundp 'mouse-sel-mode)
-  (mouse-sel-mode 1))
-
 (mapc (lambda (map)
         (define-key function-key-map
           (read-kbd-macro (cadr map))
           (read-kbd-macro (car map))))
-      '(("<backtab>"  "ESC [ Z")
+      '(("<backtab>"    "ESC [ Z")
 
-        ("<S-up>"     "ESC [1;2A")
-        ("<S-down>"   "ESC [1;2B")
-        ("<S-right>"  "ESC [1;2C")
-        ("<S-left>"   "ESC [1;2D")
+        ("<S-up>"       "ESC [1;2A")
+        ("<S-down>"     "ESC [1;2B")
+        ("<S-right>"    "ESC [1;2C")
+        ("<S-left>"     "ESC [1;2D")
 
-        ("<M-up>"     "ESC [1;3A")
-        ("<M-down>"   "ESC [1;3B")
-        ("<M-right>"  "ESC [1;3C")
-        ("<M-left>"   "ESC [1;3D")
+        ("<M-up>"       "ESC [1;3A")
+        ("<M-down>"     "ESC [1;3B")
+        ("<M-right>"    "ESC [1;3C")
+        ("<M-left>"     "ESC [1;3D")
 
         ("<M-S-up>"     "ESC [1;4A")
         ("<M-S-down>"   "ESC [1;4B")
         ("<M-S-right>"  "ESC [1;4C")
         ("<M-S-left>"   "ESC [1;4D")
 
-        ("<C-up>"     "ESC [1;5A")
-        ("<C-down>"   "ESC [1;5B")
-        ("<C-right>"  "ESC [1;5C")
-        ("<C-left>"   "ESC [1;5D")
+        ("<C-up>"       "ESC [1;5A")
+        ("<C-down>"     "ESC [1;5B")
+        ("<C-right>"    "ESC [1;5C")
+        ("<C-left>"     "ESC [1;5D")
 
-        ("<C-prior>"  "ESC [5;5~")
-        ("<C-next>"   "ESC [6;5~")
-        ("<C-delete>" "ESC [3;5~")
+        ("<C-prior>"    "ESC [5;5~")
+        ("<C-next>"     "ESC [6;5~")
+        ("<C-delete>"   "ESC [3;5~")
         ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -71,29 +66,17 @@
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-;; I like an active region, but I also use the mark when it's not
-;; active.
-(transient-mark-mode 1)
-(setq mark-even-if-inactive t)
-
 ;; Put backup files neatly away
 (let ((backup-dir "~/tmp/emacs/backups")
-      (auto-saves-dir "~/tmp/emacs/auto-saves/")
-      (auto-save-list-dir "~/tmp/emacs/auto-save-list/")
-      (tramp-autosaves-dir "~/tmp/emacs/tramp-auto-saves/")
-      (tramp-backup-dir "~/tmp/emacs/tramp-backups/"))
-  (dolist (dir (list backup-dir
-                     auto-saves-dir
-                     auto-save-list-dir
-                     tramp-autosaves-dir
-                     tramp-backup-dir))
+      (auto-saves-dir "~/tmp/emacs/auto-saves/"))
+  (dolist (dir (list backup-dir auto-saves-dir))
     (when (not (file-directory-p dir))
       (make-directory dir t)))
-  (setq backup-directory-alist `((".*" . ,backup-dir))
+  (setq backup-directory-alist `(("." . ,backup-dir))
         auto-save-file-name-transforms `((".*" ,auto-saves-dir t))
-        auto-save-list-file-prefix (concat auto-save-list-dir ".saves-")
-        tramp-backup-directory-alist `((".*" . ,tramp-backup-dir))
-        tramp-auto-save-directory tramp-autosaves-dir))
+        auto-save-list-file-prefix (concat auto-saves-dir ".saves-")
+        tramp-backup-directory-alist `((".*" . ,backup-dir))
+        tramp-auto-save-directory autosaves-dir))
 
 (setq backup-by-copying t    ; Don't delink hardlinks
       delete-old-versions t  ; Clean up the backups
@@ -104,8 +87,6 @@
 ;; Random default values
 (setq-default
  major-mode 'text-mode
- sentence-end-double-space nil
- display-time-24hr-format t
  scroll-preserve-screen-position 'keep
  user-mail-address (when (file-exists-p "~/.email")
                      (with-temp-buffer
@@ -114,20 +95,21 @@
                        (buffer-substring-no-properties
                         (point) (point-at-eol))))
  inhibit-startup-message t
- case-fold-search t
- read-file-name-completion-ignore-case t
- read-buffer-completion-ignore-case t
- completion-ignore-case t
  cursor-in-non-selected-windows nil
  kill-whole-line t
  switch-to-buffer-preserve-window-point t)
 
-;; Clean up whitespace
+;; Case insensitivity
+(setq case-fold-search t
+      read-file-name-completion-ignore-case t
+      read-buffer-completion-ignore-case t
+      completion-ignore-case t)
 
+;; Clean up whitespace
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
-(setq indent-tabs-mode nil
-      delete-trailing-lines t
-      require-final-newline t)
+(setq-default indent-tabs-mode nil
+              delete-trailing-lines t
+              require-final-newline t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Custom commands
@@ -308,89 +290,91 @@ This uses `htmlfontify'."
 
 (global-set-key (kbd "<f5>") 'recompile)
 
-;;;;;;;;;;;;
-;;; CUA mode
+;;;;;;;;;;;;;;
+;; cua-base.el
+
+;; cua-mode is nice in theory, but there are too many Emacs commands
+;; starting with C-x and especially C-c that operate on the active
+;; region, making cua keys completely useless in practice.
+
+;; With `cua-enable-cua-keys' nil, though, cua-mode is basically
+;; equivalent to `delete-selection-mode' + `cua-selection-mode'.
 
 (load "cua-base" nil t)
-
-;; Those are terribly annoying, as they make it difficult to use a lot
-;; of Emacs commands that operate on the active region. Including
-;; user-defined stuff under C-c *.
-(setq cua-enable-cua-keys nil)
+(cua-selection-mode 1)
 
 ;; Can't hit <C-return> in terminals
 ;; Using customize, because this has a non-trivial :set method.
 (customize-set-variable 'cua-rectangle-mark-key (kbd "C-x r RET"))
 
-(cua-mode 1)
+;;;;;;;;;;;;
+;; delsel.el
+
+(load "delsel" nil t)
+(delete-selection-mode 1)
 
 ;;;;;;;;;;
 ;; diff.el
 
 (setq diff-switches "-u")
 
-;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Electric Indent Mode
+;;;;;;;;;;;;;;
+;; electric.el
 
+(load "electric" nil t)
 (electric-indent-mode 1)
 
-;;;;;;;;;;;;;;
-;; epa-file.el
-
-(epa-file-enable)
-
-;;;;;;;
-;; ffap
+;;;;;;;;;;
+;; ffap.el
 
 (global-set-key (kbd "C-c f") 'find-file-at-point)
 
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 ;; hippie-exp.el
 
+(load "hippie-exp" nil t)
 (global-set-key (kbd "M-/") 'hippie-expand)
 ;; Full-line completion is *annoying*
 (setq hippie-expand-try-functions-list
       (delq 'try-expand-line
-            hippie-expand-try-functions-list))
+	    hippie-expand-try-functions-list))
 
-;;;;;;;;;;
-;; ibuffer
+;;;;;;;;;;;;;
+;; ibuffer.el
 
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
-;;;;;;;;;;;
-;; ido-mode
+;;;;;;;;;
+;; ido.el
 
+(load "ido" nil t)
 (ido-mode 1)
 (setq ido-everywhere t
-      ido-case-fold t
-      ido-use-filename-at-point nil
-      ido-use-url-at-point nil
       ido-confirm-unique-completion t
       ;; This is cute. Except when you want to open a new file, then
       ;; it's annoying as hell.
       ido-auto-merge-work-directories-length -1
       ido-enable-flex-matching t)
 
-(add-hook 'ido-setup-hook
-          (lambda ()
-            (define-key ido-common-completion-map (kbd "C-c")
-              (make-sparse-keymap))
-            (define-key ido-common-completion-map (kbd "C-c C-u")
-              'fc/ido-copy-selection)
-            (define-key ido-file-dir-completion-map (kbd "<up>")
-              'ido-prev-work-directory)
-            (define-key ido-file-dir-completion-map (kbd "<down>")
-              'ido-next-work-directory)))
+(add-hook 'ido-setup-hook 'fc/ido-setup)
+(defun fc/ido-setup ()
+  (define-key ido-common-completion-map (kbd "C-c")
+    (make-sparse-keymap))
+  (define-key ido-common-completion-map (kbd "C-c C-u")
+    'fc/ido-copy-selection)
+  (define-key ido-file-dir-completion-map (kbd "<up>")
+    'ido-prev-work-directory)
+  (define-key ido-file-dir-completion-map (kbd "<down>")
+    'ido-next-work-directory))
 
 (defun fc/ido-copy-selection ()
   "Copy the current ido selection to the kill ring."
   (interactive)
   (kill-new (abbreviate-file-name (concat ido-current-directory
-                                          ido-text))))
+					  ido-text))))
 
-;;;;;;;;;;;;;;;;
-;;; isearch-mode
+;;;;;;;;;;;;;;
+;;; isearch.el
 
 (define-key isearch-mode-map (kbd "C-d") 'fc/isearch-yank-symbol)
 (defun fc/isearch-yank-symbol ()
@@ -407,13 +391,6 @@ symbol, not word, as I need this for programming the most."
        (goto-char isearch-other-end))
      (thing-at-point 'symbol))))
 
-;;;;;;;;;;;
-;; ispell.el
-
-;; Use aspell when available
-(when (executable-find "aspell")
-  (setq-default ispell-program-name "aspell"))
-
 ;;;;;;;;;;;;;;;;
 ;; newcomment.el
 
@@ -424,6 +401,7 @@ symbol, not word, as I need this for programming the most."
 ;;;;;;;;;;;
 ;; paren.el
 
+(load "paren" nil t)
 (setq show-paren-delay 0
       show-paren-style 'parenthesis)
 (show-paren-mode 1)
@@ -437,36 +415,47 @@ symbol, not word, as I need this for programming the most."
 ;;;;;;;;;;;;;;;;
 ;; paragraphs.el
 
+(load "paragraphs" nil t)
 ;; Single dash starts a paragraph
 (setq paragraph-start "- \\|\f\\|[ \t]*$"
-      paragraph-separate "[\f\t ]*$")
+      paragraph-separate "[\f\t ]*$"
+      sentence-end-double-space nil)
 
-;;;;;;;;;;;;;
-;;; server.el
+;;;;;;;;;;;;;;;
+;; saveplace.el
+
+(load "saveplace" nil t)
+(setq-default save-place t)
+
+;;;;;;;;;;;;
+;; server.el
 
 (load "server" nil t)
 (when (not (server-running-p server-name))
   (server-start))
 
-;;;;;;;;;;;
-;; shell.el
+;;;;;;;;;;;;;
+;; subword.el
 
-;; > may show up in some (my default prompt)
-(setq shell-prompt-pattern "^[^#$%\n]*[#$%>] *")
+(load "subword" nil t)
+(global-subword-mode)
+(setcdr (assq 'subword-mode minor-mode-alist) '(""))
 
 ;;;;;;;;;;
 ;; time.el
 
+(load "time" nil t)
+(setq display-time-24hr-format t)
 (display-time)
 ;; Some nice times for M-x display-time-world
 (setq display-time-world-list '(("America/New_York" "Sarasota")
-                                ("Europe/Berlin" "Hamburg")
-                                ("Europe/Helsinki" "Helsinki")
-                                ("Etc/GMT+12" "Wellington")
-                                ))
+				("Europe/Berlin" "Hamburg")
+				("Europe/Helsinki" "Helsinki")
+				("Etc/GMT+12" "Wellington")
+				))
 
-;;;;;;;;;;;;
-;;; Uniquify
+;;;;;;;;;;;;;;;
+;;; uniquify.el
 
 (load "uniquify" nil t)
 (setq-default uniquify-buffer-name-style 'post-forward)
@@ -478,7 +467,6 @@ symbol, not word, as I need this for programming the most."
 (global-set-key (kbd "C-x <down>") 'windmove-down)
 (global-set-key (kbd "C-x <left>") 'windmove-left)
 (global-set-key (kbd "C-x <right>") 'windmove-right)
-
 
 ;;;;;;;;
 ;; vc.el
@@ -502,14 +490,13 @@ symbol, not word, as I need this for programming the most."
 ;; comint-mode
 
 (load "comint" nil t)
-
 (add-hook 'comint-mode-hook 'fc/init-comint)
 (defun fc/init-comint ()
   ;; Don't jump around when output in a buffer happens
   (set (make-local-variable 'scroll-conservatively) 1000))
 
 (add-to-list 'comint-output-filter-functions
-             'comint-watch-for-password-prompt)
+	     'comint-watch-for-password-prompt)
 (ansi-color-for-comint-mode-on)
 
 ;;;;;;;;;;;;;
@@ -632,6 +619,9 @@ glyph."
 
 (load "shell" nil t)
 
+;; > may show up in some prompts
+(setq shell-prompt-pattern "^[^#$%\n]*[#$%>] *")
+
 (global-set-key (kbd "C-c s") 'fc/toggle-shell)
 (defun fc/toggle-shell ()
   "Switch between the last active buffer and the shell."
@@ -703,7 +693,7 @@ glyph."
         ircnet-pass nil
         bitly-pass nil)
   (when (file-exists-p "~/.private.el")
-    (load-file "~/.private.el"))
+    (load "~/.private.el" nil t))
 
   (setq circe-default-realname "http://www.jorgenschaefer.de/"
         circe-server-killed-confirmation 'ask-and-kill-all
@@ -719,7 +709,7 @@ glyph."
            :channels ("#emacs" "#emacs-circe"
                       "#django" "#debian" "#ansible"
                       :after-auth "#emacs-ops")
-           ;; :nickserv-password ,freenode-password
+           :nickserv-password ,freenode-password
            :nickserv-ghost-style immediate
            )
           ("IRCnet"
@@ -740,7 +730,7 @@ glyph."
            :lagmon-disabled t
            )))
 
-  (load "circe-lagmon")
+  (load "circe-lagmon" nil t)
   (circe-lagmon-mode)
 
   (setq lui-max-buffer-size 30000
@@ -772,7 +762,7 @@ glyph."
                   "\n")
           (display-buffer (current-buffer))))))
 
-  (load "lui-autopaste")
+  (load "lui-autopaste" nil t)
   (add-hook 'circe-channel-mode-hook 'enable-lui-autopaste)
   (defvar fc/lui-autopaste-service-gist-url nil
     "The URL for the last gist.")
@@ -841,9 +831,7 @@ Or other words I used repeatedly"
 ;; iedit
 
 (when (load "iedit" t t)
-  (dolist (map (list global-map isearch-mode-map
-                     esc-map help-map))
-    (define-key map (kbd "M-,") 'iedit-mode)))
+  (define-key global-map (kbd "M-,") 'iedit-mode))
 
 ;;;;;;;;;;;
 ;; js2-mode
@@ -957,31 +945,31 @@ from `after-change-functions' fixes that."
 ;; This actually comes with Emacs, but we want to use the one from GNU
 ;; ELPA to be more current, hence it's down here.
 (when (load "org" t t)
- (define-key org-mode-map (kbd "C-c a") 'fc/org-agenda)
- (defun fc/org-agenda ()
-   (interactive)
-   (when (get-buffer "google-calendar.org")
-     (kill-buffer "google-calendar.org"))
-   (org-agenda nil (caar org-agenda-custom-commands)))
+  (define-key org-mode-map (kbd "C-c a") 'fc/org-agenda)
+  (defun fc/org-agenda ()
+    (interactive)
+    (when (get-buffer "google-calendar.org")
+      (kill-buffer "google-calendar.org"))
+    (org-agenda nil (caar org-agenda-custom-commands)))
 
- (setq org-fontify-emphasized-text nil
-       org-tags-column 40
-       org-agenda-files nil
-       org-descriptive-links nil
-       org-agenda-include-diary nil
-       org-agenda-start-on-weekday nil
-       org-todo-keywords '((sequence "TODO"
-                                     "DONE"
-                                     "WAITING"
-                                     "ONGOING"))
-       org-agenda-custom-commands '(("t" "General TODO agenda"
-                                     ((todo "TODO")
-                                      (agenda "")
-                                      (todo "WAITING")))))
- (dolist (filename '("~/Documents/Notes/Todo"
-                     "~/Documents/Notes/google-calendar.org"))
-   (when (file-exists-p filename)
-     (add-to-list 'org-agenda-files filename t))))
+  (setq org-fontify-emphasized-text nil
+	org-tags-column 40
+	org-agenda-files nil
+	org-descriptive-links nil
+	org-agenda-include-diary nil
+	org-agenda-start-on-weekday nil
+	org-todo-keywords '((sequence "TODO"
+				      "DONE"
+				      "WAITING"
+				      "ONGOING"))
+	org-agenda-custom-commands '(("t" "General TODO agenda"
+				      ((todo "TODO")
+				       (agenda "")
+				       (todo "WAITING")))))
+  (dolist (filename '("~/Documents/Notes/Todo"
+		      "~/Documents/Notes/google-calendar.org"))
+    (when (file-exists-p filename)
+      (add-to-list 'org-agenda-files filename t))))
 
 ;;;;;;;;;;
 ;; paredit
@@ -1036,7 +1024,7 @@ from `after-change-functions' fixes that."
   (define-key w3m-mode-map (kbd "C-x b") 'ido-switch-buffer)
 
   ;; Change w3m buffers to the url they show
-  ;; Thanks to marienz (#emacs) on .emacs for the idea
+  ;; Thanks to marienz (#emacs) for the idea
   (add-hook 'w3m-display-hook 'fc/w3m-rename-buffer)
   (defun fc/w3m-rename-buffer (url)
     (rename-buffer url t))
@@ -1082,9 +1070,10 @@ a prefix argument is given."
                '((((min-colors 64)) (:background "#ffafaf" :inherit nil))
                  (t (:foreground "red" :bold t))))
 (face-spec-set 'org-tag '((t nil)))
-(face-spec-set 'rst-level-2 '((t (:foreground "cyan"))))
-(face-spec-set 'rst-level-3 '((t (:foreground "cyan"))))
-(face-spec-set 'rst-level-4 '((t (:foreground "cyan"))))
+(face-spec-set 'rst-level-1 '((t (:foreground "cyan" :background nil))))
+(face-spec-set 'rst-level-2 '((t (:foreground "cyan" :background nil))))
+(face-spec-set 'rst-level-3 '((t (:foreground "cyan" :background nil))))
+(face-spec-set 'rst-level-4 '((t (:foreground "cyan" :background nil))))
 
 (put 'narrow-to-region 'disabled nil)
 (put 'scroll-left 'disabled nil)
