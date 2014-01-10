@@ -90,6 +90,7 @@ def archive(src, dest):
                          os.O_EXCL)
         except OSError as err:
             if err.errno == errno.EEXIST:
+                i = i + 1
                 continue
             raise
         os.close(fd)
