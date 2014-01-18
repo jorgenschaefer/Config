@@ -961,6 +961,7 @@ from `after-change-functions' fixes that."
 	org-todo-keywords '((sequence "TODO"
 				      "DONE"
 				      "WAITING"
+                                      "SCHEDULED"
 				      "ONGOING"))
 	org-agenda-custom-commands '(("t" "General TODO agenda"
 				      ((todo "TODO")
