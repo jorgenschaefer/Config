@@ -439,7 +439,9 @@ symbol, not word, as I need this for programming the most."
 
 (load "subword" nil t)
 (global-subword-mode)
-(setcdr (assq 'subword-mode minor-mode-alist) '(""))
+(let ((elt (assq 'subword-mode minor-mode-alist)))
+  (when elt
+    (setcdr (assq 'subword-mode minor-mode-alist) '(""))))
 
 ;;;;;;;;;;
 ;; time.el
