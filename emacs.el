@@ -114,6 +114,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Custom commands
 
+(global-set-key (kbd "M-SPC") 'cycle-spacing)
+
 (global-set-key (kbd "C-x r a") 'fc/add-rectangle)
 (defun fc/add-rectangle (start end)
   "Add all the lines in the region-rectangle and put the result in the
