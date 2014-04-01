@@ -44,11 +44,6 @@ alias rot13='tr a-zA-Z n-za-mN-ZA-M'
 alias mv='mv -i'
 alias %='fg'
 
-if [ -f "$HOME/Programs/Emacs/src/emacs" ]
-then
-    alias emacs="$HOME/Programs/Emacs/src/emacs"
-fi
-
 if type virtualenvwrapper.sh &>/dev/null
 then
     . virtualenvwrapper.sh
