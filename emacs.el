@@ -996,7 +996,8 @@ from `after-change-functions' fixes that."
 ;; pyvenv
 
 (when (load "pyvenv" t t)
-  (defalias 'workon 'pyvenv-workon))
+  (defalias 'workon 'pyvenv-workon)
+  (pyvenv-mode))
 
 ;;;;;;;;;;
 ;; typo.el

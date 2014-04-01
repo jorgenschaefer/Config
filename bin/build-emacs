@@ -5,9 +5,9 @@ set -e
 if [ -d ~/Programs/Emacs/trunk ]
 then
     cd ~/Programs/Emacs/trunk
-    bzr pull
+    git pull --rebase
 else
-    bzr branch bzr://bzr.savannah.gnu.org/emacs/trunk/ ~/Programs/Emacs/trunk
+    git clone --depth 1 git://git.savannah.gnu.org/emacs.git ~/Programs/Emacs/trunk
     cd ~/Programs/Emacs/trunk
 fi
 
@@ -22,11 +22,10 @@ then
     ./autogen.sh
 fi
 
-if [ -z "$DISPLAY" ]
+if [ -f ~/.build-emacs.conf ]
 then
-    ./configure --without-x
-else
-    ./configure
+    . ~/.build-emacs.conf
 fi
 
+./configure $CONFIGURE_OPTIONS
 make
