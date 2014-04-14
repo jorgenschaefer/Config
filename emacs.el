@@ -17,7 +17,7 @@
   (set-frame-font
    "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
   (setq x-select-enable-primary t
-        x-select-enable-clipboard t
+        x-select-enable-clipboard nil
         x-stretch-cursor t
         mouse-yank-at-point t))
 
