@@ -579,6 +579,14 @@ glyph."
     (t
      (insert (format "&#x%02x;" char)))))
 
+;;;;;;;;;;;;;;;;;;;
+;;; javascript-mode
+
+;; For json only, really. js2-mode doesn't do a good job with json.
+
+(load "js")
+(setq-default js-indent-level 2)
+
 ;;;;;;;;;;;;;;;
 ;;; python-mode
 
@@ -843,13 +851,13 @@ Or other words I used repeatedly"
 (when (load "js2-mode" t t)
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   (add-hook 'js2-mode-hook 'auto-complete-mode)
-  (setq js2-highlight-level 3
-        js2-mode-indent-ignore-first-tab t
-        js2-mode-indent-inhibit-undo t
-        js2-global-externs '("$")
-        js2-basic-offset 2
-        js2-global-externs '("angular")
-        )
+  (setq-default js2-highlight-level 3
+                js2-mode-indent-ignore-first-tab t
+                js2-mode-indent-inhibit-undo t
+                js2-global-externs '("$")
+                js2-basic-offset 2
+                js2-global-externs '("angular")
+                )
   (define-key js2-mode-map (kbd "C-c C-n") 'js2-next-error)
 
   (defadvice js2-mode-toggle-element (before ad-move-to-toggle-element
