@@ -856,7 +856,11 @@ Or other words I used repeatedly"
                 js2-mode-indent-inhibit-undo t
                 js2-global-externs '("$")
                 js2-basic-offset 2
-                js2-global-externs '("angular")
+                js2-global-externs
+                '(;; AngularJS
+                  "angular" "module" "inject"
+                  ;; Jasmine
+                  "describe" "it" "expect" "beforeEach")
                 )
   (define-key js2-mode-map (kbd "C-c C-n") 'js2-next-error)
 
