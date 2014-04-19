@@ -860,7 +860,7 @@ Or other words I used repeatedly"
                 '(;; AngularJS
                   "angular" "module" "inject"
                   ;; Jasmine
-                  "describe" "it" "expect" "beforeEach")
+                  "describe" "it" "expect" "beforeEach" "spyOn")
                 )
   (define-key js2-mode-map (kbd "C-c C-n") 'js2-next-error)
 
