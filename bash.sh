@@ -91,97 +91,126 @@ then
     # And now, the prompt
     if type tput &>/dev/null && tput setaf 1 >&/dev/null
     then
-        local c_reset="\\[`tput sgr0`\\]"
-        local c_bold="\\[`tput bold`\\]"
-        local c_underline="\\[`tput smul`\\]"
-        local c_nounderline="\\[`tput rmul`\\]"
-        local c_reverse="\\[`tput rev`\\]"
-        local c_standout="\\[`tput smso`\\]"
-        local c_nostandout="\\[`tput rmso`\\]"
-        local c_black="\\[`tput setaf 0`\\]"
-        local c_red="\\[`tput setaf 1`\\]"
-        local c_green="\\[`tput setaf 2`\\]"
-        local c_yellow="\\[`tput setaf 3`\\]"
-        local c_blue="\\[`tput setaf 4`\\]"
-        local c_magenta="\\[`tput setaf 5`\\]"
-        local c_cyan="\\[`tput setaf 6`\\]"
-        local c_white="\\[`tput setaf 7`\\]"
-        local c_bgblack="\\[`tput setab 0`\\]"
-        local c_bgred="\\[`tput setab 1`\\]"
-        local c_bggreen="\\[`tput setab 2`\\]"
-        local c_bgyellow="\\[`tput setab 3`\\]"
-        local c_bgblue="\\[`tput setab 4`\\]"
-        local c_bgmagenta="\\[`tput setab 5`\\]"
-        local c_bgcyan="\\[`tput setab 6`\\]"
-        local c_bgwhite="\\[`tput setab 7`\\]"
+        c_reset="\\[`tput sgr0`\\]"
+        c_bold="\\[`tput bold`\\]"
+        c_underline="\\[`tput smul`\\]"
+        c_nounderline="\\[`tput rmul`\\]"
+        c_reverse="\\[`tput rev`\\]"
+        c_standout="\\[`tput smso`\\]"
+        c_nostandout="\\[`tput rmso`\\]"
+        c_black="\\[`tput setaf 0`\\]"
+        c_red="\\[`tput setaf 1`\\]"
+        c_green="\\[`tput setaf 2`\\]"
+        c_yellow="\\[`tput setaf 3`\\]"
+        c_blue="\\[`tput setaf 4`\\]"
+        c_magenta="\\[`tput setaf 5`\\]"
+        c_cyan="\\[`tput setaf 6`\\]"
+        c_white="\\[`tput setaf 7`\\]"
+        c_bgblack="\\[`tput setab 0`\\]"
+        c_bgred="\\[`tput setab 1`\\]"
+        c_bggreen="\\[`tput setab 2`\\]"
+        c_bgyellow="\\[`tput setab 3`\\]"
+        c_bgblue="\\[`tput setab 4`\\]"
+        c_bgmagenta="\\[`tput setab 5`\\]"
+        c_bgcyan="\\[`tput setab 6`\\]"
+        c_bgwhite="\\[`tput setab 7`\\]"
     else
-        local c_reset=""
-        local c_bold=""
-        local c_underline=""
-        local c_nounderline=""
-        local c_reverse=""
-        local c_standout=""
-        local c_nostandout=""
-        local c_black=""
-        local c_red=""
-        local c_green=""
-        local c_yellow=""
-        local c_blue=""
-        local c_magenta=""
-        local c_cyan=""
-        local c_white=""
-        local c_bgblack=""
-        local c_bgred=""
-        local c_bggreen=""
-        local c_bgyellow=""
-        local c_bgblue=""
-        local c_bgmagenta=""
-        local c_bgcyan=""
-        local c_bgwhite=""
+        c_reset=""
+        c_bold=""
+        c_underline=""
+        c_nounderline=""
+        c_reverse=""
+        c_standout=""
+        c_nostandout=""
+        c_black=""
+        c_red=""
+        c_green=""
+        c_yellow=""
+        c_blue=""
+        c_magenta=""
+        c_cyan=""
+        c_white=""
+        c_bgblack=""
+        c_bgred=""
+        c_bggreen=""
+        c_bgyellow=""
+        c_bgblue=""
+        c_bgmagenta=""
+        c_bgcyan=""
+        c_bgwhite=""
     fi
 
     export PROMPT_COMMAND=set_prompt
     function set_prompt () {
+        # Store this for later
         local last_exit="$?"
 
-        local dir_line=''
+        local cwd_info=""
         if [[ "$USER" != 'forcer' && "$USER" != 'schaefer' ]]
         then
             # If we are not our usual users, add the username
-            dir_line='\u@\h:\w'
+            cwd_info='\u@\h:\w'
         elif [[ -n "$SSH_CONNECTION" ]]
         then
-            # If not, but we are logged in remotely, use the host
-            # name only
-            dir_line='\h:\w'
+            # If not, but we are logged in remotely, use the host name
+            cwd_info='\h:\w'
         else
-            dir_line='\w'
+            # Otherwise, working directory only
+            cwd_info='\w'
         fi
 
-        local info_line=""
+        local ret_info=""
         if [[ "$last_exit" != 0 ]]
         then
-            info_line="$info_line|ret:$last_exit"
+            ret_info="$last_exit"
         fi
+
+        local venv_info=""
         if [[ -n "$VIRTUAL_ENV" ]]
         then
-            info_line="$info_line|venv:$(basename "$VIRTUAL_ENV")"
+            venv_info="$(basename "$VIRTUAL_ENV")"
         fi
+
+        local git_info=""
         if git rev-parse --git-dir > /dev/null 2>&1
         then
             local git_branch=$(git branch 2>/dev/null | sed -ne 's/^\* //p')
             if [ $(git status --porcelain 2>/dev/null | wc -l) -gt 0 ]
             then
-                local git="${c_red}$git_branch${c_default}"
+                git_dirty_info="$git_branch"
+                git_clean_info=""
             else
-                local git="$git_branch"
+                git_dirty_info=""
+                git_clean_info="$git_branch"
             fi
-            info_line="$info_line|git:$git"
         fi
+
+        local info_line=""
+        function add_info () {
+            local col="$1"
+            local name="$2"
+            local val="$3"
+            if [[ -n "$val" ]]
+            then
+                local this_line="$col$c_bold$name$c_reset$col:$val$c_reset"
+                info_line="$info_line $this_line"
+            fi
+        }
+        add_info "$c_red" ret "$ret_info"
+        add_info "$c_blue" venv "$venv_info"
+        add_info "$c_blue" git "$git_clean_info"
+        add_info "$c_magenta" git "$git_dirty_info"
+
         if [[ -n "$info_line" ]]
         then
-            info_line="[${info_line#?}]"
+            local line1="$c_reset${info_line# }$c_reset"
+            local line2="$c_blue$cwd_info$c_reset"
+            local line3="$c_blue\\\$$c_reset "
+            PS1="$c_reset\n$line1\n$line2\n$line3"
+        else
+            local line1="$c_blue$cwd_info$c_reset"
+            local line2="$c_blue\\\$$c_reset "
+            PS1="$c_reset\n$line1\n$line2"
         fi
-        PS1="$c_bold$c_default$dir_line$c_reset\n$c_default$info_line\$${c_reset} "
     }
 fi
