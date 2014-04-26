@@ -203,7 +203,7 @@ then
 
         if [[ -n "$info_line" ]]
         then
-            local line1="$c_reset${info_line# }$c_reset"
+            local line1="$c_reset[${info_line# }]$c_reset"
             local line2="$c_blue$cwd_info$c_reset"
             local line3="$c_blue\\\$$c_reset "
             PS1="$c_reset\n$line1\n$line2\n$line3"
