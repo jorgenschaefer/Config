@@ -171,7 +171,8 @@ then
             venv_info="$(basename "$VIRTUAL_ENV")"
         fi
 
-        local git_info=""
+        local git_dirty_info=""
+        local git_clean_info=""
         if git rev-parse --git-dir > /dev/null 2>&1
         then
             local git_branch=$(git branch 2>/dev/null | sed -ne 's/^\* //p')
