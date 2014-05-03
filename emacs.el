@@ -503,6 +503,16 @@ symbol, not word, as I need this for programming the most."
 	     'comint-watch-for-password-prompt)
 (ansi-color-for-comint-mode-on)
 
+;;;;;;;;;;;;;;;;;;;
+;; compilation-mode
+
+(load "compile" nil t)
+(load "ansi-color" nil t)
+(defun fc/colorize-compilation-buffer ()
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region (point-min) (point-max))))
+(add-hook 'compilation-filter-hook 'fc/colorize-compilation-buffer)
+
 ;;;;;;;;;;;;;
 ;; dired-mode
 
