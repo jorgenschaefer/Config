@@ -843,8 +843,8 @@ Or other words I used repeatedly"
 
 (when (load "elpy" t t)
   (setq nose-use-verbose nil)
-  (elpy-enable)
-  (elpy-clean-modeline))
+  (elpy-enable))
+
 
 ;;;;;;;;
 ;; gitty
