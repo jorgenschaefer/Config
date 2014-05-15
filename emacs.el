@@ -838,13 +838,19 @@ Or other words I used repeatedly"
 (when (load "comint-scroll-to-bottom" t t)
   (add-hook 'comint-mode-hook 'comint-add-scroll-to-bottom))
 
+;;;;;;;;;;;;;;;;;;
+;; elisp-slime-nav
+
+(when (load "elisp-slime-nav" t t)
+  (add-hook 'emacs-lisp-mode-hook 'elisp-slime-nav-mode)
+  (add-hook 'lisp-interaction-mode-hook 'elisp-slime-nav-mode))
+
 ;;;;;;;
 ;; elpy
 
 (when (load "elpy" t t)
   (setq nose-use-verbose nil)
   (elpy-enable))
-
 
 ;;;;;;;;
 ;; gitty
