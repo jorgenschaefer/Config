@@ -839,6 +839,7 @@ Or other words I used repeatedly"
 ;; elisp-slime-nav
 
 (when (load "elisp-slime-nav" t t)
+  (define-key elisp-slime-nav-mode-map (kbd "M-,") nil)
   (add-hook 'emacs-lisp-mode-hook 'elisp-slime-nav-mode)
   (add-hook 'lisp-interaction-mode-hook 'elisp-slime-nav-mode))
 
