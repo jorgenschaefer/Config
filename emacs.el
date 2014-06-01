@@ -114,7 +114,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Custom commands
 
-(global-set-key (kbd "M-SPC") 'cycle-spacing)
+(global-set-key (kbd "M-SPC") 'fc/delete-space)
+(defun fc/delete-space ()
+  "Remove all space around point."
+  (interactive)
+  (let ((start (point)))
+    (skip-chars-backward " \t")
+    (when (> (current-column) 0)
+      (setq start (point)))
+    (skip-chars-forward " \t\n\r")
+    (delete-region start (point))))
 
 (global-set-key (kbd "C-x r a") 'fc/add-rectangle)
 (defun fc/add-rectangle (start end)
@@ -319,6 +328,12 @@ This uses `htmlfontify'."
 ;; diff.el
 
 (setq diff-switches "-u")
+
+;;;;;;;;;;;;;;;
+;; elec-pair.el
+
+(load "elec-pair" nil t)
+(electric-pair-mode 1)
 
 ;;;;;;;;;;;;;;
 ;; electric.el
@@ -605,27 +620,6 @@ glyph."
 (when (executable-find "flake8")
   (setq python-check-command "flake8"))
 
-(define-key python-mode-map (kbd "C-c S") 'fc/python-insert-super)
-(defun fc/python-insert-super ()
-  "Insert a Python super() statement for the current class."
-  (interactive)
-  (let (name split)
-    (setq name (save-excursion
-                 ;; For some silly reason, p-i-c-d does not work if
-                 ;; the method has no text in it?!
-                 (insert "x")
-                 (prog1 (python-info-current-defun)
-                   (delete-char -1))))
-    (when (not name)
-      (error "Can't find class and method names"))
-    (setq split (split-string name "\\."))
-    (when (not (cadr split))
-      (error "Not in a method"))
-    (insert (format "super(%s, self).%s()\n"
-                    (car split)
-                    (cadr split)))
-    (indent-for-tab-command)))
-
 ;;;;;;;;;;;;;;
 ;; scheme-mode
 
@@ -850,8 +844,13 @@ Or other words I used repeatedly"
 ;; elpy
 
 (when (load "elpy" t t)
-  (setq nose-use-verbose nil)
   (elpy-enable))
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; fill-column-indicator
+
+(when (load "fill-column-indicator" t t)
+  (add-hook 'python-mode-hook 'fci-mode))
 
 ;;;;;;;;;;
 ;; flx-ido
