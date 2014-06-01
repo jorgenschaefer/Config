@@ -853,6 +853,12 @@ Or other words I used repeatedly"
   (setq nose-use-verbose nil)
   (elpy-enable))
 
+;;;;;;;;;;
+;; flx-ido
+
+(when (load "flx-ido" t t)
+  (flx-ido-mode 1))
+
 ;;;;;;;;
 ;; gitty
 
