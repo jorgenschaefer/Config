@@ -849,11 +849,13 @@ Or other words I used repeatedly"
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; fill-column-indicator
 
-(when (load "fill-column-indicator" t t)
-  (add-hook 'python-mode-hook 'fci-mode)
-  (defun fc/set-fill-column ()
-    (setq fill-column 80))
-  (add-hook 'python-mode-hook 'fc/set-fill-column))
+;; Still broken with company as of 2014-06-02
+
+;; (when (load "fill-column-indicator" t t)
+;;   (add-hook 'python-mode-hook 'fci-mode)
+;;   (defun fc/set-fill-column ()
+;;     (setq fill-column 80))
+;;   (add-hook 'python-mode-hook 'fc/set-fill-column))
 
 ;;;;;;;;;;
 ;; flx-ido
@@ -866,12 +868,6 @@ Or other words I used repeatedly"
 
 (when (load "gitty" t t)
   (gitty-mode))
-
-;;;;;;;;
-;; iedit
-
-(when (load "iedit" t t)
-  (define-key global-map (kbd "M-,") 'iedit-mode))
 
 ;;;;;;;;;;;
 ;; js2-mode
