@@ -335,6 +335,16 @@ This uses `htmlfontify'."
 (load "elec-pair" nil t)
 (electric-pair-mode 1)
 
+(defun fc/electric-pair-inhibit (char)
+  "Return t if we want to not pair this char.
+
+Don't pair the closing paren in :-("
+  (or (and (eq char ?\()
+           (looking-back ":-("))
+      (electric-pair-default-inhibit char)))
+
+(setq electric-pair-inhibit-predicate 'fc/electric-pair-inhibit)
+
 ;;;;;;;;;;;;;;
 ;; electric.el
 
