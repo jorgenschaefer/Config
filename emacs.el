@@ -345,6 +345,24 @@ Don't pair the closing paren in :-("
 
 (setq electric-pair-inhibit-predicate 'fc/electric-pair-inhibit)
 
+(global-set-key (kbd "M-\"") 'fc/electric-pair-meta-quote)
+(defun fc/electric-pair-meta-quote ()
+  "Wrap quotes around the following symbol."
+  (interactive)
+  (insert "\"")
+  (save-excursion
+    (forward-sexp 1)
+    (insert "\"")))
+
+(global-set-key (kbd "M-(") 'fc/electric-pair-meta-paren)
+(defun fc/electric-pair-meta-paren ()
+  "Wrap parens around the following symbol."
+  (interactive)
+  (insert "(")
+  (save-excursion
+    (forward-sexp 1)
+    (insert ")")))
+
 ;;;;;;;;;;;;;;
 ;; electric.el
 
