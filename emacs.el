@@ -872,7 +872,9 @@ Or other words I used repeatedly"
 ;; elpy
 
 (when (load "elpy" t t)
-  (elpy-enable))
+  (elpy-enable)
+
+  (global-set-key (kbd "M-,") 'elpy-multiedit))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; fill-column-indicator
