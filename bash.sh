@@ -47,6 +47,10 @@ alias %='fg'
 if type virtualenvwrapper.sh &>/dev/null
 then
     . virtualenvwrapper.sh
+    if [ -z "$VIRTUALENVWRAPPER_PYTHON" ]
+    then
+        export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
+    fi
 fi
 
 if [ -f "/etc/bash_completion" ]
