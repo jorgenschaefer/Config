@@ -28,4 +28,4 @@ then
 fi
 
 ./configure $CONFIGURE_OPTIONS
-make
+make bootstrap
