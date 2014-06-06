@@ -97,7 +97,8 @@
  inhibit-startup-message t
  cursor-in-non-selected-windows nil
  kill-whole-line t
- switch-to-buffer-preserve-window-point t)
+ switch-to-buffer-preserve-window-point t
+ load-prefer-newer t)
 
 ;; Case insensitivity
 (setq case-fold-search t
