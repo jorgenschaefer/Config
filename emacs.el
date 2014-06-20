@@ -770,7 +770,7 @@ glyph."
            :host "irc.coldfront.net" :port 7778 :tls t
            :nick "Arkady"
            :nickserv-password ,coldfront-password
-           :channels ("#grd" "#electusmatari" "#em-private")
+           :channels ("#grd" "#electusmatari")
            )
           ("Bitlbee"
            :port 6667
