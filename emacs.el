@@ -509,6 +509,11 @@ symbol, not word, as I need this for programming the most."
 (load "uniquify" nil t)
 (setq-default uniquify-buffer-name-style 'post-forward)
 
+;;;;;;;;
+;; vc.el
+
+(setq vc-diff-switches diff-switches)
+
 ;;;;;;;;;;;;;;
 ;; windmove.el
 
@@ -517,10 +522,10 @@ symbol, not word, as I need this for programming the most."
 (global-set-key (kbd "C-x <left>") 'windmove-left)
 (global-set-key (kbd "C-x <right>") 'windmove-right)
 
-;;;;;;;;
-;; vc.el
+;;;;;;;;;;;;
+;; winner.el
 
-(setq vc-diff-switches diff-switches)
+(winner-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Various major modes shipped with Emacs
