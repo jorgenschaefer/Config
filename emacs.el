@@ -503,6 +503,11 @@ symbol, not word, as I need this for programming the most."
 				("Etc/GMT+12" "Wellington")
 				))
 
+;;;;;;;;;;;;;;;;;
+;;; time-stamp.el
+
+(add-hook 'before-save-hook 'time-stamp)
+
 ;;;;;;;;;;;;;;;
 ;;; uniquify.el
 
