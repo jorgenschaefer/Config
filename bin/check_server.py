@@ -23,8 +23,8 @@ def main():
         packagefile = sys.argv[1]
 
     run("Orphaned Packages",
-        ["deborphan", "-Ha", "--ignore-suggests",
-         "--no-show-section", "-k", packagefile])
+        ["deborphan.py", "--required", "--important", "--recommends",
+         "--file", packagefile])
     run("Litter Packages",
         ["""dpkg -l | sed '1,5d' | grep -v ^ii | awk '{print $1 " " $2}'"""],
         shell=True)
@@ -36,6 +36,11 @@ def main():
 
     run("Deselected Packages",
         ["""dpkg --get-selections | grep -v '\tinstall$'"""],
+        shell=True)
+
+    run("Processes using deleted files",
+        ["sudo checkrestart | grep -v 'Found 0 processes using "
+         "old versions of upgraded files'"],
         shell=True)
 
 
