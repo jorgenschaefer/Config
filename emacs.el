@@ -119,12 +119,11 @@
 (defun fc/delete-space ()
   "Remove all space around point."
   (interactive)
-  (let ((start (point)))
-    (skip-chars-backward " \t")
-    (when (> (current-column) 0)
-      (setq start (point)))
-    (skip-chars-forward " \t\n\r")
-    (delete-region start (point))))
+  (if (looking-at "[ \t\n]+")
+      (replace-match "")
+    (let ((start (point)))
+      (skip-chars-backward " \t\n")
+      (delete-region (point) start))))
 
 (global-set-key (kbd "C-x r a") 'fc/add-rectangle)
 (defun fc/add-rectangle (start end)
