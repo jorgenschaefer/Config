@@ -24,7 +24,7 @@ def main():
 
     run("Orphaned Packages",
         ["deborphan.py", "--required", "--important", "--recommends",
-         "--file", packagefile])
+         "--provides", "--file", packagefile])
     run("Litter Packages",
         ["""dpkg -l | sed '1,5d' | grep -v ^ii | awk '{print $1 " " $2}'"""],
         shell=True)
@@ -38,10 +38,11 @@ def main():
         ["""dpkg --get-selections | grep -v '\tinstall$'"""],
         shell=True)
 
-    run("Processes using deleted files",
-        ["sudo checkrestart | grep -v 'Found 0 processes using "
-         "old versions of upgraded files'"],
-        shell=True)
+    if os.path.exists("/usr/sbin/checkrestart"):
+        run("Processes using deleted files",
+            ["sudo checkrestart | grep -v 'Found 0 processes using "
+             "old versions of upgraded files'"],
+            shell=True)
 
 
 def check_bad_origin():
