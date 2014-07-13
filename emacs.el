@@ -117,13 +117,27 @@
 
 (global-set-key (kbd "M-SPC") 'fc/delete-space)
 (defun fc/delete-space ()
-  "Remove all space around point."
+  "Remove all space around point.
+
+Calling this repeatedly will clean more and more whitespace.
+First, it will clear all whitespace until the end of the line, if
+any. Then it will clear whitespace to the beginning of the line.
+Then it will clear all following whitespace over any number of
+lines. And then it will clear all preceding whitespace."
   (interactive)
-  (if (looking-at "[ \t\n]+")
-      (replace-match "")
+  (cond
+   ((looking-at "[ \t]+")
+    (replace-match ""))
+   ((looking-back "[ \t]")
+    (let ((start (point)))
+      (skip-chars-backward " \t")
+      (delete-region (point) start)))
+   ((looking-at "[ \t\n]+")
+    (replace-match ""))
+   ((looking-back "[ \t\n")
     (let ((start (point)))
       (skip-chars-backward " \t\n")
-      (delete-region (point) start))))
+      (delete-region (point) start)))))
 
 (global-set-key (kbd "C-x r a") 'fc/add-rectangle)
 (defun fc/add-rectangle (start end)
