@@ -8,8 +8,8 @@
 ;;; User interface
 
 ;; I dislike this fancy stuff. It's not always defined, though.
-(dolist (mode '(tool-bar-mode scroll-bar-mode menu-bar-mode
-                              blink-cursor-mode))
+(dolist (mode '(tool-bar-mode scroll-bar-mode horizontal-scroll-bar-mode
+                              menu-bar-mode blink-cursor-mode))
   (when (fboundp mode)
     (funcall mode -1)))
 
