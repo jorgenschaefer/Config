@@ -139,6 +139,19 @@ lines. And then it will clear all preceding whitespace."
       (skip-chars-backward " \t\n")
       (delete-region (point) start)))))
 
+(global-set-key [remap move-beginning-of-line] 'fc/move-beginning-of-line)
+(defun fc/move-beginning-of-line ()
+  "Move to indentation, or beginning of the line."
+  (interactive)
+  (if (bolp)
+      (back-to-indentation)
+    (move-beginning-of-line 1))
+  ;; (let ((current (point)))
+  ;;   (back-to-indentation)
+  ;;   (when (= (point) current)
+  ;;     (move-beginning-of-line 1)))
+  )
+
 (global-set-key (kbd "C-x r a") 'fc/add-rectangle)
 (defun fc/add-rectangle (start end)
   "Add all the lines in the region-rectangle and put the result in the
