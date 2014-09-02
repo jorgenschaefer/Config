@@ -1078,7 +1078,7 @@ from `after-change-functions' fixes that."
 				       (agenda "")
 				       (todo "WAITING")))))
   (dolist (filename '("~/Documents/Notes/Todo"
-		      "~/Documents/Notes/google-calendar.org"))
+		      "~/Files/google-calendar.org"))
     (when (file-exists-p filename)
       (add-to-list 'org-agenda-files filename t))))
 
@@ -1163,10 +1163,8 @@ a prefix argument is given."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Start environment
 
-(when (file-exists-p "~/Documents/Notes/Todo")
-  (with-current-buffer (find-file "~/Documents/Notes/Todo")
-    (org-mode)
-    (org-content 1)
+(when (file-exists-p "~/Documents/Notes/Todo.org")
+  (with-current-buffer (find-file "~/Documents/Notes/Todo.org")
     (setq default-directory "~/"))
   (org-agenda nil "t")
   (other-window 1))
