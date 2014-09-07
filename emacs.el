@@ -1063,7 +1063,7 @@ from `after-change-functions' fixes that."
     (org-agenda nil (caar org-agenda-custom-commands)))
 
   (setq org-fontify-emphasized-text nil
-	org-tags-column 40
+	org-tags-column -76
 	org-agenda-files nil
 	org-descriptive-links nil
 	org-agenda-include-diary nil
