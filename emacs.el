@@ -770,12 +770,9 @@ glyph."
     (circe "Bitlbee")
     )
 
-  (setq freenode-pass nil
-        freenode-password nil
+  (setq freenode-password nil
         bitlbee-password nil
-        coldfront-pass nil
         coldfront-password nil
-        ircnet-pass nil
         bitly-pass nil)
   (when (file-exists-p "~/.private.el")
     (load "~/.private.el" nil t))
