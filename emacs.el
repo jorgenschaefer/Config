@@ -87,6 +87,7 @@
 ;; Random default values
 (setq-default
  major-mode 'text-mode
+ initial-buffer-choice 'remember-notes
  scroll-preserve-screen-position 'keep
  user-mail-address (when (file-exists-p "~/.email")
                      (with-temp-buffer
