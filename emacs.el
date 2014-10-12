@@ -61,7 +61,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Core Emacs Functionality
 
-(random t)
 (column-number-mode 1)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
