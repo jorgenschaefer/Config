@@ -328,23 +328,6 @@ This uses `htmlfontify'."
 
 (global-set-key (kbd "<f5>") 'recompile)
 
-;;;;;;;;;;;;;;
-;; cua-base.el
-
-;; cua-mode is nice in theory, but there are too many Emacs commands
-;; starting with C-x and especially C-c that operate on the active
-;; region, making cua keys completely useless in practice.
-
-;; With `cua-enable-cua-keys' nil, though, cua-mode is basically
-;; equivalent to `delete-selection-mode' + `cua-selection-mode'.
-
-(load "cua-base" nil t)
-(cua-selection-mode 1)
-
-;; Can't hit <C-return> in terminals
-;; Using customize, because this has a non-trivial :set method.
-(customize-set-variable 'cua-rectangle-mark-key (kbd "C-x r RET"))
-
 ;;;;;;;;;;;;
 ;; delsel.el
 
