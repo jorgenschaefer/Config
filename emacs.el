@@ -805,6 +805,10 @@ glyph."
                              ("" "american"))
         )
 
+  (defun circe-command-AKICK (args)
+    (circe-command-MSG "ChanServ"
+                       (format "AKICK %s ADD %s" circe-chat-target args)))
+
   (add-hook 'lui-post-output-hook 'fc/lui-save-highlights)
   (defun fc/lui-save-highlights ()
     (when (and (time-less-p '(0 300 0 0)
