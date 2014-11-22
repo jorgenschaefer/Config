@@ -772,7 +772,7 @@ glyph."
            :nick "forcer"
            :pass ,freenode-password
            :channels ("#emacs" "#emacs-circe" "##emacs.de"
-                      "#django" "#debian" "#ansible" "#angularjs"
+                      ;; "#django" "#debian" "#ansible" "#angularjs"
                       :after-auth "#emacs-ops")
            :nickserv-password ,freenode-password
            :nickserv-ghost-style immediate
