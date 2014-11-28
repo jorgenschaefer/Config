@@ -55,12 +55,6 @@ then
     . virtualenvwrapper.sh
 fi
 
-if [ -n "$VIRTUALENVWRAPPER_HOOK_DIR" ]
-then
-    ensure_contains "$VIRTUALENVWRAPPER_HOOK_DIR/postactivate" \
-                    '. ~/Projects/Config/virtualenvs_postactivate.sh'
-fi
-
 TEMPFILE=$(mktemp)
 trap "rm -f $TEMPFILE" EXIT
 
