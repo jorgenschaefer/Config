@@ -1094,8 +1094,8 @@ from `after-change-functions' fixes that."
   (dolist (hook '(markdown-mode-hook html-mode-hook))
     (add-hook hook 'typo-mode)))
 
-;;;;;;;
-;;; w3m
+;;;;;;
+;; w3m
 
 (when (load "w3m" t t)
   (setq-default browse-url-browser-function 'w3m-browse-url)
@@ -1143,6 +1143,12 @@ a prefix argument is given."
       (if url
           (kill-new url)
         (error "No url.")))))
+
+;;;;;;;;;;;;
+;; yaml-mode
+
+(when (load "yaml-mode" t t)
+  (define-key yaml-mode-map (kbd "C-j") nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Start environment
