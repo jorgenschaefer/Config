@@ -801,6 +801,9 @@ glyph."
   (load "circe-lagmon" nil t)
   (circe-lagmon-mode)
 
+  (load "lui-logging" nil t)
+  (enable-lui-logging-globally)
+
   (setq lui-max-buffer-size 30000
         lui-flyspell-p t
         lui-scroll-behavior 'post-scroll
