@@ -1154,7 +1154,9 @@ a prefix argument is given."
 ;; yaml-mode
 
 (when (load "yaml-mode" t t)
-  (define-key yaml-mode-map (kbd "C-j") nil))
+  (define-key yaml-mode-map (kbd "C-j") nil)
+
+  (add-to-list 'auto-mode-alist '("\\.sls\\'" . yaml-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Start environment
