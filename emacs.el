@@ -812,16 +812,26 @@ glyph."
         )
 
   (defun circe-command-AKICK (args)
-    (let ((time 30)
-          (reason args))
-      (when (string-match " *\\([0-9]+\\) \\(.*\\)" args)
-        (setq time (string-to-number (match-string 1 args))
-              reason (match-string 2 args)))
+    (cond
+     ((string-match "!T" args)
       (circe-command-MSG "ChanServ"
-                         (format "AKICK %s ADD !T %s %s"
+                         (format "AKICK %s ADD %s"
                                  circe-chat-target
-                                 time
-                                 reason))))
+                                 args)))
+     ((string-match "^ *\\([^ ]+\\) \\([0-9]+\\) \\(.*\\)" args)
+      (circe-command-MSG "ChanServ"
+                         (format "AKICK %s ADD %s !T %s %s"
+                                 circe-chat-target
+                                 (match-string 1 args)
+                                 (match-string 2 args)
+                                 (match-string 3 args))))
+     ((string-match "^ *\\([^ ]+\\) \\(.*\\)" args)
+      (circe-command-MSG "ChanServ"
+                         (format "AKICK %s ADD %s !T %s %s"
+                               circe-chat-target
+                               (match-string 1 args)
+                               "30"
+                               (match-string 2 args))))))
 
   (add-hook 'lui-post-output-hook 'fc/lui-save-highlights)
   (defun fc/lui-save-highlights ()
