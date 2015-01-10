@@ -806,7 +806,7 @@ glyph."
 
   (setq lui-max-buffer-size 30000
         lui-flyspell-p t
-        lui-scroll-behavior 'post-scroll
+        lui-scroll-behavior t
         lui-flyspell-alist '(("#kollektiv" "german8")
                              ("" "american"))
         )
