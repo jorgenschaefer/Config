@@ -735,6 +735,7 @@ glyph."
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.org/packages/")
              t)
+(setq package-archive-priorities '(("melpa" . -100)))
 (package-initialize)
 
 ;;;;;;;;;
