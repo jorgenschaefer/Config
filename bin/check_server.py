@@ -48,8 +48,11 @@ def main():
 def check_bad_origin():
     lines = []
     available = get_available_packages()
+    override = ["libgcrypt11", "libssl0.9.8", "libudev0"]
     for pkg, ver in get_installed_packages():
-        if pkg not in available:
+        if pkg in override:
+            continue
+        elif pkg not in available:
             lines.append("{0} installed: {1} available: None\n"
                          .format(pkg, ver))
         elif ver not in available[pkg]:

@@ -754,13 +754,11 @@ glyph."
     (circe "Freenode")
     (circe "IRCnet")
     (circe "Coldfront")
-    (circe "Bitlbee")
     )
 
   (setq freenode-password nil
         bitlbee-password nil
-        coldfront-password nil
-        bitly-pass nil)
+        coldfront-password nil)
   (when (file-exists-p "~/.private.el")
     (load "~/.private.el" nil t))
 
@@ -792,12 +790,7 @@ glyph."
            :nickserv-password ,coldfront-password
            :channels ("#grd" "#electusmatari")
            )
-          ("Bitlbee"
-           :port 6667
-           :nick "Jorgen"
-           :nickserv-password ,bitlbee-password
-           :lagmon-disabled t
-           )))
+          ))
 
   (load "circe-lagmon" nil t)
   (circe-lagmon-mode)
@@ -897,9 +890,7 @@ Or other words I used repeatedly"
                                            )
                                          'words)
                              nil t)
-      (error "It's \"whether\" and \"occurrence\"!")))
-
-  (setq bitly-access-token bitly-pass))
+      (error "It's \"whether\" and \"occurrence\"!"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; comint-scroll-to-bottom
