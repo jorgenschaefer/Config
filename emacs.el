@@ -726,15 +726,12 @@ glyph."
       (add-to-list 'load-path dirname))))
 
 (load "package" nil t)
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/")
-             t)
-(add-to-list 'package-archives
-             '("melpa-stable" . "http://stable.melpa.org/packages/")
-             t)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/")
-             t)
+(setq package-archives
+      '(("gnu" . "http://elpa.gnu.org/packages/")
+        ("marmalade" . "http://marmalade-repo.org/packages/")
+        ("melpa-stable" . "http://stable.melpa.org/packages/")
+        ("melpa" . "http://melpa.org/packages/")
+        ("elpy" . "http://jorgenschaefer.github.io/packages/")))
 (setq package-archive-priorities '(("melpa" . -100)))
 (package-initialize)
 
