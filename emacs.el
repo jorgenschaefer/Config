@@ -380,6 +380,13 @@ Don't pair the closing paren in :-("
 (load "electric" nil t)
 (electric-indent-mode 1)
 
+
+;;;;;;;;;
+;; eww.el
+
+(when (load "eww" nil t)
+  (setq browse-url-browser-function 'eww-browse-url))
+
 ;;;;;;;;;;
 ;; ffap.el
 
