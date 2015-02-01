@@ -777,7 +777,7 @@ glyph."
            :host "irc.freenode.net" :port 6697 :tls t
            :nick "forcer"
            :pass ,freenode-password
-           :channels ("#emacs" "#emacs-circe" "##emacs.de"
+           :channels ("#emacs" "#emacs-circe" "#elpy" "##emacs.de"
                       ;; "#django" "#debian" "#ansible" "#angularjs"
                       :after-auth "#emacs-ops")
            :nickserv-password ,freenode-password
