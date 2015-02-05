@@ -1060,6 +1060,7 @@ from `after-change-functions' fixes that."
 ;; ELPA to be more current, hence it's down here.
 (when (load "org" t t)
   (define-key org-mode-map (kbd "C-c a") 'fc/org-agenda)
+  (define-key org-mode-map (kbd "C-c ,") nil)
   (defun fc/org-agenda ()
     (interactive)
     (when (get-buffer "google-calendar.org")
@@ -1099,6 +1100,12 @@ from `after-change-functions' fixes that."
   (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
   (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
   (add-hook 'scheme-mode-hook 'enable-paredit-mode))
+
+;;;;;;;;;;;;;
+;; projectile
+
+(when (load "projectile" t t)
+  (projectile-global-mode))
 
 ;;;;;;;;;
 ;; pyvenv
