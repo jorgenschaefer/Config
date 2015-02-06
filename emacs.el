@@ -1114,6 +1114,19 @@ from `after-change-functions' fixes that."
   (defalias 'workon 'pyvenv-workon)
   (pyvenv-mode))
 
+;;;;;;;;;;;;;;;;;
+;; smartparens.el
+
+(when (load "smartparens" t t)
+  (setq sp-base-key-bindings 'sp)
+  (sp-use-smartparens-bindings)
+
+  (sp-with-modes sp--lisp-modes
+    (sp-local-pair "'" nil :actions nil)
+    (sp-local-pair "`" "'"
+                   :when '(sp-in-string-p sp-in-comment-p))
+    ))
+
 ;;;;;;;;;;
 ;; typo.el
 
