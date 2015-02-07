@@ -1127,7 +1127,16 @@ from `after-change-functions' fixes that."
   (define-key smartparens-mode-map (kbd "<M-up>") nil)
   (define-key smartparens-mode-map (kbd "<M-down>") nil)
 
-  (smartparens-global-mode))
+  (setq sp-ignore-modes-list '(minibuffer-inactive-mode
+                               circe-channel-mode
+                               circe-query-mode))
+
+  (smartparens-global-mode)
+
+  (add-hook 'org-mode-hook 'fc/org-mode-smartparens-fixup)
+  (defun fc/org-mode-smartparens-fixup ()
+    (modify-syntax-entry ?\' "\""))
+  )
 
 ;;;;;;;;;;
 ;; typo.el
