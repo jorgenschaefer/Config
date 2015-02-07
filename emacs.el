@@ -931,8 +931,10 @@ Or other words I used repeatedly"
 ;;;;;;;;;;
 ;; flx-ido
 
-(when (load "flx-ido" t t)
-  (flx-ido-mode 1))
+;; This sorts stuff in really weird ways
+
+;; (when (load "flx-ido" t t)
+;;   (flx-ido-mode 0))
 
 ;;;;;;;;
 ;; gitty
