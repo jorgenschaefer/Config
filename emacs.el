@@ -1118,24 +1118,15 @@ from `after-change-functions' fixes that."
 ;; smartparens.el
 
 (when (load "smartparens" t t)
+  (load "smartparens-config")
   (setq sp-base-key-bindings 'sp
         sp-highlight-pair-overlay nil)
   (sp-use-smartparens-bindings)
-  (add-to-list 'sp-ignore-modes-list 'circe-channel-mode)
-  (add-to-list 'sp-ignore-modes-list 'circe-query-mode)
+  ;; Used otherwise in e.g. org-mode
+  (define-key smartparens-mode-map (kbd "<M-up>") nil)
+  (define-key smartparens-mode-map (kbd "<M-down>") nil)
 
-  (sp-pair "'" nil :actions :rem)
-
-  (sp-with-modes '(python-mode js-mode js2-mode)
-    (sp-local-pair "'" "'"
-                   :actions '(insert wrap autoskip navigate)
-                   :when '(sp-in-code)))
-  (sp-with-modes sp--lisp-modes
-    (sp-local-pair "`" "'"
-                   :when '(sp-in-string-p sp-in-comment-p)))
-
-  (sp-with-modes '(text-mode fundamental-mode)
-    (sp-local-pair "'" nil :actions nil)))
+  (smartparens-global-mode))
 
 ;;;;;;;;;;
 ;; typo.el
