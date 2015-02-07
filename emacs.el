@@ -342,44 +342,43 @@ This uses `htmlfontify'."
 ;;;;;;;;;;;;;;;
 ;; elec-pair.el
 
-;; New in 24.4
-(when (load "elec-pair" t t)
-  (electric-pair-mode 1)
+;; New in 24.4 - disabled, we use smartparens now
+;; (when (load "elec-pair" t t)
+;;   (electric-pair-mode 1)
 
-  (defun fc/electric-pair-inhibit (char)
-    "Return t if we want to not pair this char.
+;;   (defun fc/electric-pair-inhibit (char)
+;;     "Return t if we want to not pair this char.
 
-Don't pair the closing paren in :-("
-    (or (and (eq char ?\()
-             (looking-back ":-("))
-        (electric-pair-default-inhibit char)))
+;; Don't pair the closing paren in :-("
+;;     (or (and (eq char ?\()
+;;              (looking-back ":-("))
+;;         (electric-pair-default-inhibit char)))
 
-  (setq electric-pair-inhibit-predicate 'fc/electric-pair-inhibit)
+;;   (setq electric-pair-inhibit-predicate 'fc/electric-pair-inhibit)
 
-  (global-set-key (kbd "M-\"") 'fc/electric-pair-meta-quote)
-  (defun fc/electric-pair-meta-quote ()
-    "Wrap quotes around the following symbol."
-    (interactive)
-    (insert "\"")
-    (save-excursion
-      (forward-sexp 1)
-      (insert "\"")))
+;;   (global-set-key (kbd "M-\"") 'fc/electric-pair-meta-quote)
+;;   (defun fc/electric-pair-meta-quote ()
+;;     "Wrap quotes around the following symbol."
+;;     (interactive)
+;;     (insert "\"")
+;;     (save-excursion
+;;       (forward-sexp 1)
+;;       (insert "\"")))
 
-  (global-set-key (kbd "M-(") 'fc/electric-pair-meta-paren)
-  (defun fc/electric-pair-meta-paren ()
-    "Wrap parens around the following symbol."
-    (interactive)
-    (insert "(")
-    (save-excursion
-      (forward-sexp 1)
-      (insert ")"))))
+;;   (global-set-key (kbd "M-(") 'fc/electric-pair-meta-paren)
+;;   (defun fc/electric-pair-meta-paren ()
+;;     "Wrap parens around the following symbol."
+;;     (interactive)
+;;     (insert "(")
+;;     (save-excursion
+;;       (forward-sexp 1)
+;;       (insert ")"))))
 
 ;;;;;;;;;;;;;;
 ;; electric.el
 
 (load "electric" nil t)
 (electric-indent-mode 1)
-
 
 ;;;;;;;;;
 ;; eww.el
