@@ -134,7 +134,7 @@ lines. And then it will clear all preceding whitespace."
       (delete-region (point) start)))
    ((looking-at "[ \t\n]+")
     (replace-match ""))
-   ((looking-back "[ \t\n")
+   ((looking-back "[ \t\n]")
     (let ((start (point)))
       (skip-chars-backward " \t\n")
       (delete-region (point) start)))))
@@ -900,6 +900,12 @@ Or other words I used repeatedly"
 
 (when (load "comint-scroll-to-bottom" t t)
   (add-hook 'comint-mode-hook 'comint-add-scroll-to-bottom))
+
+;;;;;;;;;;;;;;;;;;;;
+;; discover-my-major
+
+(when (load "discover-my-major" t t)
+  (global-set-key (kbd "C-h m") 'discover-my-major))
 
 ;;;;;;;;;;;;;;;;;;
 ;; elisp-slime-nav
