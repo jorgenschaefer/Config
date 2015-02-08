@@ -1121,7 +1121,8 @@ from `after-change-functions' fixes that."
 (when (load "smartparens" t t)
   (load "smartparens-config")
   (setq sp-base-key-bindings 'sp
-        sp-highlight-pair-overlay nil)
+        sp-highlight-pair-overlay nil
+        sp-autoinsert-if-followed-by-same 1)
   (sp-use-smartparens-bindings)
   ;; Used otherwise in e.g. org-mode
   (define-key smartparens-mode-map (kbd "<M-up>") nil)
