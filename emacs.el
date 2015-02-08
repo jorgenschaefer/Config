@@ -1130,6 +1130,8 @@ from `after-change-functions' fixes that."
         sp-highlight-pair-overlay nil
         sp-autoinsert-if-followed-by-same 1
         sp-sexp-suffix '((python-mode regexp "")))
+  (setcdr (assq 'smartparens-mode minor-mode-alist)
+          '(""))
   (sp-use-smartparens-bindings)
   ;; Used otherwise in e.g. org-mode
   (define-key smartparens-mode-map (kbd "<M-up>") nil)
