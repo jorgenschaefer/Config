@@ -1122,7 +1122,8 @@ from `after-change-functions' fixes that."
   (load "smartparens-config")
   (setq sp-base-key-bindings 'sp
         sp-highlight-pair-overlay nil
-        sp-autoinsert-if-followed-by-same 1)
+        sp-autoinsert-if-followed-by-same 1
+        sp-sexp-suffix '((python-mode regexp "")))
   (sp-use-smartparens-bindings)
   ;; Used otherwise in e.g. org-mode
   (define-key smartparens-mode-map (kbd "<M-up>") nil)
