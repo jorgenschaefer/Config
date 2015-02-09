@@ -1136,6 +1136,7 @@ from `after-change-functions' fixes that."
   ;; Used otherwise in e.g. org-mode
   (define-key smartparens-mode-map (kbd "<M-up>") nil)
   (define-key smartparens-mode-map (kbd "<M-down>") nil)
+  (define-key smartparens-mode-map (kbd "<M-backspace>") nil)
 
   (setq sp-ignore-modes-list '(minibuffer-inactive-mode
                                circe-channel-mode
