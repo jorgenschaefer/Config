@@ -383,8 +383,9 @@ This uses `htmlfontify'."
 ;;;;;;;;;
 ;; eww.el
 
-(when (load "eww" nil t)
-  (setq browse-url-browser-function 'eww-browse-url))
+(when (not (getenv "DISPLAY"))
+  (when (load "eww" nil t)
+    (setq browse-url-browser-function 'eww-browse-url)))
 
 ;;;;;;;;;;
 ;; ffap.el
