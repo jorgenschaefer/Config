@@ -58,6 +58,13 @@ then
     . /etc/bash_completion
 fi
 
+if [ -d "$HOME/Programs/pyenv" ]
+then
+    export PYENV_ROOT="$HOME/Programs/pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+fi
+
 # Only in interactive shells
 if [ -n "$PS1" ]
 then
