@@ -524,6 +524,14 @@ symbol, not word, as I need this for programming the most."
 
 (add-hook 'before-save-hook 'time-stamp)
 
+;;;;;;;;;;;;
+;;; tramp.el
+
+(setq file-name-handler-alist
+      (cl-remove-if  (lambda (elt)
+                       (string-match "tramp" (symbol-name (cdr elt))))
+                     file-name-handler-alist))
+
 ;;;;;;;;;;;;;;;
 ;;; uniquify.el
 
