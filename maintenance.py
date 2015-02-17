@@ -8,7 +8,6 @@ import subprocess
 import time
 
 
-
 def main():
     # Add a random delay to reduce the risk of colliding with git
     # access from other hosts.
