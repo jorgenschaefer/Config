@@ -342,37 +342,36 @@ This uses `htmlfontify'."
 ;;;;;;;;;;;;;;;
 ;; elec-pair.el
 
-;; New in 24.4 - disabled, we use smartparens now
-;; (when (load "elec-pair" t t)
-;;   (electric-pair-mode 1)
+(when (load "elec-pair" t t)
+  (electric-pair-mode 1)
 
-;;   (defun fc/electric-pair-inhibit (char)
-;;     "Return t if we want to not pair this char.
+  (defun fc/electric-pair-inhibit (char)
+    "Return t if we want to not pair this char.
 
-;; Don't pair the closing paren in :-("
-;;     (or (and (eq char ?\()
-;;              (looking-back ":-("))
-;;         (electric-pair-default-inhibit char)))
+Don't pair the closing paren in :-("
+    (or (and (eq char ?\()
+             (looking-back ":-("))
+        (electric-pair-default-inhibit char)))
 
-;;   (setq electric-pair-inhibit-predicate 'fc/electric-pair-inhibit)
+  (setq electric-pair-inhibit-predicate 'fc/electric-pair-inhibit)
 
-;;   (global-set-key (kbd "M-\"") 'fc/electric-pair-meta-quote)
-;;   (defun fc/electric-pair-meta-quote ()
-;;     "Wrap quotes around the following symbol."
-;;     (interactive)
-;;     (insert "\"")
-;;     (save-excursion
-;;       (forward-sexp 1)
-;;       (insert "\"")))
+  (global-set-key (kbd "M-\"") 'fc/electric-pair-meta-quote)
+  (defun fc/electric-pair-meta-quote ()
+    "Wrap quotes around the following symbol."
+    (interactive)
+    (insert "\"")
+    (save-excursion
+      (forward-sexp 1)
+      (insert "\"")))
 
-;;   (global-set-key (kbd "M-(") 'fc/electric-pair-meta-paren)
-;;   (defun fc/electric-pair-meta-paren ()
-;;     "Wrap parens around the following symbol."
-;;     (interactive)
-;;     (insert "(")
-;;     (save-excursion
-;;       (forward-sexp 1)
-;;       (insert ")"))))
+  (global-set-key (kbd "M-(") 'fc/electric-pair-meta-paren)
+  (defun fc/electric-pair-meta-paren ()
+    "Wrap parens around the following symbol."
+    (interactive)
+    (insert "(")
+    (save-excursion
+      (forward-sexp 1)
+      (insert ")"))))
 
 ;;;;;;;;;;;;;;
 ;; electric.el
@@ -1129,34 +1128,6 @@ from `after-change-functions' fixes that."
 (when (load "pyvenv" t t)
   (defalias 'workon 'pyvenv-workon)
   (pyvenv-mode))
-
-;;;;;;;;;;;;;;;;;
-;; smartparens.el
-
-(when (load "smartparens" t t)
-  (load "smartparens-config")
-  (setq sp-base-key-bindings 'sp
-        sp-highlight-pair-overlay nil
-        sp-autoinsert-if-followed-by-same 1
-        sp-sexp-suffix '((python-mode regexp "")))
-  (setcdr (assq 'smartparens-mode minor-mode-alist)
-          '(""))
-  (sp-use-smartparens-bindings)
-  ;; Used otherwise in e.g. org-mode
-  (define-key smartparens-mode-map (kbd "<M-up>") nil)
-  (define-key smartparens-mode-map (kbd "<M-down>") nil)
-  (define-key smartparens-mode-map (kbd "<M-backspace>") nil)
-
-  (setq sp-ignore-modes-list '(minibuffer-inactive-mode
-                               circe-channel-mode
-                               circe-query-mode))
-
-  (smartparens-global-mode)
-
-  (add-hook 'org-mode-hook 'fc/org-mode-smartparens-fixup)
-  (defun fc/org-mode-smartparens-fixup ()
-    (modify-syntax-entry ?\' "\""))
-  )
 
 ;;;;;;;;;;
 ;; typo.el
