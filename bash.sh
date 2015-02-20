@@ -1,13 +1,7 @@
 # Combined bash configuration file, sourced by both bashrc and
 # bash_profile.
 
-for bindir in "$HOME/.local/bin" "$HOME/bin"
-do
-    if [ -d "$bindir" ]
-    then
-        export PATH="$bindir:${PATH}"
-    fi
-done
+export PATH="$HOME/.local/bin:${PATH}"
 
 export LANG=POSIX
 export LC_CTYPE=de_DE.UTF-8
@@ -31,14 +25,14 @@ fi
 export HISTCONTROL=ignoredups
 export LESS="-MIRnX"
 export LESSCHARSET=utf-8
-export SCREENDIR="$HOME/tmp/screen"
-export TMP="$HOME/tmp"
-export TMPDIR="$HOME/tmp"
+export TMP="$HOME/.cache/tmp/"
+export TMPDIR="$TMP"
+export SCREENDIR="$HOME/.cache/screen"
 
 export PYTHONSTARTUP="$HOME/Projects/Config/pythonrc.py"
 unset PYTHONDONTWRITEBYTECODE
 
-export PROJECT_HOME=~/Projects
+export PROJECT_HOME=$HOME/Projects
 
 alias rot13='tr a-zA-Z n-za-mN-ZA-M'
 alias mv='mv -i'

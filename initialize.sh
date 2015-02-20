@@ -5,8 +5,8 @@
 GITREPO_URL="https://github.com/jorgenschaefer/Config.git"
 
 # Ignored for now: Music Pictures Videos
-for dir in bin tmp \
-           Documents Downloads Files Maildir Programs Projects Public
+for dir in .local/bin .cache/tmp \
+           Documents Downloads Files Programs Projects Public
 do
     test -d "$HOME/$dir" || mkdir -p "$HOME/$dir"
 done
@@ -26,7 +26,7 @@ ensure_contains () {
 }
 
 # bin/
-cp -ns "$HOME"/Projects/Config/bin/* "$HOME"/bin/
+cp -ns "$HOME"/Projects/Config/bin/* "$HOME"/.local/bin/
 
 # bash.sh
 ensure_contains "$HOME/.bash_profile" \
