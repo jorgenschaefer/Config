@@ -628,7 +628,6 @@ result and keeps only the warnings."
 (load "sgml-mode" nil t)
 
 (define-key html-mode-map (kbd "C-c RET") 'fc/html-toggle-paragraph)
-(define-key text-mode-map (kbd "C-c p") 'fc/html-toggle-paragraph)
 (defun fc/html-toggle-paragraph ()
   "Add or remove HTML paragraph tags from the current paragraph"
   (interactive)
@@ -730,6 +729,13 @@ glyph."
       (let ((comint-eol-on-send nil))
         (comint-send-input)))))
 
+;;;;;;;;;;;;
+;; text-mode
+
+(add-hook 'text-mode-hook 'fc/text-mode-init)
+(defun fc/text-mode-init ()
+  (setq-local electric-pair-preserve-balance nil))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Third party extensions
 
@@ -802,6 +808,10 @@ glyph."
            :channels ("#grd" "#electusmatari")
            )
           ))
+
+  (add-hook 'circe-chat-mode-hook 'fc/circe-chat-mode-init)
+  (defun fc/chat-mode-mode-init ()
+    (setq-local electric-pair-preserve-balance nil))
 
   (load "circe-lagmon" nil t)
   (circe-lagmon-mode)
@@ -1074,6 +1084,7 @@ from `after-change-functions' fixes that."
 ;; This actually comes with Emacs, but we want to use the one from GNU
 ;; ELPA to be more current, hence it's down here.
 (when (load "org" t t)
+  (modify-syntax-entry ?\' "." org-mode-syntax-table)
   (define-key org-mode-map (kbd "C-c a") 'fc/org-agenda)
   (define-key org-mode-map (kbd "C-c ,") nil)
   (defun fc/org-agenda ()
