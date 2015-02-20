@@ -60,5 +60,4 @@ trap "rm -f $TEMPFILE" EXIT
 
 crontab -l > "$TEMPFILE"
 ensure_contains "$TEMPFILE" '10 * * * * ~/Projects/Config/maintenance.py'
-ensure_contains "$TEMPFILE" '40 * * * * ~/Projects/Config/bin/sync-org'
 crontab < "$TEMPFILE"
