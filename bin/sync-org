@@ -5,5 +5,5 @@ then
     . ~/.private.sh
 
     wget -qO - "$GOOGLE_ICAL" \
-        | ~/bin/ical2org > ~/Files/google-calendar.org
+        | ~/.local/bin/ical2org > ~/Files/google-calendar.org
 fi

@@ -66,8 +66,8 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; Put backup files neatly away
-(let ((backup-dir "~/tmp/emacs/backups")
-      (auto-saves-dir "~/tmp/emacs/auto-saves/"))
+(let ((backup-dir "~/.cache/tmp/emacs/backups")
+      (auto-saves-dir "~/.cache/tmp/emacs/auto-saves/"))
   (dolist (dir (list backup-dir auto-saves-dir))
     (when (not (file-directory-p dir))
       (make-directory dir t)))
