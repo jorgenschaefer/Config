@@ -810,7 +810,7 @@ glyph."
           ))
 
   (add-hook 'circe-chat-mode-hook 'fc/circe-chat-mode-init)
-  (defun fc/chat-mode-mode-init ()
+  (defun fc/circe-chat-mode-init ()
     (setq-local electric-pair-preserve-balance nil))
 
   (load "circe-lagmon" nil t)
