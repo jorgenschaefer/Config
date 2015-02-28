@@ -826,50 +826,7 @@ glyph."
   (enable-lui-logging-globally)
   (setq lui-logging-file-format "{buffer}/%Y-%m-%d.txt")
 
-  (defun circe-command-AKICK (args)
-    (cond
-     ((string-match "!T" args)
-      (circe-command-MSG "ChanServ"
-                         (format "AKICK %s ADD %s"
-                                 circe-chat-target
-                                 args)))
-     ((string-match "^ *\\([^ ]+\\) \\([0-9]+\\) \\(.*\\)" args)
-      (circe-command-MSG "ChanServ"
-                         (format "AKICK %s ADD %s !T %s %s"
-                                 circe-chat-target
-                                 (match-string 1 args)
-                                 (match-string 2 args)
-                                 (match-string 3 args))))
-     ((string-match "^ *\\([^ ]+\\) \\(.*\\)" args)
-      (circe-command-MSG "ChanServ"
-                         (format "AKICK %s ADD %s !T %s %s"
-                                 circe-chat-target
-                                 (match-string 1 args)
-                                 "30"
-                                 (match-string 2 args))))))
-
-  (add-hook 'lui-post-output-hook 'fc/lui-save-highlights)
-  (defun fc/lui-save-highlights ()
-    (when (and (time-less-p '(0 300 0 0)
-                            (or (current-idle-time)
-                                '(0 0 0 0)))
-               (memq 'circe-highlight-nick-face
-                     (lui-faces-in-region (point-min)
-                                          (point-max))))
-      (let ((buffer (buffer-name))
-            (target circe-chat-target)
-            (network (with-circe-server-buffer
-                       circe-server-network))
-            ;; We're narrowed
-            (text (buffer-string)))
-        (with-current-buffer (get-buffer-create "*Highlights*")
-          (goto-char (point-max))
-          (insert (format-time-string "%Y-%m-%d %H:%M") " in "
-                  (or target buffer) "@" network ":\n"
-                  text
-                  "\n")
-          (display-buffer (current-buffer))))))
-
+  ;; Autopaste
   (load "lui-autopaste" nil t)
   (add-hook 'circe-channel-mode-hook 'enable-lui-autopaste)
   (defvar fc/lui-autopaste-service-gist-url nil
@@ -900,6 +857,61 @@ glyph."
       (prog1 fc/lui-autopaste-service-gist-url
         (setq fc/lui-autopaste-service-gist-url nil))))
 
+  ;; Various extensions
+  (defun circe-command-AKICK (args)
+    "Kick a user from the current channel using ChanServ.
+
+Example uses:
+
+/akick someidiot Get lost
+- Kick someidiot with the message 'Get lost' for 30 minutes
+/akick someidiot !T 15 Try again later
+- Kick someidiot with the message 'Try again later' for 15 minutes"
+    (cond
+     ((string-match "!T" args)
+      (circe-command-MSG "ChanServ"
+                         (format "AKICK %s ADD %s"
+                                 circe-chat-target
+                                 args)))
+     ((string-match "^ *\\([^ ]+\\) \\([0-9]+\\) \\(.*\\)" args)
+      (circe-command-MSG "ChanServ"
+                         (format "AKICK %s ADD %s !T %s %s"
+                                 circe-chat-target
+                                 (match-string 1 args)
+                                 (match-string 2 args)
+                                 (match-string 3 args))))
+     ((string-match "^ *\\([^ ]+\\) \\(.*\\)" args)
+      (circe-command-MSG "ChanServ"
+                         (format "AKICK %s ADD %s !T %s %s"
+                                 circe-chat-target
+                                 (match-string 1 args)
+                                 "30"
+                                 (match-string 2 args))))))
+
+  ;; Save text when I get highlighted
+  (add-hook 'lui-post-output-hook 'fc/lui-save-highlights)
+  (defun fc/lui-save-highlights ()
+    (when (and (time-less-p '(0 300 0 0)
+                            (or (current-idle-time)
+                                '(0 0 0 0)))
+               (memq 'circe-highlight-nick-face
+                     (lui-faces-in-region (point-min)
+                                          (point-max))))
+      (let ((buffer (buffer-name))
+            (target circe-chat-target)
+            (network (with-circe-server-buffer
+                       circe-server-network))
+            ;; We're narrowed
+            (text (buffer-string)))
+        (with-current-buffer (get-buffer-create "*Highlights*")
+          (goto-char (point-max))
+          (insert (format-time-string "%Y-%m-%d %H:%M") " in "
+                  (or target buffer) "@" network ":\n"
+                  text
+                  "\n")
+          (display-buffer (current-buffer))))))
+
+  ;; Some spelling correction
   (add-hook 'lui-pre-input-hook 'fc/there-is-no-wether)
   (defun fc/there-is-no-wether ()
     "Throw an error when the buffer contains \"wether\"
