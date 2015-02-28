@@ -772,7 +772,6 @@ glyph."
     (circe "IRCnet")
     (circe "Coldfront")
     )
-
   (setq freenode-password nil
         bitlbee-password nil
         coldfront-password nil)
@@ -782,8 +781,11 @@ glyph."
   (setq circe-default-realname "http://www.jorgenschaefer.de/"
         circe-server-killed-confirmation 'ask-and-kill-all
         circe-format-server-topic "*** Topic change by {origin}: {topic-diff}"
-        circe-lagmon-mode-line-format-string "l:%.1f "
-        circe-lagmon-mode-line-unknown-lag-string "l:? "
+        lui-max-buffer-size 30000
+        lui-flyspell-p t
+        lui-scroll-behavior t
+        lui-flyspell-alist '(("#kollektiv" "german8")
+                             ("" "american"))
         circe-reduce-lurker-spam t
         circe-network-options
         `(("Freenode"
@@ -813,18 +815,16 @@ glyph."
   (defun fc/circe-chat-mode-init ()
     (setq-local electric-pair-preserve-balance nil))
 
+  ;; Lag Monitor, mainly for auto-reconnect
   (load "circe-lagmon" nil t)
+  (setq circe-lagmon-mode-line-format-string ""
+        circe-lagmon-mode-line-unknown-lag-string "")
   (circe-lagmon-mode)
 
+  ;; Logging
   (load "lui-logging" nil t)
   (enable-lui-logging-globally)
-
-  (setq lui-max-buffer-size 30000
-        lui-flyspell-p t
-        lui-scroll-behavior t
-        lui-flyspell-alist '(("#kollektiv" "german8")
-                             ("" "american"))
-        )
+  (setq lui-logging-file-format "{buffer}/%Y-%m-%d.txt")
 
   (defun circe-command-AKICK (args)
     (cond
@@ -843,10 +843,10 @@ glyph."
      ((string-match "^ *\\([^ ]+\\) \\(.*\\)" args)
       (circe-command-MSG "ChanServ"
                          (format "AKICK %s ADD %s !T %s %s"
-                               circe-chat-target
-                               (match-string 1 args)
-                               "30"
-                               (match-string 2 args))))))
+                                 circe-chat-target
+                                 (match-string 1 args)
+                                 "30"
+                                 (match-string 2 args))))))
 
   (add-hook 'lui-post-output-hook 'fc/lui-save-highlights)
   (defun fc/lui-save-highlights ()
