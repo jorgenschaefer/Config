@@ -29,4 +29,4 @@ I also use `Books/`, `Music/`, `Pictures/` and `Videos/` when applicable.
 
 ## License
 
-GPL
+GPLv3 or later.
