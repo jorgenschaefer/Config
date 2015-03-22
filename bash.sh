@@ -18,6 +18,8 @@ export LC_MEASUREMENT=POSIX
 export LC_IDENTIFICATION=POSIX
 export LC_ALL=
 
+export EDITOR=vi
+
 if [ -f "$HOME/.email" ]
 then
     export EMAIL=$(cat "$HOME/.email")
