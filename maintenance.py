@@ -28,7 +28,7 @@ def commit(repo):
     if not os.path.isdir(os.path.join(repo, ".git")):
         return
     os.chdir(repo)
-    run("git", "add", "-A", "*")
+    run("git", "add", "-A")
     # This would error if no files were to be commited
     with open("/dev/null", "w") as devnull:
         subprocess.call(["git", "commit", "-q", "-a",
