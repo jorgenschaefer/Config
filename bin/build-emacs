@@ -2,13 +2,13 @@
 
 set -e
 
-if [ -d ~/Programs/Emacs/trunk ]
+if [ -d ~/Programs/Emacs/git ]
 then
-    cd ~/Programs/Emacs/trunk
+    cd ~/Programs/Emacs/git
     git pull --rebase
 else
-    git clone --depth 1 git://git.savannah.gnu.org/emacs.git ~/Programs/Emacs/trunk
-    cd ~/Programs/Emacs/trunk
+    git clone --depth 1 git://git.savannah.gnu.org/emacs.git ~/Programs/Emacs/git
+    cd ~/Programs/Emacs/git
 fi
 
 if [ -f Makefile ]
