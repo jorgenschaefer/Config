@@ -792,12 +792,14 @@ glyph."
         `(("Freenode"
            :host "irc.freenode.net" :port 6697 :tls t
            :nick "forcer"
-           :pass ,freenode-password
+           ;; :pass ,freenode-password
+           :sasl-username "forcer"
+           :sasl-password ,freenode-password
            :channels ("#emacs" "#emacs-circe" "#elpy" "##emacs.de"
                       ;; "#django" "#debian" "#ansible" "#angularjs"
                       :after-auth "#emacs-ops")
-           :nickserv-password ,freenode-password
-           :nickserv-ghost-style immediate
+           ;; :nickserv-password ,freenode-password
+           ;; :nickserv-ghost-style immediate
            )
           ("IRCnet"
            :host "irc.uni-erlangen.de" :port 6667
