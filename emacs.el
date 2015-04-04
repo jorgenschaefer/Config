@@ -752,7 +752,8 @@ glyph."
         ("melpa-stable" . "http://stable.melpa.org/packages/")
         ("melpa" . "http://melpa.org/packages/")
         ("elpy" . "http://jorgenschaefer.github.io/packages/")))
-(setq package-archive-priorities '(("melpa" . -100)))
+(setq package-archive-priorities '(("melpa" . -100))
+      package-enable-at-startup nil)
 (package-initialize)
 
 ;;;;;;;;;
