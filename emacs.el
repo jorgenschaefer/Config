@@ -795,7 +795,8 @@ glyph."
            ;; :pass ,freenode-password
            :sasl-username "forcer"
            :sasl-password ,freenode-password
-           :channels ("#emacs" "#emacs-circe" "#elpy" "##emacs.de"
+           :channels ("#emacs" "#emacs-circe" "#emacs-elpy" "##emacs.de"
+                      "#elpy"
                       ;; "#django" "#debian" "#ansible" "#angularjs"
                       :after-auth "#emacs-ops")
            ;; :nickserv-password ,freenode-password
