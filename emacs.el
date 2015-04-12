@@ -1094,6 +1094,13 @@ from `after-change-functions' fixes that."
     nil)
   )
 
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Multiple Cursors Mode
+
+(when (load "multiple-cursors" t t)
+  (global-set-key (kbd "<M-S-up>") 'mc/mark-previous-lines)
+  (global-set-key (kbd "<M-S-down>") 'mc/mark-next-lines))
+
 ;;;;;;;;;;;
 ;; Org Mode
 
