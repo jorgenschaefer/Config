@@ -955,7 +955,16 @@ Or other words I used repeatedly"
 (when (load "elpy" t t)
   (elpy-enable)
 
-  (global-set-key (kbd "C-c ,") 'elpy-multiedit))
+  (global-set-key (kbd "C-c ,") 'elpy-multiedit)
+
+  (add-hook 'pyvenv-post-activate-hooks 'fc/configure-elpy-from-env)
+  (defun fc/configure-elpy-from-env ()
+    (dolist (elt process-environment)
+      (when (string-match "\\`\\(ELPY_[^=]*\\)=\\(.*\\)\\'" elt)
+        (let ((var (downcase
+                    (replace-regexp-in-string "_" "-" (match-string 1 elt))))
+              (val (match-string 2 elt)))
+          (set (intern var) (read val)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; fill-column-indicator
@@ -1100,7 +1109,7 @@ from `after-change-functions' fixes that."
 (when (load "multiple-cursors" t t)
   (global-set-key (kbd "<M-S-up>") 'mc/mark-previous-lines)
   (global-set-key (kbd "<M-S-down>") 'mc/mark-next-lines)
-  (global-set-key (kbd "<C-M-j>") 'fc/mark-next-like-this)
+  (global-set-key (kbd "C-M-j") 'fc/mark-next-like-this)
   (global-set-key (kbd "<M-S-return>") 'fc/mark-next-like-this)
   (defun fc/mark-next-like-this (arg)
     (interactive "p")
