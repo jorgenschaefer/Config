@@ -684,7 +684,7 @@ glyph."
 
 (add-hook 'python-mode-hook
           (lambda ()
-            (setq electric-indent-chars nil)))
+            (setq electric-indent-chars '(10))))
 
 ;;;;;;;;;;;;;;
 ;; scheme-mode
