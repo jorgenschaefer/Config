@@ -682,6 +682,10 @@ glyph."
 (when (executable-find "flake8")
   (setq python-check-command "flake8"))
 
+(add-hook 'python-mode-hook
+          (lambda ()
+            (setq electric-indent-chars nil)))
+
 ;;;;;;;;;;;;;;
 ;; scheme-mode
 
