@@ -760,12 +760,6 @@ glyph."
       package-enable-at-startup nil)
 (package-initialize)
 
-;;;;;;;;;
-;;; bitly
-
-(when (load "bitly" t t)
-  (global-set-key (kbd "C-c U") 'bitly-url-at-point))
-
 ;;;;;;;;
 ;; Circe
 
@@ -939,12 +933,6 @@ Or other words I used repeatedly"
 (when (load "comint-scroll-to-bottom" t t)
   (add-hook 'comint-mode-hook 'comint-add-scroll-to-bottom))
 
-;;;;;;;;;;;;;;;;;;;;
-;; discover-my-major
-
-(when (load "discover-my-major" t t)
-  (global-set-key (kbd "C-h m") 'discover-my-major))
-
 ;;;;;;;;;;;;;;;;;;
 ;; elisp-slime-nav
 
@@ -989,11 +977,10 @@ Or other words I used repeatedly"
 ;; (when (load "flx-ido" t t)
 ;;   (flx-ido-mode 0))
 
-;;;;;;;;
-;; gitty
+;;;;;;;
+;; ixio
 
-(when (load "gitty" t t)
-  (gitty-mode))
+(load "ixio" t t)
 
 ;;;;;;;;;;;
 ;; js2-mode
@@ -1132,7 +1119,7 @@ from `after-change-functions' fixes that."
 ;; Org Mode
 
 ;; This actually comes with Emacs, but we want to use the one from GNU
-;; ELPA to be more current, hence it's down here.
+;; ELPA as it is more current, hence it's down here.
 (when (load "org" t t)
   (modify-syntax-entry ?\' "." org-mode-syntax-table)
   (define-key org-mode-map (kbd "C-c a") 'fc/org-agenda)
@@ -1196,56 +1183,6 @@ from `after-change-functions' fixes that."
 (when (load "typo" t t)
   (dolist (hook '(markdown-mode-hook html-mode-hook))
     (add-hook hook 'typo-mode)))
-
-;;;;;;
-;; w3m
-
-(when (load "w3m" t t)
-  (setq-default browse-url-browser-function 'w3m-browse-url)
-
-  ;; This might help in saving cookies
-  (add-hook 'kill-emacs-hook
-            (lambda ()
-              (w3m-quit t)))
-
-  (setq w3m-use-cookies t
-        w3m-cookie-accept-bad-cookies t
-        w3m-use-tab nil
-        w3m-use-tab-menubar nil
-        w3m-auto-show nil)
-
-  (define-key w3m-mode-map (kbd "C-c C-@") 'lui-track-next-buffer)
-  (define-key w3m-mode-map (kbd "C-c c") 'fc/copy-url)
-  (define-key w3m-mode-map (kbd "<down>") 'next-line)
-  (define-key w3m-mode-map (kbd "<up>") 'previous-line)
-  (define-key w3m-mode-map (kbd "<right>") 'forward-char)
-  (define-key w3m-mode-map (kbd "<left>") 'backward-char)
-  (define-key w3m-mode-map (kbd "C-x b") 'ido-switch-buffer)
-
-  ;; Change w3m buffers to the url they show
-  ;; Thanks to marienz (#emacs) for the idea
-  (add-hook 'w3m-display-hook 'fc/w3m-rename-buffer)
-  (defun fc/w3m-rename-buffer (url)
-    (rename-buffer url t))
-
-  (add-hook 'w3m-form-input-textarea-mode-hook 'fc/remove-cr)
-  (defun fc/remove-cr ()
-    "Remove all occurrences of ^M in the current buffer."
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward "\r" nil t)
-        (replace-match ""))))
-
-  (defun fc/copy-url (n)
-    "Copy the current URL to the kill ring, or the current anchor URL if
-a prefix argument is given."
-    (interactive "p")
-    (let ((url (if (= n 1)
-                   w3m-current-url
-                 (w3m-anchor))))
-      (if url
-          (kill-new url)
-        (error "No url.")))))
 
 ;;;;;;;;;;;;
 ;; yaml-mode
