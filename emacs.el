@@ -744,8 +744,11 @@ glyph."
 ;;; Third party extensions
 
 (when (file-directory-p "~/.emacs.d/site-lisp")
-  (add-to-list 'load-path "~/.emacs.d/site-lisp")
-  (dolist (dirname (directory-files "~/.emacs.d/site-lisp" t "^[^.]"))
+  (rename-file "~/.emacs.d/site-lisp" "~/.emacs.d/lisp"))
+
+(when (file-directory-p "~/.emacs.d/lisp")
+  (add-to-list 'load-path "~/.emacs.d/lisp")
+  (dolist (dirname (directory-files "~/.emacs.d/lisp" t "^[^.]"))
     (when (file-directory-p dirname)
       (add-to-list 'load-path dirname))))
 
@@ -1023,6 +1026,7 @@ Or other words I used repeatedly"
 ;;;;;;;;
 ;; magit
 
+(setq magit-last-seen-setup-instructions "1.4.0")
 (when (load "magit" t t)
   (global-set-key (kbd "C-x v g") 'magit-status)
   (global-set-key (kbd "C-x v a") 'vc-annotate))
