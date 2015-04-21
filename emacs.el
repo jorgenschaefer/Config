@@ -107,7 +107,6 @@
       completion-ignore-case t)
 
 ;; Clean up whitespace
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
 (setq-default indent-tabs-mode nil
               delete-trailing-lines t
               require-final-newline t)
