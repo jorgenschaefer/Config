@@ -4,6 +4,9 @@
 (when (featurep 'xemacs)
   (error "This .emacs file does not work with XEmacs."))
 
+;; Bugfix until #20356 is fixed.
+(set-terminal-parameter nil 'xterm--set-selection nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; User interface
 
@@ -601,8 +604,6 @@ symbol, not word, as I need this for programming the most."
 ;; emacs-lisp-mode
 
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
-(define-key emacs-lisp-mode-map (kbd "M-.") 'dabbrev-expand)
-(define-key lisp-interaction-mode-map (kbd "M-.") 'dabbrev-expand)
 
 (defun elisp-check ()
   "Check the current buffer for possible elisp problems.
