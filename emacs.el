@@ -403,8 +403,9 @@ Don't pair the closing paren in :-("
 (global-set-key (kbd "M-/") 'hippie-expand)
 ;; Full-line completion is *annoying*
 (setq hippie-expand-try-functions-list
-      (delq 'try-expand-line
-	    hippie-expand-try-functions-list))
+      (delq 'try-expand-list
+            (delq 'try-expand-line
+                  hippie-expand-try-functions-list)))
 
 ;;;;;;;;;;;;;
 ;; ibuffer.el
