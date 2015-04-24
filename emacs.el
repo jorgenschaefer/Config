@@ -113,7 +113,9 @@
 (setq-default indent-tabs-mode nil
               delete-trailing-lines t
               require-final-newline t
-              show-trailing-whitespace t)
+              show-trailing-whitespace nil)
+(add-hook 'prog-mode-hook (lambda ()
+                            (setq-local show-trailing-whitespace t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Custom commands
