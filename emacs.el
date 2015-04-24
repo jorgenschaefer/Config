@@ -112,7 +112,8 @@
 ;; Clean up whitespace
 (setq-default indent-tabs-mode nil
               delete-trailing-lines t
-              require-final-newline t)
+              require-final-newline t
+              show-trailing-whitespace t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Custom commands
