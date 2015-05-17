@@ -412,6 +412,20 @@ Don't pair the closing paren in :-("
 
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
+(add-hook 'ibuffer-hook 'fc/ibuffer-group-buffers)
+(defun fc/ibuffer-group-buffers ()
+  (setq ibuffer-show-empty-filter-groups nil)
+  (setq ibuffer-filter-groups
+        (append
+         (ibuffer-vc-generate-filter-groups-by-vc-root)
+         '(("Circe"
+            (or (mode . circe-channel-mode)
+                (mode . circe-query-mode)
+                (mode . circe-server-mode))))
+         (ibuffer-projectile-generate-filter-groups)))
+  (unless (eq ibuffer-sorting-mode 'alphabetic)
+    (ibuffer-do-sort-by-alphabetic)))
+
 ;;;;;;;;;
 ;; ido.el
 
