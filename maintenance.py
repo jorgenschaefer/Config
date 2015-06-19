@@ -8,6 +8,14 @@ import subprocess
 import time
 
 
+class Foo(object):
+    x = 1
+
+    def bar():
+        x = 2
+        pass
+
+
 def main():
     # Add a random delay to reduce the risk of colliding with git
     # access from other hosts.
