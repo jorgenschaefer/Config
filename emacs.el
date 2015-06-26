@@ -31,7 +31,7 @@
 (prefer-coding-system 'utf-8)
 
 (mapc (lambda (map)
-        (define-key function-key-map
+        (define-key input-decode-map
           (read-kbd-macro (cadr map))
           (read-kbd-macro (car map))))
       '(("<backtab>"    "ESC [ Z")
