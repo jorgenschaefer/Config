@@ -800,7 +800,7 @@ glyph."
 
   (setq circe-default-realname "http://www.jorgenschaefer.de/"
         circe-server-killed-confirmation 'ask-and-kill-all
-        circe-format-server-topic "*** Topic change by {origin}: {topic-diff}"
+        circe-format-server-topic "*** Topic change by {nick} ({userhost}): {topic-diff}"
         lui-max-buffer-size 30000
         lui-flyspell-p t
         lui-scroll-behavior t
