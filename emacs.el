@@ -805,6 +805,7 @@ glyph."
         lui-flyspell-p t
         lui-scroll-behavior t
         lui-flyspell-alist '(("#kollektiv" "german8")
+                             ("##emacs.de" "german8")
                              ("" "american"))
         circe-reduce-lurker-spam t
         circe-network-options
