@@ -793,7 +793,6 @@ glyph."
     (circe "Coldfront")
     )
   (setq freenode-password nil
-        bitlbee-password nil
         coldfront-password nil)
   (when (file-exists-p "~/.private.el")
     (load "~/.private.el" nil t))
