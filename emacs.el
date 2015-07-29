@@ -966,7 +966,6 @@ Or other words I used repeatedly"
 ;; elpy
 
 (when (load "elpy" t t)
-  (remove-hook 'elpy-modules 'elpy-module-yasnippet)
   (elpy-enable)
 
   (global-set-key (kbd "C-c ,") 'elpy-multiedit)
