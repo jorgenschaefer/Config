@@ -546,6 +546,8 @@ symbol, not word, as I need this for programming the most."
 ;;;;;;;;;;;;
 ;;; tramp.el
 
+(require 'cl-lib)
+
 (setq file-name-handler-alist
       (cl-remove-if  (lambda (elt)
                        (string-match "tramp" (symbol-name (cdr elt))))
