@@ -817,7 +817,7 @@ glyph."
            :sasl-username "forcer"
            :sasl-password ,freenode-password
            :channels ("#emacs" "#emacs-circe" "#emacs-elpy" "##emacs.de"
-                      "#elpy"
+                      "#elpy" "#emacs-beginners"
                       ;; "#django" "#debian" "#ansible" "#angularjs"
                       :after-auth "#emacs-ops")
            ;; :nickserv-password ,freenode-password
