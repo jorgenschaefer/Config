@@ -39,6 +39,7 @@ export PROJECT_HOME=$HOME/Projects
 alias rot13='tr a-zA-Z n-za-mN-ZA-M'
 alias mv='mv -i'
 alias %='fg'
+alias sc="screen -rd"
 
 if type virtualenvwrapper.sh &>/dev/null
 then
@@ -59,6 +60,18 @@ then
     export PYENV_ROOT="$HOME/Programs/pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init -)"
+fi
+
+if [ -d "$HOME/Programs/go" ]
+then
+    export GOROOT="/home/forcer/Programs/go"
+    export PATH="$GOROOT/bin:$PATH"
+fi
+
+if [ -d "$HOME/Projects/go-projects/" ]
+then
+    export GOPATH="$HOME/Projects/go-projects/"
+    export PATH="$GOPATH/bin:$PATH"
 fi
 
 # Only in interactive shells
@@ -94,6 +107,39 @@ then
         alias ls='ls -F'
         alias grep='grep --exclude-dir=.svn --exclude-dir=.git'
     fi
+
+    # A workon command for generic projects
+    function wo () {
+        local name="$1"
+        if [ -z "$name" ]
+        then
+            echo "usage: wo <project>" >&2
+            echo >&2
+            echo "Possible projects:" >&2
+            echo >&2
+            /bin/ls "$HOME/Projects" >&2
+        fi
+        if [ ! -d "$HOME/Projects/$name" ]
+        then
+            echo "No such project: $name" >&2
+            return 1
+        fi
+        cd "$HOME/Projects/$name"
+        if [ -f ".env" ]
+        then
+            set -a
+            . .env
+            set +a
+        fi
+        if [ -d "$HOME/.virtualenvs/$name" ]
+        then
+            workon "$name"
+        fi
+    }
+    complete -o default -o nospace -F _projects wo
+    function _projects () {
+        COMPREPLY=($(compgen -W "`/bin/ls "$HOME/Projects"`" -- "$2"))
+    }
 
     # And now, the prompt
     if type tput &>/dev/null && tput setaf 1 >&/dev/null

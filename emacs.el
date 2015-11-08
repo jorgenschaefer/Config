@@ -1000,6 +1000,39 @@ Or other words I used repeatedly"
 ;; (when (load "flx-ido" t t)
 ;;   (flx-ido-mode 0))
 
+;;;;;;;;;;
+;; go-mode
+
+(when (load "go-mode" nil t)
+  ;; go get github.com/nsf/gocode
+  ;; go get github.com/rogpeppe/godef
+  ;; go get golang.org/x/tools/cmd/goimports
+  ;; go get golang.org/x/tools/cmd/godoc
+  (setq company-go-show-annotation t
+        gofmt-command "goimports")
+
+  (define-key go-mode-map (kbd "M-.") 'godef-jump)
+
+  (define-key go-mode-map (kbd "C-c C-t") 'fc/go-test)
+  (defun fc/go-test ()
+    (interactive)
+    (compile "go test -v"))
+
+  (define-key go-mode-map (kbd "C-c C-v") 'fc/go-fmt-buffer)
+  (defun fc/go-fmt-buffer ()
+    (interactive)
+    (compile "go build -v && go test -v && go vet"))
+
+  (add-hook 'go-mode-hook 'fc/go-setup)
+  (defun fc/go-setup ()
+    ;; (go-projectile-mode)
+    (go-eldoc-setup)
+    (yas/minor-mode)
+    (add-hook 'before-save-hook 'gofmt-before-save nil t)
+    (set (make-local-variable 'company-backends)
+         '(company-go))
+    (company-mode)))
+
 ;;;;;;;
 ;; ixio
 
@@ -1161,10 +1194,9 @@ from `after-change-functions' fixes that."
 	org-agenda-include-diary nil
 	org-agenda-start-on-weekday nil
 	org-todo-keywords '((sequence "TODO"
-				      "DONE"
-				      "WAITING"
-                                      "SCHEDULED"
-				      "ONGOING"))
+                                      "WAITING"
+                                      "|"
+                                      "DONE"))
 	org-agenda-custom-commands '(("t" "General TODO agenda"
 				      ((todo "TODO")
 				       (agenda "")

@@ -5,6 +5,7 @@ set -e
 if [ -d ~/Programs/Emacs/git ]
 then
     cd ~/Programs/Emacs/git
+    git clean -dfx
     git pull --rebase
 else
     git clone --depth 1 git://git.savannah.gnu.org/emacs.git ~/Programs/Emacs/git
