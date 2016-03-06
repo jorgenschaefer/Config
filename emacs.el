@@ -1251,7 +1251,7 @@ from `after-change-functions' fixes that."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Start environment
 
-(when (file-exists-p "~/Documents/Notes/Todo.org")
+(when (file-exists-p "~/Documents/Notes/Notes.org")
   (with-current-buffer (find-file "~/Documents/Notes/Todo.org")
     (setq default-directory "~/"))
   (org-agenda nil "t")

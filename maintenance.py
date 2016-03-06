@@ -24,8 +24,9 @@ def main():
     commit(os.path.expanduser("~/Documents/"))
     one_week = (datetime.datetime.now() -
                 datetime.timedelta(days=7))
+    year = datetime.datetime.now().year
     archive_older(os.path.expanduser("~/"),
-                  os.path.expanduser("~/Files/Stuff/"),
+                  os.path.expanduser("~/Files/Stuff/{}/".format(year)),
                   one_week)
     # Idea: If stuff in ~/Files/Stuff/ that is older than a month gets
     # bigger than 1M, create a nice tarball in ~/Files/Archive/Stuff/
