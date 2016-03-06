@@ -19,16 +19,7 @@
 (when (window-system)
   (set-frame-font
    "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
-  (setq x-select-enable-primary t
-        x-select-enable-clipboard nil
-        x-stretch-cursor t
-        mouse-yank-at-point t))
-
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-language-environment "utf-8")
-(prefer-coding-system 'latin-1)
-(prefer-coding-system 'utf-8)
+  (setq mouse-yank-at-point t))
 
 (mapc (lambda (map)
         (define-key input-decode-map
@@ -76,7 +67,6 @@
       (make-directory dir t)))
   (setq backup-directory-alist `(("." . ,backup-dir))
         auto-save-file-name-transforms `((".*" ,auto-saves-dir t))
-        auto-save-list-file-prefix (concat auto-saves-dir ".saves-")
         tramp-backup-directory-alist `((".*" . ,backup-dir))
         tramp-auto-save-directory auto-saves-dir))
 
@@ -104,18 +94,16 @@
  load-prefer-newer t)
 
 ;; Case insensitivity
-(setq case-fold-search t
+(setq completion-ignore-case t
       read-file-name-completion-ignore-case t
-      read-buffer-completion-ignore-case t
-      completion-ignore-case t)
+      read-buffer-completion-ignore-case t)
 
 ;; Clean up whitespace
 (setq-default indent-tabs-mode nil
-              delete-trailing-lines t
-              require-final-newline t
-              show-trailing-whitespace nil)
-(add-hook 'prog-mode-hook (lambda ()
-                            (setq-local show-trailing-whitespace t)))
+              require-final-newline t)
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (setq-local show-trailing-whitespace t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Custom commands
@@ -150,12 +138,7 @@ lines. And then it will clear all preceding whitespace."
   (interactive)
   (if (bolp)
       (back-to-indentation)
-    (move-beginning-of-line 1))
-  ;; (let ((current (point)))
-  ;;   (back-to-indentation)
-  ;;   (when (= (point) current)
-  ;;     (move-beginning-of-line 1)))
-  )
+    (move-beginning-of-line 1)))
 
 (global-set-key (kbd "C-x r a") 'fc/add-rectangle)
 (defun fc/add-rectangle (start end)
@@ -254,21 +237,6 @@ two prefix arguments, write out the day and month name."
       (kill-new name))
     (message "%s" name)))
 
-(defun rename-buffer-and-file (new-file-name)
-  "Rename the current buffer's file to NEW-FILE-NAME.
-
-Also, rename the buffer and attach it to the new file."
-  (interactive
-   (list (read-file-name "Rename to: "
-                         nil buffer-file-name
-                         nil buffer-file-name)))
-  (rename-file buffer-file-name
-               new-file-name)
-  (rename-buffer (file-name-nondirectory new-file-name)
-                 t)
-  (setq buffer-file-name new-file-name)
-  (normal-mode))
-
 (global-set-key (kbd "C-c u") 'unfill-paragraph)
 (defun unfill-paragraph ()
   (interactive)
@@ -350,6 +318,7 @@ This uses `htmlfontify'."
 (when (load "elec-pair" t t)
   (electric-pair-mode 1)
 
+  (setq electric-pair-inhibit-predicate 'fc/electric-pair-inhibit)
   (defun fc/electric-pair-inhibit (char)
     "Return t if we want to not pair this char.
 
@@ -357,8 +326,6 @@ Don't pair the closing paren in :-("
     (or (and (eq char ?\()
              (looking-back ":-("))
         (electric-pair-default-inhibit char)))
-
-  (setq electric-pair-inhibit-predicate 'fc/electric-pair-inhibit)
 
   (global-set-key (kbd "M-\"") 'fc/electric-pair-meta-quote)
   (defun fc/electric-pair-meta-quote ()
@@ -377,12 +344,6 @@ Don't pair the closing paren in :-("
     (save-excursion
       (forward-sexp 1)
       (insert ")"))))
-
-;;;;;;;;;;;;;;
-;; electric.el
-
-(load "electric" nil t)
-(electric-indent-mode 1)
 
 ;;;;;;;;;
 ;; eww.el
@@ -430,13 +391,13 @@ Don't pair the closing paren in :-("
 ;; ido.el
 
 (load "ido" nil t)
-(ido-mode 1)
 (setq ido-everywhere t
       ido-confirm-unique-completion t
       ;; This is cute. Except when you want to open a new file, then
       ;; it's annoying as hell.
       ido-auto-merge-work-directories-length -1
       ido-enable-flex-matching t)
+(ido-mode 1)
 
 (add-hook 'ido-setup-hook 'fc/ido-setup)
 (defun fc/ido-setup ()
@@ -484,6 +445,7 @@ symbol, not word, as I need this for programming the most."
 ;; paren.el
 
 (load "paren" nil t)
+;; I tried 0.01 and the delay is still annoying the hell out of me.
 (setq show-paren-delay 0
       show-paren-style 'parenthesis)
 (show-paren-mode 1)
@@ -500,7 +462,6 @@ symbol, not word, as I need this for programming the most."
 (load "paragraphs" nil t)
 ;; Single dash starts a paragraph
 (setq paragraph-start "- \\|\f\\|[ \t]*$"
-      paragraph-separate "[\f\t ]*$"
       sentence-end-double-space nil)
 
 ;;;;;;;;;;;;;;;
@@ -546,23 +507,17 @@ symbol, not word, as I need this for programming the most."
 ;;;;;;;;;;;;
 ;;; tramp.el
 
-(require 'cl-lib)
-
+(load "cl-lib" nil t)
 (setq file-name-handler-alist
-      (cl-remove-if  (lambda (elt)
-                       (string-match "tramp" (symbol-name (cdr elt))))
-                     file-name-handler-alist))
+      (cl-remove-if (lambda (elt)
+                      (string-match "tramp" (symbol-name (cdr elt))))
+                    file-name-handler-alist))
 
 ;;;;;;;;;;;;;;;
 ;;; uniquify.el
 
 (load "uniquify" nil t)
 (setq-default uniquify-buffer-name-style 'post-forward)
-
-;;;;;;;;
-;; vc.el
-
-(setq vc-diff-switches diff-switches)
 
 ;;;;;;;;;;;;;;
 ;; windmove.el
@@ -580,8 +535,8 @@ symbol, not word, as I need this for programming the most."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Various major modes shipped with Emacs
 
-;;;;;;;;;;
-;;; c-mode
+;;;;;;;;;
+;; c-mode
 (add-hook 'c-mode-hook 'fc/c-setup)
 (defun fc/c-setup ()
   "Set up C mode for my needs."
@@ -1252,7 +1207,7 @@ from `after-change-functions' fixes that."
 ;;; Start environment
 
 (when (file-exists-p "~/Documents/Notes/Notes.org")
-  (with-current-buffer (find-file "~/Documents/Notes/Todo.org")
+  (with-current-buffer (find-file "~/Documents/Notes/Notes.org")
     (setq default-directory "~/"))
   (org-agenda nil "t")
   (other-window 1))
