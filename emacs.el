@@ -343,7 +343,11 @@ Don't pair the closing paren in :-("
     (insert "(")
     (save-excursion
       (forward-sexp 1)
-      (insert ")"))))
+      (insert ")")))
+
+  (add-hook 'text-mode-hook 'fc/text-mode-init)
+  (defun fc/text-mode-init ()
+    (setq-local electric-pair-preserve-balance nil)))
 
 ;;;;;;;;;
 ;; eww.el
@@ -554,9 +558,7 @@ symbol, not word, as I need this for programming the most."
   ;; Don't jump around when output in a buffer happens
   (set (make-local-variable 'scroll-conservatively) 1000))
 
-(add-to-list 'comint-output-filter-functions
-	     'comint-watch-for-password-prompt)
-(ansi-color-for-comint-mode-on)
+(setq ansi-color-for-comint-mode t)
 
 ;;;;;;;;;;;;;;;;;;;
 ;; compilation-mode
@@ -567,13 +569,6 @@ symbol, not word, as I need this for programming the most."
   (let ((inhibit-read-only t))
     (ansi-color-apply-on-region (point-min) (point-max))))
 (add-hook 'compilation-filter-hook 'fc/colorize-compilation-buffer)
-
-;;;;;;;;;;;;;
-;; dired-mode
-
-(load "dired" nil t)
-(define-key dired-mode-map (kbd "a") 'dired-find-alternate-file)
-(define-key dired-mode-map (kbd "RET") 'dired-find-file)
 
 ;;;;;;;;;;;;;;;;;;
 ;; emacs-lisp-mode
@@ -636,7 +631,7 @@ glyph."
      (insert "&gt;"))
     ((?\s)
      (insert "&nbsp;"))
-    ((34) ; "
+    ((?\")
      (insert "&quot;"))
     (t
      (insert (format "&#x%02x;" char)))))
@@ -659,7 +654,7 @@ glyph."
 
 (add-hook 'python-mode-hook
           (lambda ()
-            (setq electric-indent-chars '(10))))
+            (setq electric-indent-chars '(?\n))))
 
 ;;;;;;;;;;;;;;
 ;; scheme-mode
@@ -702,24 +697,15 @@ glyph."
                   (dolist (buf (buffer-list))
                     (with-current-buffer buf
                       (when buffer-file-name
-                        (throw 'return default-directory)))))))
+                        (throw 'return
+                               (expand-file-name default-directory))))))))
       (goto-char (process-mark (get-buffer-process (current-buffer))))
       (insert (format "cd %s" (shell-quote-argument dir)))
       (let ((comint-eol-on-send nil))
         (comint-send-input)))))
 
-;;;;;;;;;;;;
-;; text-mode
-
-(add-hook 'text-mode-hook 'fc/text-mode-init)
-(defun fc/text-mode-init ()
-  (setq-local electric-pair-preserve-balance nil))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Third party extensions
-
-(when (file-directory-p "~/.emacs.d/site-lisp")
-  (rename-file "~/.emacs.d/site-lisp" "~/.emacs.d/lisp"))
 
 (when (file-directory-p "~/.emacs.d/lisp")
   (add-to-list 'load-path "~/.emacs.d/lisp")
@@ -730,7 +716,6 @@ glyph."
 (load "package" nil t)
 (setq package-archives
       '(("gnu" . "http://elpa.gnu.org/packages/")
-        ("marmalade" . "http://marmalade-repo.org/packages/")
         ("melpa-stable" . "http://stable.melpa.org/packages/")
         ("melpa" . "http://melpa.org/packages/")
         ("elpy" . "http://jorgenschaefer.github.io/packages/")))
@@ -747,47 +732,30 @@ glyph."
     (interactive)
     (circe "Freenode")
     (circe "IRCnet")
-    (circe "Coldfront")
-    )
-  (setq freenode-password nil
-        coldfront-password nil)
+    (circe "Coldfront"))
+  (setq freenode-password nil)
   (when (file-exists-p "~/.private.el")
     (load "~/.private.el" nil t))
 
   (setq circe-default-realname "http://www.jorgenschaefer.de/"
-        circe-server-killed-confirmation 'ask-and-kill-all
         circe-format-server-topic "*** Topic change by {nick} ({userhost}): {topic-diff}"
-        lui-max-buffer-size 30000
         lui-flyspell-p t
-        lui-scroll-behavior t
         lui-flyspell-alist '(("#kollektiv" "german8")
                              ("##emacs.de" "german8")
                              ("" "american"))
         circe-reduce-lurker-spam t
         circe-network-options
         `(("Freenode"
-           :host "irc.freenode.net" :port 6697 :tls t
            :nick "forcer"
-           ;; :pass ,freenode-password
            :sasl-username "forcer"
            :sasl-password ,freenode-password
            :channels ("#emacs" "#emacs-circe" "#emacs-elpy" "##emacs.de"
                       "#elpy" "#emacs-beginners"
-                      ;; "#django" "#debian" "#ansible" "#angularjs"
-                      :after-auth "#emacs-ops")
-           ;; :nickserv-password ,freenode-password
-           ;; :nickserv-ghost-style immediate
-           )
+                      :after-auth "#emacs-ops"))
           ("IRCnet"
            :host "irc.uni-erlangen.de" :port 6667
            :nick "forcer"
            :channels ("#kollektiv")
-           )
-          ("Coldfront"
-           :host "irc.coldfront.net" :port 7778 :tls t
-           :nick "Arkady"
-           :nickserv-password ,coldfront-password
-           :channels ("#grd" "#electusmatari")
            )
           ))
 
@@ -915,7 +883,6 @@ Or other words I used repeatedly"
 ;; elisp-slime-nav
 
 (when (load "elisp-slime-nav" t t)
-  (define-key elisp-slime-nav-mode-map (kbd "M-,") nil)
   (add-hook 'emacs-lisp-mode-hook 'elisp-slime-nav-mode)
   (add-hook 'lisp-interaction-mode-hook 'elisp-slime-nav-mode))
 
@@ -935,25 +902,6 @@ Or other words I used repeatedly"
                     (replace-regexp-in-string "_" "-" (match-string 1 elt))))
               (val (match-string 2 elt)))
           (set (intern var) (read val)))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;
-;; fill-column-indicator
-
-;; Still broken with company as of 2014-06-02
-
-;; (when (load "fill-column-indicator" t t)
-;;   (add-hook 'python-mode-hook 'fci-mode)
-;;   (defun fc/set-fill-column ()
-;;     (setq fill-column 80))
-;;   (add-hook 'python-mode-hook 'fc/set-fill-column))
-
-;;;;;;;;;;
-;; flx-ido
-
-;; This sorts stuff in really weird ways
-
-;; (when (load "flx-ido" t t)
-;;   (flx-ido-mode 0))
 
 ;;;;;;;;;;
 ;; go-mode
@@ -1030,14 +978,6 @@ Or other words I used repeatedly"
 ;; legalese
 
 (load "legalese" t t)
-
-;;;;;;;;
-;; magit
-
-(setq magit-last-seen-setup-instructions "1.4.0")
-(when (load "magit" t t)
-  (global-set-key (kbd "C-x v g") 'magit-status)
-  (global-set-key (kbd "C-x v a") 'vc-annotate))
 
 ;;;;;;;;;;;;;;;;;
 ;;; markdown-mode
@@ -1187,13 +1127,6 @@ from `after-change-functions' fixes that."
 (when (load "pyvenv" t t)
   (defalias 'workon 'pyvenv-workon)
   (pyvenv-mode))
-
-;;;;;;;;;;
-;; typo.el
-
-(when (load "typo" t t)
-  (dolist (hook '(markdown-mode-hook html-mode-hook))
-    (add-hook hook 'typo-mode)))
 
 ;;;;;;;;;;;;
 ;; yaml-mode
