@@ -731,8 +731,7 @@ glyph."
     "Connect to IRC."
     (interactive)
     (circe "Freenode")
-    (circe "IRCnet")
-    (circe "Coldfront"))
+    (circe "IRCnet"))
   (setq freenode-password nil)
   (when (file-exists-p "~/.private.el")
     (load "~/.private.el" nil t))
