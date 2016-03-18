@@ -656,6 +656,11 @@ glyph."
           (lambda ()
             (setq electric-indent-chars '(?\n))))
 
+;;;;;;;;;;;;;
+;;; ruby-mode
+
+(add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
+
 ;;;;;;;;;;;;;;
 ;; scheme-mode
 
