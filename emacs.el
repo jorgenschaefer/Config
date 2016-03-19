@@ -472,7 +472,7 @@ symbol, not word, as I need this for programming the most."
 ;; saveplace.el
 
 (load "saveplace" nil t)
-(setq-default save-place t)
+(save-place-mode)
 
 ;;;;;;;;;;;;
 ;; server.el
