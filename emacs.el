@@ -659,7 +659,21 @@ glyph."
 ;;;;;;;;;;;;;
 ;;; ruby-mode
 
-(add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
+(when (load "ruby-mode" nil t)
+  (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
+
+  (when (load "rvm" nil t)
+    (add-hook 'ruby-mode-hook 'rvm-activate-corresponding-ruby))
+  (when (load "flycheck" nil t)
+    (add-hook 'ruby-mode-hook 'flycheck-mode))
+  (when (load "inf-ruby" nil t)
+    (add-hook 'ruby-mode-hook 'inf-ruby-minor-mode)
+    (define-key inf-ruby-minor-mode-map (kbd "C-c C-z") 'inf-ruby))
+  (when (load "robe" nil t)
+    (add-hook 'ruby-mode-hook 'robe-mode))
+  (when (load "company-robe" nil t)
+    (add-to-list 'company-backends 'company-robe)
+    (add-hook 'ruby-mode-hook 'company-mode)))
 
 ;;;;;;;;;;;;;;
 ;; scheme-mode
