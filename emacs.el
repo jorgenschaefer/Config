@@ -105,6 +105,35 @@
           (lambda ()
             (setq-local show-trailing-whitespace t)))
 
+;; Sensible mode line that does not suffer from information overload
+(setq-default mode-line-format
+              `(""
+                " %b"
+                (:eval
+                 (if (and buffer-file-name
+                          (buffer-modified-p))
+                     "*"
+                   " "))
+                "  %l"
+                (column-number-mode
+                 ",%c")
+                "   "
+                (vc-mode
+                 ("" vc-mode " "))
+                (pyvenv-virtual-env-name
+                 ("venv:" pyvenv-virtual-env-name " "))
+                (projectile-mode
+                 (:eval (format "prj:%s " (projectile-project-name))))
+                (which-func-mode
+                 ("" which-func-format " "))
+                (:eval
+                 (circe-lagmon-format-mode-line-entry))
+                tracking-mode-line-buffers
+                "  %[("
+                mode-name
+                ")%]"
+                ))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Custom commands
 
