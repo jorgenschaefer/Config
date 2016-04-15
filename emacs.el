@@ -701,6 +701,7 @@ glyph."
   (when (load "robe" nil t)
     (add-hook 'ruby-mode-hook 'robe-mode))
   (when (load "company-robe" nil t)
+    (load "company" nil t)
     (add-to-list 'company-backends 'company-robe)
     (add-hook 'ruby-mode-hook 'company-mode)))
 
