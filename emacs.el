@@ -123,7 +123,9 @@
                 (pyvenv-virtual-env-name
                  ("venv:" pyvenv-virtual-env-name " "))
                 (projectile-mode
-                 (:eval (format "prj:%s " (projectile-project-name))))
+                 (:eval (when (ignore-errors
+                                (projectile-project-root))
+                          (format "prj:%s " (projectile-project-name)))))
                 (which-func-mode
                  ("" which-func-format " "))
                 (:eval
