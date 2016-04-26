@@ -800,7 +800,7 @@ glyph."
            :sasl-username "forcer"
            :sasl-password ,freenode-password
            :channels ("#emacs" "#emacs-circe" "#emacs-elpy" "##emacs.de"
-                      "#elpy" "#emacs-beginners"
+                      "#elpy" "#emacs-beginners" "#emacs-offtopic"
                       :after-auth "#emacs-ops"))
           ("IRCnet"
            :host "irc.uni-erlangen.de" :port 6667
