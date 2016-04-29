@@ -824,6 +824,9 @@ glyph."
   (enable-lui-logging-globally)
   (setq lui-logging-file-format "{buffer}/%Y-%m-%d.txt")
 
+  ;; Track bar
+  (load "lui-track-bar" nil t)
+  (enable-lui-track-bar)
   ;; Autopaste
   (load "lui-autopaste" nil t)
   (add-hook 'circe-channel-mode-hook 'enable-lui-autopaste)
