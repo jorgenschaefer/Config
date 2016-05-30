@@ -52,7 +52,8 @@ test -f "$HOME/.inputrc" || ln -s "Projects/Config/inputrc" "$HOME/.inputrc"
 # virtualenvwrapper
 if [ -z "$VIRTUALENVWRAPPER_HOOK_DIR" ] && type virtualenvwrapper.sh &> /dev/null
 then
-    . virtualenvwrapper.sh
+#    . virtualenvwrapper.sh
+:
 fi
 
 TEMPFILE=$(mktemp)
