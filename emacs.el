@@ -18,7 +18,7 @@
 
 (when (window-system)
   (set-frame-font
-   "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
+   "-bitstream-bitstream vera sans mono-*-r-*-*-32-*-*-*-*-*-*-*")
   (setq mouse-yank-at-point t))
 
 (mapc (lambda (map)
@@ -672,7 +672,7 @@ glyph."
 
 ;; For json only, really. js2-mode doesn't do a good job with json.
 
-(load "js")
+(load "js" nil t)
 (setq-default js-indent-level 2)
 
 ;;;;;;;;;;;;;;;
@@ -690,19 +690,17 @@ glyph."
 ;;;;;;;;;;;;;
 ;;; ruby-mode
 
-(when (load "ruby-mode" nil t)
+(when (load "ruby-mode" t t)
   (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
 
-  (when (load "rvm" nil t)
-    (add-hook 'ruby-mode-hook 'rvm-activate-corresponding-ruby))
-  (when (load "flycheck" nil t)
+  (when (load "flycheck" t t)
     (add-hook 'ruby-mode-hook 'flycheck-mode))
-  (when (load "inf-ruby" nil t)
+  (when (load "inf-ruby" t t)
     (add-hook 'ruby-mode-hook 'inf-ruby-minor-mode)
     (define-key inf-ruby-minor-mode-map (kbd "C-c C-z") 'inf-ruby))
-  (when (load "robe" nil t)
+  (when (load "robe" t t)
     (add-hook 'ruby-mode-hook 'robe-mode))
-  (when (load "company-robe" nil t)
+  (when (load "company-robe" t t)
     (load "company" nil t)
     (add-to-list 'company-backends 'company-robe)
     (add-hook 'ruby-mode-hook 'company-mode)))
@@ -959,7 +957,7 @@ Or other words I used repeatedly"
 ;;;;;;;;;;
 ;; go-mode
 
-(when (load "go-mode" nil t)
+(when (load "go-mode" t t)
   ;; go get github.com/nsf/gocode
   ;; go get github.com/rogpeppe/godef
   ;; go get golang.org/x/tools/cmd/goimports
