@@ -74,6 +74,22 @@ then
     export PATH="$GOPATH/bin:$PATH"
 fi
 
+if [ -d "$HOME/.nvm" ]
+then
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+fi
+
+if [ -d "$HOME/.rbenv" ]
+then
+    export PATH="$HOME/.rbenv:$PATH"
+fi
+
+if [ -d "/usr/lib/chromium" ]
+then
+    export PATH="/usr/lib/chromium:$PATH"
+fi
+
 # Only in interactive shells
 if [ -n "$PS1" ]
 then
