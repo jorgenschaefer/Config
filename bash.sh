@@ -40,6 +40,7 @@ alias rot13='tr a-zA-Z n-za-mN-ZA-M'
 alias mv='mv -i'
 alias %='fg'
 alias sc="screen -rd"
+alias be="bundle exec"
 
 if type virtualenvwrapper.sh &>/dev/null
 then
