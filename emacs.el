@@ -691,10 +691,13 @@ glyph."
 ;;; ruby-mode
 
 (when (load "ruby-mode" t t)
+  (define-key ruby-mode-map (kbd "M-.") 'dumb-jump-go)
+  (define-key ruby-mode-map (kbd "M-,") 'dumb-jump-back)
+
   (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
 
-  (when (load "flycheck" t t)
-    (add-hook 'ruby-mode-hook 'flycheck-mode))
+  (add-hook 'ruby-mode-hook 'highlight-indentation-mode)
+  (add-hook 'ruby-mode-hook 'flycheck-mode)
   (when (load "inf-ruby" t t)
     (add-hook 'ruby-mode-hook 'inf-ruby-minor-mode)
     (define-key inf-ruby-minor-mode-map (kbd "C-c C-z") 'inf-ruby))
@@ -988,6 +991,21 @@ Or other words I used repeatedly"
     (company-mode)))
 
 ;;;;;;;
+;; helm
+
+(when (load "helm-ag" t t)
+  (setq helm-ag-insert-at-point 'symbol)
+  (global-set-key (kbd "C-c a") 'helm-ag))
+
+(when (load "helm-projectile" t t)
+  (global-set-key (kbd "C-c v") 'helm-projectile))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; highlight-indentation-mode
+
+(load "highlight-indentation-mode" t t)
+
+;;;;;;;
 ;; ixio
 
 (load "ixio" t t)
@@ -998,6 +1016,8 @@ Or other words I used repeatedly"
 (when (load "js2-mode" t t)
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   (add-hook 'js2-mode-hook 'auto-complete-mode)
+  (define-key js2-mode-map (kbd "M-.") 'dumb-jump-go)
+  (define-key js2-mode-map (kbd "M-,") 'dumb-jump-back)
   (setq-default js2-highlight-level 3
                 js2-mode-indent-ignore-first-tab t
                 js2-mode-indent-inhibit-undo t
@@ -1170,7 +1190,9 @@ from `after-change-functions' fixes that."
 ;; projectile
 
 (when (load "projectile" t t)
-  (projectile-global-mode))
+  (projectile-global-mode)
+  (define-key projectile-mode-map (kbd "C-c p s") 'helm-ag)
+  (define-key projectile-mode-map (kbd "C-c p f") 'helm-projectile))
 
 ;;;;;;;;;
 ;; pyvenv
@@ -1178,6 +1200,12 @@ from `after-change-functions' fixes that."
 (when (load "pyvenv" t t)
   (defalias 'workon 'pyvenv-workon)
   (pyvenv-mode))
+
+;;;;;;;;;;;;
+;; scss-mode
+(when (load "scss-mode" t t)
+  (define-key scss-mode-map (kbd "M-.") 'dumb-jump-go)
+  (define-key scss-mode-map (kbd "M-,") 'dumb-jump-back))
 
 ;;;;;;;;;;;;
 ;; yaml-mode
