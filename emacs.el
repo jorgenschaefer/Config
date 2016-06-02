@@ -18,8 +18,18 @@
 
 (when (window-system)
   (set-frame-font
-   "-bitstream-bitstream vera sans mono-*-r-*-*-32-*-*-*-*-*-*-*")
+   "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
   (setq mouse-yank-at-point t))
+
+(defun pair-enable ()
+  (interactive)
+  (set-frame-font
+   "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*"))
+
+(defun pair-disable ()
+  (interactive)
+  (set-frame-font
+   "-bitstream-bitstream vera sans mono-*-r-*-*-32-*-*-*-*-*-*-*"))
 
 (mapc (lambda (map)
         (define-key input-decode-map
