@@ -701,6 +701,8 @@ glyph."
 ;;; ruby-mode
 
 (when (load "ruby-mode" t t)
+  (setq ruby-insert-encoding-magic-comment nil)
+
   (define-key ruby-mode-map (kbd "M-.") 'dumb-jump-go)
   (define-key ruby-mode-map (kbd "M-,") 'dumb-jump-back)
 
