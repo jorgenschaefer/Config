@@ -139,7 +139,8 @@
                 (which-func-mode
                  ("" which-func-format " "))
                 (:eval
-                 (circe-lagmon-format-mode-line-entry))
+                 (when (fboundp 'circe-lagmon-format-mode-line-entry)
+                  (circe-lagmon-format-mode-line-entry)))
                 tracking-mode-line-buffers
                 "  %[("
                 mode-name
