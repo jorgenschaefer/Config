@@ -634,8 +634,8 @@ result and keeps only the warnings."
            (byte-compile-verbose nil))
        (byte-compile-from-buffer (current-buffer))))))
 
-;;;;;;;;;;;;;
-;;; html-mode
+;;;;;;;;;;;;
+;; html-mode
 
 (load "sgml-mode" nil t)
 
@@ -678,16 +678,16 @@ glyph."
     (t
      (insert (format "&#x%02x;" char)))))
 
-;;;;;;;;;;;;;;;;;;;
-;;; javascript-mode
+;;;;;;;;;;;;;;;;;;
+;; javascript-mode
 
 ;; For json only, really. js2-mode doesn't do a good job with json.
 
 (load "js" nil t)
 (setq-default js-indent-level 2)
 
-;;;;;;;;;;;;;;;
-;;; python-mode
+;;;;;;;;;;;;;;
+;; python-mode
 
 (load "python" nil t)
 
@@ -698,8 +698,8 @@ glyph."
           (lambda ()
             (setq electric-indent-chars '(?\n))))
 
-;;;;;;;;;;;;;
-;;; ruby-mode
+;;;;;;;;;;;;
+;; ruby-mode
 
 (when (load "ruby-mode" t t)
   (setq ruby-insert-encoding-magic-comment nil)
@@ -939,6 +939,13 @@ Or other words I used repeatedly"
                                          'words)
                              nil t)
       (error "It's \"whether\" and \"occurrence\"!"))))
+
+;;;;;;;;;;;;;;
+;; coffee-mode
+
+(when (load "coffee-mode" t t)
+  (add-hook 'coffee-mode-hook 'highlight-indentation-mode)
+  (setq coffee-tab-width 2))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; comint-scroll-to-bottom
