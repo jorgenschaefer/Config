@@ -1221,6 +1221,13 @@ from `after-change-functions' fixes that."
   (defalias 'workon 'pyvenv-workon)
   (pyvenv-mode))
 
+;;;;;;;;;;;;;;;
+;; rainbow-mode
+
+(when (load "rainbow-mode" t t)
+  (add-hook 'css-mode-hook 'rainbow-mode)
+  (add-hook 'scss-mode-hook 'rainbow-mode))
+
 ;;;;;;;;;;;;
 ;; scss-mode
 (when (load "scss-mode" t t)
