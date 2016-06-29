@@ -1231,6 +1231,7 @@ from `after-change-functions' fixes that."
 ;;;;;;;;;;;;
 ;; scss-mode
 (when (load "scss-mode" t t)
+  (setq css-indent-offset 2)
   (define-key scss-mode-map (kbd "M-.") 'dumb-jump-go)
   (define-key scss-mode-map (kbd "M-,") 'dumb-jump-back))
 
