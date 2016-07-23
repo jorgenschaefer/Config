@@ -90,6 +90,7 @@
 (setq-default
  major-mode 'text-mode
  initial-buffer-choice 'remember-notes
+ initial-major-mode 'org-mode
  scroll-preserve-screen-position 'keep
  user-mail-address (when (file-exists-p "~/.email")
                      (with-temp-buffer
