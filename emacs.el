@@ -703,12 +703,23 @@ glyph."
 ;; ruby-mode
 
 (when (load "ruby-mode" t t)
+  (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
+
   (setq ruby-insert-encoding-magic-comment nil)
 
   (define-key ruby-mode-map (kbd "M-.") 'dumb-jump-go)
   (define-key ruby-mode-map (kbd "M-,") 'dumb-jump-back)
 
-  (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
+  (defvar rspec-test-at-point-regex "^ *\\_<\\(it\\|workflow\\)\\_>")
+
+  (define-key ruby-mode-map (kbd "C-c C-t") 'rspec-test-at-point)
+  (defun rspec-test-at-point ()
+    (interactive)
+    (let* ((line (save-excursion
+                   (re-search-backward rspec-test-at-point-regex)
+                   (line-number-at-pos)))
+           (default-directory (locate-dominating-file default-directory "Gemfile")))
+      (compile (format "bundle exec rspec %s:%s" buffer-file-name line))))
 
   (add-hook 'ruby-mode-hook 'highlight-indentation-mode)
   (add-hook 'ruby-mode-hook 'flycheck-mode)
