@@ -511,6 +511,13 @@ symbol, not word, as I need this for programming the most."
 (setq paragraph-start "- \\|\f\\|[ \t]*$"
       sentence-end-double-space nil)
 
+;;;;;;;;;;;;;;
+;; remember.el
+
+(setq remember-notes-initial-major-mode 'org-mode)
+(when (file-exists-p "~/Documents/Notes/Notes.org")
+  (setq remember-data-file "~/Documents/Notes/Notes.org"))
+
 ;;;;;;;;;;;;;;;
 ;; saveplace.el
 
