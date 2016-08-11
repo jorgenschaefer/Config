@@ -730,6 +730,7 @@ glyph."
 
   (add-hook 'ruby-mode-hook 'highlight-indentation-mode)
   (add-hook 'ruby-mode-hook 'flycheck-mode)
+  (add-hook 'ruby-mode-hook 'yas-minor-mode)
   (when (load "inf-ruby" t t)
     (add-hook 'ruby-mode-hook 'inf-ruby-minor-mode)
     (define-key inf-ruby-minor-mode-map (kbd "C-c C-z") 'inf-ruby))
