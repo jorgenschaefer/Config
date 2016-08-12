@@ -731,6 +731,7 @@ glyph."
   (add-hook 'ruby-mode-hook 'highlight-indentation-mode)
   (add-hook 'ruby-mode-hook 'flycheck-mode)
   (add-hook 'ruby-mode-hook 'yas-minor-mode)
+  (add-hook 'ruby-mode-hook (lambda () (auto-fill-mode 0)))
   (when (load "inf-ruby" t t)
     (add-hook 'ruby-mode-hook 'inf-ruby-minor-mode)
     (define-key inf-ruby-minor-mode-map (kbd "C-c C-z") 'inf-ruby))
@@ -1231,8 +1232,12 @@ from `after-change-functions' fixes that."
 
 (when (load "projectile" t t)
   (projectile-global-mode)
-  (define-key projectile-mode-map (kbd "C-c p s") 'helm-ag)
-  (define-key projectile-mode-map (kbd "C-c p f") 'helm-projectile))
+  (define-key projectile-mode-map (kbd "C-c p s") 'fc/helm-ag)
+  (define-key projectile-mode-map (kbd "C-c p f") 'helm-projectile)
+
+  (defun fc/helm-ag ()
+    (interactive)
+    (helm-ag (projectile-project-root))))
 
 ;;;;;;;;;
 ;; pyvenv
@@ -1251,7 +1256,8 @@ from `after-change-functions' fixes that."
 ;;;;;;;;;;;;
 ;; scss-mode
 (when (load "scss-mode" t t)
-  (setq css-indent-offset 2)
+  (setq css-indent-offset 2
+        scss-compile-at-save nil)
   (define-key scss-mode-map (kbd "M-.") 'dumb-jump-go)
   (define-key scss-mode-map (kbd "M-,") 'dumb-jump-back))
 
