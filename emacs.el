@@ -18,7 +18,7 @@
 
 (when (window-system)
   (set-frame-font
-   "-bitstream-bitstream vera sans mono-*-r-*-*-32-*-*-*-*-*-*-*")
+   "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
   (setq mouse-yank-at-point t))
 
 (defun pair-start ()
@@ -92,17 +92,19 @@
  initial-buffer-choice 'remember-notes
  initial-major-mode 'org-mode
  scroll-preserve-screen-position 'keep
- user-mail-address (when (file-exists-p "~/.email")
-                     (with-temp-buffer
-                       (insert-file-contents "~/.email")
-                       (goto-char (point-min))
-                       (buffer-substring-no-properties
-                        (point) (point-at-eol))))
  inhibit-startup-message t
  cursor-in-non-selected-windows nil
  kill-whole-line t
  switch-to-buffer-preserve-window-point t
  load-prefer-newer t)
+
+(when (file-exists-p "~/.email")
+  (setq user-mail-address
+        (with-temp-buffer
+          (insert-file-contents "~/.email")
+          (goto-char (point-min))
+          (buffer-substring-no-properties
+           (point) (point-at-eol)))))
 
 ;; Case insensitivity
 (setq completion-ignore-case t

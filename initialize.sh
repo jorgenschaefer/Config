@@ -49,13 +49,6 @@ test -f "$HOME/.inputrc" || ln -s "Projects/Config/inputrc" "$HOME/.inputrc"
 # gitconfig
 "$HOME/Projects/Config/gitconfig.sh"
 
-# virtualenvwrapper
-if [ -z "$VIRTUALENVWRAPPER_HOOK_DIR" ] && type virtualenvwrapper.sh &> /dev/null
-then
-#    . virtualenvwrapper.sh
-:
-fi
-
 TEMPFILE=$(mktemp)
 trap "rm -f $TEMPFILE" EXIT
 
