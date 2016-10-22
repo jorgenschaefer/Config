@@ -482,6 +482,13 @@ symbol, not word, as I need this for programming the most."
        (goto-char isearch-other-end))
      (thing-at-point 'symbol))))
 
+
+;;;;;;;;;;
+;; misc.el
+
+(load "misc" nil t)
+(global-set-key (kbd "M-z") 'zap-up-to-char)
+
 ;;;;;;;;;;;;;;;;
 ;; newcomment.el
 
