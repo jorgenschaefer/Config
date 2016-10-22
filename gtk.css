@@ -1,0 +1,17 @@
+.default-decoration {
+  min-height: 0px;
+  padding: 0px;
+}
+
+.default-decoration .titlebutton {
+  min-height: 0px;
+  min-width: 0px;
+}
+
+headerbar, headerbar * {
+  min-height: 0px;
+}
+
+notebook tab, notebook button {
+  padding: 0px;
+}
