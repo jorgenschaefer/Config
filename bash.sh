@@ -65,7 +65,7 @@ fi
 
 if [ -d "$HOME/Programs/go" ]
 then
-    export GOROOT="/home/forcer/Programs/go"
+    export GOROOT="$HOME/Programs/go"
     export PATH="$GOROOT/bin:$PATH"
 fi
 
@@ -217,7 +217,7 @@ then
         local last_exit="$?"
 
         local cwd_info=""
-        if [[ "$USER" != 'forcer' && "$USER" != 'schaefer' ]]
+        if [[ "$USER" != 'forcer' && "$USER" != 'schaefer' && "$USER" != 'jorgen' ]]
         then
             # If we are not our usual users, add the username
             cwd_info='\u@\h:\w'
