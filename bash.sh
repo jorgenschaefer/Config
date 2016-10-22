@@ -69,9 +69,9 @@ then
     export PATH="$GOROOT/bin:$PATH"
 fi
 
-if [ -d "$HOME/Projects/go-projects/" ]
+if [ -d "$HOME/.local/gopath/" ]
 then
-    export GOPATH="$HOME/Projects/go-projects/"
+    export GOPATH="$HOME/.local/gopath/"
     export PATH="$GOPATH/bin:$PATH"
 fi
 
