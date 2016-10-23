@@ -1032,6 +1032,7 @@ Or other words I used repeatedly"
   (add-hook 'go-mode-hook 'fc/go-setup)
   (defun fc/go-setup ()
     ;; (go-projectile-mode)
+    (flycheck-mode)
     (go-eldoc-setup)
     (yas/minor-mode)
     (add-hook 'before-save-hook 'gofmt-before-save nil t)
