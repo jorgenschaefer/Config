@@ -1242,7 +1242,7 @@ from `after-change-functions' fixes that."
 (when (load "projectile" t t)
   (projectile-global-mode)
   (define-key projectile-mode-map (kbd "C-c p s") 'fc/helm-ag)
-  (define-key projectile-mode-map (kbd "C-c p f") 'helm-projectile)
+  (define-key projectile-mode-map (kbd "C-c p f") 'helm-projectile-find-file)
 
   (defun fc/helm-ag ()
     (interactive)
