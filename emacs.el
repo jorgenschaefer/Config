@@ -1242,11 +1242,21 @@ from `after-change-functions' fixes that."
 (when (load "projectile" t t)
   (projectile-global-mode)
   (define-key projectile-mode-map (kbd "C-c p s") 'fc/helm-ag)
-  (define-key projectile-mode-map (kbd "C-c p f") 'helm-projectile-find-file)
+  (define-key projectile-mode-map (kbd "C-c p f") 'fc/project-find-file)
 
   (defun fc/helm-ag ()
     (interactive)
-    (helm-ag (projectile-project-root))))
+    (if (projectile-project-p)
+        (helm-ag (projectile-project-root))
+      (let ((projectile-switch-project-action (lambda () (helm-ag (projectile-project-root)))))
+        (helm-projectile-switch-project))))
+
+  (defun fc/project-find-file ()
+    (interactive)
+    (if (projectile-project-p)
+        (helm-projectile-find-file-dwim)
+      (let ((projectile-switch-project-action 'helm-projectile-find-file-dwim))
+        (helm-projectile-switch-project)))))
 
 ;;;;;;;;;
 ;; pyvenv
