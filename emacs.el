@@ -1022,12 +1022,14 @@ Or other words I used repeatedly"
   (define-key go-mode-map (kbd "C-c C-t") 'fc/go-test)
   (defun fc/go-test ()
     (interactive)
-    (compile "go test -v"))
+    (let ((default-directory (projectile-project-root)))
+      (compile "go test -v ./...")))
 
-  (define-key go-mode-map (kbd "C-c C-v") 'fc/go-fmt-buffer)
-  (defun fc/go-fmt-buffer ()
+  (define-key go-mode-map (kbd "C-c C-v") 'fc/go-check-buffer)
+  (defun fc/go-check-buffer ()
     (interactive)
-    (compile "go build -v && go test -v && go vet"))
+    (let ((default-directory (projectile-project-root)))
+      (compile "go build && go test ./... && go vet ./...")))
 
   (add-hook 'go-mode-hook 'fc/go-setup)
   (defun fc/go-setup ()
