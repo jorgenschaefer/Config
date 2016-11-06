@@ -1023,7 +1023,7 @@ Or other words I used repeatedly"
   (defun fc/go-test ()
     (interactive)
     (let ((default-directory (projectile-project-root)))
-      (compile "go test -v ./...")))
+      (compile "go test ./...")))
 
   (define-key go-mode-map (kbd "C-c C-v") 'fc/go-check-buffer)
   (defun fc/go-check-buffer ()
