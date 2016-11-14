@@ -1260,7 +1260,7 @@ from `after-change-functions' fixes that."
   (defun fc/project-find-file ()
     (interactive)
     (if (projectile-project-p)
-        (helm-projectile-find-file-dwim)
+        (helm-projectile-find-file)
       (let ((projectile-switch-project-action 'helm-projectile-find-file))
         (helm-projectile-switch-project)))))
 
