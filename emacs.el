@@ -529,8 +529,10 @@ symbol, not word, as I need this for programming the most."
 ;;;;;;;;;;;;;;;
 ;; saveplace.el
 
-(when (load "saveplace" t t)
-  (save-place-mode))
+(load "saveplace" nil t)
+(if (fboundp 'save-place-mode)
+    (save-place-mode)
+  (toggle-save-place 1))
 
 ;;;;;;;;;;;;
 ;; server.el
@@ -725,7 +727,7 @@ glyph."
   (define-key ruby-mode-map (kbd "M-.") 'dumb-jump-go)
   (define-key ruby-mode-map (kbd "M-,") 'dumb-jump-back)
 
-  (defvar rspec-test-at-point-regex "^ *\\_<\\(it\\|workflow\\)\\_>")
+  (defvar rspec-test-at-point-regex "^ *\\_<\\(it\\|describe\\|subject\\|workflow\\)\\_>")
 
   (define-key ruby-mode-map (kbd "C-c C-t") 'rspec-test-at-point)
   (defun rspec-test-at-point ()
@@ -744,6 +746,8 @@ glyph."
     (add-hook 'ruby-mode-hook 'inf-ruby-minor-mode)
     (define-key inf-ruby-minor-mode-map (kbd "C-c C-z") 'inf-ruby))
   (when (load "robe" t t)
+    (define-key robe-mode-map (kbd "M-.") nil)
+    (define-key robe-mode-map (kbd "M-,") nil)
     (add-hook 'ruby-mode-hook 'robe-mode))
   (when (load "company-robe" t t)
     (load "company" nil t)
