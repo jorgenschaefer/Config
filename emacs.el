@@ -529,8 +529,8 @@ symbol, not word, as I need this for programming the most."
 ;;;;;;;;;;;;;;;
 ;; saveplace.el
 
-(load "saveplace" nil t)
-(save-place-mode)
+(when (load "saveplace" t t)
+  (save-place-mode))
 
 ;;;;;;;;;;;;
 ;; server.el
@@ -1293,11 +1293,9 @@ from `after-change-functions' fixes that."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Start environment
 
-(when (file-exists-p "~/Documents/Notes/Notes.org")
-  (with-current-buffer (find-file "~/Documents/Notes/Notes.org")
-    (setq default-directory "~/"))
-  (org-agenda nil "t")
-  (other-window 1))
+;; (when (file-exists-p "~/Documents/Notes/Notes.org")
+;;   (with-current-buffer (find-file "~/Documents/Notes/Notes.org")
+;;     (setq default-directory "~/")))
 
 ;; Faces
 
