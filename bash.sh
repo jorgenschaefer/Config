@@ -41,6 +41,7 @@ alias mv='mv -i'
 alias %='fg'
 alias sc="screen -rd"
 alias be="bundle exec"
+alias fr="bundle exec foreman run"
 
 if type virtualenvwrapper.sh &>/dev/null
 then
