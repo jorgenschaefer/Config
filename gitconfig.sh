@@ -5,5 +5,7 @@ then
     git config --global --replace user.email "$(cat $HOME/.email)"
 fi
 
+git config --global --replace alias.pr "pull --rebase"
 git config --global --replace alias.st "status"
 git config --global --replace color.ui "auto"
+git config --global --replace commit.verbose "true"

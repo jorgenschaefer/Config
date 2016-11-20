@@ -1261,7 +1261,7 @@ from `after-change-functions' fixes that."
     (interactive)
     (if (projectile-project-p)
         (helm-projectile-find-file-dwim)
-      (let ((projectile-switch-project-action 'helm-projectile-find-file-dwim))
+      (let ((projectile-switch-project-action 'helm-projectile-find-file))
         (helm-projectile-switch-project)))))
 
 ;;;;;;;;;
