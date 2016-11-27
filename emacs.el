@@ -1173,6 +1173,12 @@ from `after-change-functions' fixes that."
     nil)
   )
 
+;;;;;;;;;;;;;;;;;
+;; move-text-mode
+
+(when (load "move-text" t t)
+  (move-text-default-bindings))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Multiple Cursors Mode
 
