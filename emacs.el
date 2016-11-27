@@ -1177,22 +1177,9 @@ from `after-change-functions' fixes that."
 ;; Multiple Cursors Mode
 
 (when (load "multiple-cursors" t t)
-  (global-set-key (kbd "<M-S-up>") 'mc/mark-previous-lines)
-  (global-set-key (kbd "<M-S-down>") 'mc/mark-next-lines)
-  (global-set-key (kbd "C-M-j") 'fc/mark-next-like-this)
-  (global-set-key (kbd "<M-S-return>") 'fc/mark-next-like-this)
-  (defun fc/mark-next-like-this (arg)
-    (interactive "p")
-    (when (not (use-region-p))
-      (let* ((end (progn
-                    (forward-sexp)
-                    (point)))
-             (beg (progn
-                    (backward-sexp)
-                    (point))))
-        (goto-char end)
-        (set-mark beg)))
-    (mc/mark-next-like-this arg)))
+  (global-set-key (kbd "<C-down>") 'mc/mark-next-like-this)
+  (global-set-key (kbd "<C-up>") 'mc/unmark-next-like-this)
+  (global-set-key (kbd "<C-mouse-1>") 'mc/add-cursor-on-click))
 
 ;;;;;;;;;;;
 ;; Org Mode
