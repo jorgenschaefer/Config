@@ -727,6 +727,12 @@ glyph."
   (define-key ruby-mode-map (kbd "M-.") 'dumb-jump-go)
   (define-key ruby-mode-map (kbd "M-,") 'dumb-jump-back)
 
+  (define-key ruby-mode-map (kbd "C-c C-o") 'fc/ruby-overview)
+  (defun fc/ruby-overview ()
+    (interactive)
+    (let ((list-matching-lines-face nil))
+      (occur "^ *\\(module\\|class\\|def\\)\\_>")))
+
   (defvar rspec-test-at-point-regex "^ *\\_<\\(it\\|describe\\|subject\\|workflow\\)\\_>")
 
   (define-key ruby-mode-map (kbd "C-c C-t") 'rspec-test-at-point)
@@ -1242,6 +1248,7 @@ from `after-change-functions' fixes that."
   (projectile-global-mode)
   (define-key projectile-mode-map (kbd "C-c p s") 'fc/helm-ag)
   (define-key projectile-mode-map (kbd "C-c p f") 'fc/project-find-file)
+  (define-key projectile-mode-map (kbd "C-c C-f") 'fc/project-find-file)
 
   (defun fc/helm-ag ()
     (interactive)
