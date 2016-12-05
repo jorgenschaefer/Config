@@ -538,6 +538,7 @@ symbol, not word, as I need this for programming the most."
 ;; server.el
 
 (load "server" nil t)
+(add-hook 'server-visit-hook 'raise-frame)
 (when (not (server-running-p server-name))
   (server-start))
 
