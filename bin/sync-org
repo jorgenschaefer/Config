@@ -1,9 +1,0 @@
-#!/bin/sh
-
-if [ -f ~/.private.sh ]
-then
-    . ~/.private.sh
-
-    wget -qO - "$GOOGLE_ICAL" \
-        | ~/.local/bin/ical2org > ~/Files/google-calendar.org
-fi
