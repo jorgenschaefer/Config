@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Script to create a locally-running, ephemeral PostgreSQL database.
+# This is optimized for speed over realibility, for testing and such
+# purposes.
+
+for f in /usr/lib/postgresql/*/bin/
+do
+    PATH="$f:$PATH"
+done
+
+if [ -d "/run/user/$UID/" ]
+then
+    DBDIR="/run/user/$UID/postgresql-db"
+else
+    DBDIR="$TMP/postgresql-db"
+fi
+SOCKETDIR="$HOME/.cache/postgres"
+
+set -e
+
+if ! [ -d "$DBDIR" ]
+then
+    initdb -D "$DBDIR"
+fi
+
+echo
+echo Run:
+echo
+echo export PGHOST="$SOCKETDIR"
+echo
+
+postgres -D "$DBDIR" \
+         --bgwriter_lru_maxpages=0 \
+         --fsync=off \
+         --synchronous_commit=off \
+         --full_page_writes=off \
+         --unix_socket_directories="$SOCKETDIR"
