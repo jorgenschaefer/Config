@@ -1,16 +1,11 @@
 ;;; Emacs configuration of Jorgen Schäfer
 
-;; I don't use XEmacs.  This file does not work with XEmacs.
-(when (featurep 'xemacs)
-  (error "This .emacs file does not work with XEmacs."))
-
 ;; Bugfix until #20356 is fixed.
 (set-terminal-parameter nil 'xterm--set-selection nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; User interface
 
-;; I dislike this fancy stuff. It's not always defined, though.
 (dolist (mode '(tool-bar-mode scroll-bar-mode horizontal-scroll-bar-mode
                               menu-bar-mode blink-cursor-mode))
   (when (fboundp mode)
@@ -20,16 +15,6 @@
   (set-frame-font
    "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
   (setq mouse-yank-at-point t))
-
-(defun pair-start ()
-  (interactive)
-  (set-frame-font
-   "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*"))
-
-(defun pair-stop ()
-  (interactive)
-  (set-frame-font
-   "-bitstream-bitstream vera sans mono-*-r-*-*-32-*-*-*-*-*-*-*"))
 
 (mapc (lambda (map)
         (define-key input-decode-map
@@ -142,7 +127,7 @@
                  ("" which-func-format " "))
                 (:eval
                  (when (fboundp 'circe-lagmon-format-mode-line-entry)
-                  (circe-lagmon-format-mode-line-entry)))
+                   (circe-lagmon-format-mode-line-entry)))
                 tracking-mode-line-buffers
                 "  %[("
                 mode-name
@@ -239,7 +224,7 @@ signalled."
     (goto-char (point-max))
     (insert "\n")
     (call-process-region (point-min)
-                          (point-max)
+                         (point-max)
                          "bc" t t nil "-lq")
     (goto-char (point-min))
     (when (search-forward "error" nil t)
@@ -299,517 +284,8 @@ two prefix arguments, write out the day and month name."
           "Excepteur sint occaecat cupidatat non proident, sunt in "
           "culpa qui officia deserunt mollit anim id est laborum."))
 
-(defun google (what)
-  "Use google to search for WHAT."
-  (interactive "sSearch: ")
-  (browse-url (format "http://www.google.de/search?q=%s" what)))
-
-(defun leo (word)
-  (interactive "sWord: ")
-  (browse-url (format "http://dict.leo.org/?search=%s" word)))
-
-(global-set-key (kbd "C-c l") 'leo-at-point)
-(defun leo-at-point ()
-  "Open the Leo dictionary for the word at point."
-  (interactive)
-  (let ((word (thing-at-point 'word)))
-    (if (not word)
-        (error "No word found at point")
-      (browse-url (format "http://dict.leo.org/?search=%s#results"
-                          word)))))
-
-(defun fc/htmlfontify-buffer-or-region (for-blog-p)
-  "Show the current buffer or region if active as HTML in a temporary buffer.
-
-This uses `htmlfontify'."
-  (interactive "P")
-  (let ((hfy-page-footer (lambda (filename)
-                           ""))
-        (hfy-page-header (lambda (filename stylesheet)
-                           (if for-blog-p
-                               "<link href=\"http://www.jorgenschaefer.de/css/elisp.css\" rel=\"stylesheet\" type=\"text/css\">\n"
-                               ""))))
-    (if (region-active-p)
-        (let ((text (buffer-substring (region-beginning)
-                                      (region-end))))
-          (with-temp-buffer
-            (insert text)
-            (switch-to-buffer (htmlfontify-buffer))))
-      (switch-to-buffer (htmlfontify-buffer)))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Various global modes shipped with Emacs
-
-;;;;;;;;;;;;;
-;; compile.el
-
-(global-set-key (kbd "<f5>") 'recompile)
-
-;;;;;;;;;;;;
-;; delsel.el
-
-(load "delsel" nil t)
-(delete-selection-mode 1)
-
-;;;;;;;;;;
-;; diff.el
-
-(setq diff-switches "-u")
-
-;;;;;;;;;;;;;;;
-;; elec-pair.el
-
-(when (load "elec-pair" t t)
-  (electric-pair-mode 1)
-
-  (setq electric-pair-inhibit-predicate 'fc/electric-pair-inhibit)
-  (defun fc/electric-pair-inhibit (char)
-    "Return t if we want to not pair this char.
-
-Don't pair the closing paren in :-("
-    (or (and (eq char ?\()
-             (looking-back ":-("))
-        (electric-pair-default-inhibit char)))
-
-  (global-set-key (kbd "M-\"") 'fc/electric-pair-meta-quote)
-  (defun fc/electric-pair-meta-quote ()
-    "Wrap quotes around the following symbol."
-    (interactive)
-    (insert "\"")
-    (save-excursion
-      (forward-sexp 1)
-      (insert "\"")))
-
-  (global-set-key (kbd "M-(") 'fc/electric-pair-meta-paren)
-  (defun fc/electric-pair-meta-paren ()
-    "Wrap parens around the following symbol."
-    (interactive)
-    (insert "(")
-    (save-excursion
-      (forward-sexp 1)
-      (insert ")")))
-
-  (add-hook 'text-mode-hook 'fc/text-mode-init)
-  (defun fc/text-mode-init ()
-    (setq-local electric-pair-preserve-balance nil)))
-
-;;;;;;;;;
-;; eww.el
-
-(when (not (getenv "DISPLAY"))
-  (when (load "eww" nil t)
-    (setq browse-url-browser-function 'eww-browse-url)))
-
-;;;;;;;;;;
-;; ffap.el
-
-(global-set-key (kbd "C-c f") 'find-file-at-point)
-
-;;;;;;;;;;;;;;;;
-;; hippie-exp.el
-
-(load "hippie-exp" nil t)
-(global-set-key (kbd "M-/") 'hippie-expand)
-;; Full-line completion is *annoying*
-(setq hippie-expand-try-functions-list
-      (delq 'try-expand-list
-            (delq 'try-expand-line
-                  hippie-expand-try-functions-list)))
-
-;;;;;;;;;;;;;
-;; ibuffer.el
-
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-
-(add-hook 'ibuffer-hook 'fc/ibuffer-group-buffers)
-(defun fc/ibuffer-group-buffers ()
-  (setq ibuffer-show-empty-filter-groups nil)
-  (setq ibuffer-filter-groups
-        (append
-         (ibuffer-vc-generate-filter-groups-by-vc-root)
-         '(("Circe"
-            (or (mode . circe-channel-mode)
-                (mode . circe-query-mode)
-                (mode . circe-server-mode))))
-         (ibuffer-projectile-generate-filter-groups)))
-  (unless (eq ibuffer-sorting-mode 'alphabetic)
-    (ibuffer-do-sort-by-alphabetic)))
-
-;;;;;;;;;
-;; ido.el
-
-(load "ido" nil t)
-(setq ido-everywhere t
-      ido-confirm-unique-completion t
-      ;; This is cute. Except when you want to open a new file, then
-      ;; it's annoying as hell.
-      ido-auto-merge-work-directories-length -1
-      ido-enable-flex-matching t)
-(ido-mode 1)
-
-(add-hook 'ido-setup-hook 'fc/ido-setup)
-(defun fc/ido-setup ()
-  (define-key ido-common-completion-map (kbd "C-c")
-    (make-sparse-keymap))
-  (define-key ido-common-completion-map (kbd "C-c C-u")
-    'fc/ido-copy-selection)
-  (define-key ido-file-dir-completion-map (kbd "<up>")
-    'ido-prev-work-directory)
-  (define-key ido-file-dir-completion-map (kbd "<down>")
-    'ido-next-work-directory))
-
-(defun fc/ido-copy-selection ()
-  "Copy the current ido selection to the kill ring."
-  (interactive)
-  (kill-new (abbreviate-file-name (concat ido-current-directory
-					  ido-text))))
-
-;;;;;;;;;;;;;;
-;;; isearch.el
-
-(define-key isearch-mode-map (kbd "C-d") 'fc/isearch-yank-symbol)
-(defun fc/isearch-yank-symbol ()
-  "Yank the symbol at point into the isearch minibuffer.
-
-C-w does something similar in isearch, but it only looks for the
-rest of the word. I want to look for the whole string. And
-symbol, not word, as I need this for programming the most."
-  (interactive)
-  (isearch-yank-string
-   (save-excursion
-     (when (and (not isearch-forward)
-                isearch-other-end)
-       (goto-char isearch-other-end))
-     (thing-at-point 'symbol))))
-
-
-;;;;;;;;;;
-;; misc.el
-
-(load "misc" nil t)
-(global-set-key (kbd "M-z") 'zap-up-to-char)
-
-;;;;;;;;;;;;;;;;
-;; newcomment.el
-
-(setq comment-style 'extra-line
-      comment-auto-fill-only-comments t)
-(add-hook 'prog-mode-hook 'auto-fill-mode)
-
-;;;;;;;;;;;
-;; paren.el
-
-(load "paren" nil t)
-;; I tried 0.01 and the delay is still annoying the hell out of me.
-(setq show-paren-delay 0
-      show-paren-style 'parenthesis)
-(show-paren-mode 1)
-
-;;;;;;;;;;;;;;;
-;; pcomplete.el
-
-;; I prefer bash-style to zsh-style
-(setq pcomplete-cycle-completions nil)
-
-;;;;;;;;;;;;;;;;
-;; paragraphs.el
-
-(load "paragraphs" nil t)
-;; Single dash starts a paragraph
-(setq paragraph-start "- \\|\f\\|[ \t]*$"
-      sentence-end-double-space nil)
-
-;;;;;;;;;;;;;;
-;; remember.el
-
-(setq remember-notes-initial-major-mode 'org-mode)
-(when (file-exists-p "~/Documents/Notes/Notes.org")
-  (setq remember-data-file "~/Documents/Notes/Notes.org"))
-
-;;;;;;;;;;;;;;;
-;; saveplace.el
-
-(load "saveplace" nil t)
-(if (fboundp 'save-place-mode)
-    (save-place-mode)
-  (toggle-save-place 1))
-
-;;;;;;;;;;;;
-;; server.el
-
-(load "server" nil t)
-(add-hook 'server-visit-hook 'raise-frame)
-(when (not (server-running-p server-name))
-  (server-start))
-
-;;;;;;;;;;;;;
-;; subword.el
-
-(load "subword" nil t)
-(global-subword-mode)
-(let ((elt (assq 'subword-mode minor-mode-alist)))
-  (when elt
-    (setcdr (assq 'subword-mode minor-mode-alist) '(""))))
-
-;;;;;;;;;;
-;; time.el
-
-(load "time" nil t)
-(setq display-time-24hr-format t)
-(display-time)
-;; Some nice times for M-x display-time-world
-(setq display-time-world-list '(("America/New_York" "Sarasota")
-				("Europe/Berlin" "Hamburg")
-				("Europe/Helsinki" "Helsinki")
-				("Etc/GMT+12" "Wellington")
-				))
-
-;;;;;;;;;;;;;;;;;
-;;; time-stamp.el
-
-(add-hook 'before-save-hook 'time-stamp)
-
-;;;;;;;;;;;;
-;;; tramp.el
-
-(load "cl-lib" nil t)
-(setq file-name-handler-alist
-      (cl-remove-if (lambda (elt)
-                      (string-match "tramp" (symbol-name (cdr elt))))
-                    file-name-handler-alist))
-
-;;;;;;;;;;;;;;;
-;;; uniquify.el
-
-(load "uniquify" nil t)
-(setq-default uniquify-buffer-name-style 'post-forward)
-
-;;;;;;;;;;;;;;
-;; windmove.el
-
-(global-set-key (kbd "C-x <up>") 'windmove-up)
-(global-set-key (kbd "C-x <down>") 'windmove-down)
-(global-set-key (kbd "C-x <left>") 'windmove-left)
-(global-set-key (kbd "C-x <right>") 'windmove-right)
-
-;;;;;;;;;;;;
-;; winner.el
-
-(winner-mode 1)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Various major modes shipped with Emacs
-
-;;;;;;;;;
-;; c-mode
-(add-hook 'c-mode-hook 'fc/c-setup)
-(defun fc/c-setup ()
-  "Set up C mode for my needs."
-  (c-set-style "k&r")
-  (setq c-basic-offset 4)
-  (c-set-offset 'case-label '+)
-  (c-set-offset 'inextern-lang 0))
-
-;;;;;;;;;;;;;;
-;; comint-mode
-
-(load "comint" nil t)
-(add-hook 'comint-mode-hook 'fc/init-comint)
-(defun fc/init-comint ()
-  ;; Don't jump around when output in a buffer happens
-  (set (make-local-variable 'scroll-conservatively) 1000))
-
-(setq ansi-color-for-comint-mode t)
-
-;;;;;;;;;;;;;;;;;;;
-;; compilation-mode
-
-(load "compile" nil t)
-(load "ansi-color" nil t)
-(defun fc/colorize-compilation-buffer ()
-  (let ((inhibit-read-only t))
-    (ansi-color-apply-on-region (point-min) (point-max))))
-(add-hook 'compilation-filter-hook 'fc/colorize-compilation-buffer)
-
-;;;;;;;;;;;;;;;;;;
-;; emacs-lisp-mode
-
-(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
-
-(defun elisp-check ()
-  "Check the current buffer for possible elisp problems.
-
-This actually byte compiles the buffer, but throws away the
-result and keeps only the warnings."
-  (interactive)
-  (let ((lisp (buffer-substring-no-properties (point-min)
-                                              (point-max))))
-   (with-temp-buffer
-     (setq buffer-file-coding-system nil)
-     (set-buffer-multibyte t)
-     (insert lisp)
-     (let ((byte-compile-log-buffer (format "*Check for %s*"
-                                            (buffer-name)))
-           (byte-compile-verbose nil))
-       (byte-compile-from-buffer (current-buffer))))))
-
-;;;;;;;;;;;;
-;; html-mode
-
-(load "sgml-mode" nil t)
-
-(define-key html-mode-map (kbd "C-c RET") 'fc/html-toggle-paragraph)
-(defun fc/html-toggle-paragraph ()
-  "Add or remove HTML paragraph tags from the current paragraph"
-  (interactive)
-  (save-excursion
-    (backward-paragraph)
-    (when (looking-at "^\\s-*$")
-      (forward-char 1))
-    (if (looking-at "<p>")
-        (replace-match "")
-      (insert "<p>"))
-    (forward-paragraph)
-    (when (looking-at "^\\s-*$")
-      (backward-char 1))
-    (if (looking-back "</p>")
-        (replace-match "")
-      (insert "</p>"))))
-
-(define-key html-mode-map (kbd "&") 'fc/html-insert-quoted)
-(defun fc/html-insert-quoted (char)
-  "Insert a & character.
-
-Depending on the subsequent character, insert an appropriate HTML
-glyph."
-  (interactive "cInsert: ")
-  (case char
-    ((?&)
-     (insert "&amp;"))
-    ((?<)
-     (insert "&lt;"))
-    ((?>)
-     (insert "&gt;"))
-    ((?\s)
-     (insert "&nbsp;"))
-    ((?\")
-     (insert "&quot;"))
-    (t
-     (insert (format "&#x%02x;" char)))))
-
-;;;;;;;;;;;;;;;;;;
-;; javascript-mode
-
-;; For json only, really. js2-mode doesn't do a good job with json.
-
-(load "js" nil t)
-(setq-default js-indent-level 2)
-
-;;;;;;;;;;;;;;
-;; python-mode
-
-(load "python" nil t)
-
-(when (executable-find "flake8")
-  (setq python-check-command "flake8"))
-
-(add-hook 'python-mode-hook
-          (lambda ()
-            (setq electric-indent-chars '(?\n))))
-
-;;;;;;;;;;;;
-;; ruby-mode
-
-(when (load "ruby-mode" t t)
-  (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
-
-  (setq ruby-insert-encoding-magic-comment nil)
-
-  (define-key ruby-mode-map (kbd "M-.") 'dumb-jump-go)
-  (define-key ruby-mode-map (kbd "M-,") 'dumb-jump-back)
-
-  (define-key ruby-mode-map (kbd "C-c C-o") 'fc/ruby-overview)
-  (defun fc/ruby-overview ()
-    (interactive)
-    (let ((list-matching-lines-face nil))
-      (occur "^ *\\(module\\|class\\|def\\)\\_>")))
-
-  (defvar rspec-test-at-point-regex "^ *\\_<\\(it\\|describe\\|subject\\|workflow\\)\\_>")
-
-  (define-key ruby-mode-map (kbd "C-c C-t") 'rspec-test-at-point)
-  (defun rspec-test-at-point ()
-    (interactive)
-    (let* ((line (save-excursion
-                   (re-search-backward rspec-test-at-point-regex)
-                   (line-number-at-pos)))
-           (default-directory (locate-dominating-file default-directory "Gemfile")))
-      (compile (format "bundle exec rspec %s:%s" buffer-file-name line))))
-
-  (add-hook 'ruby-mode-hook 'flycheck-mode)
-  (add-hook 'ruby-mode-hook 'yas-minor-mode)
-  (add-hook 'ruby-mode-hook (lambda () (auto-fill-mode 0)))
-  (when (load "inf-ruby" t t)
-    (add-hook 'ruby-mode-hook 'inf-ruby-minor-mode)
-    (define-key inf-ruby-minor-mode-map (kbd "C-c C-z") 'inf-ruby))
-  (when (load "robe" t t)
-    (define-key robe-mode-map (kbd "M-.") nil)
-    (define-key robe-mode-map (kbd "M-,") nil)
-    (add-hook 'ruby-mode-hook 'robe-mode))
-  (when (load "company-robe" t t)
-    (load "company" nil t)
-    (add-to-list 'company-backends 'company-robe)
-    (add-hook 'ruby-mode-hook 'company-mode)))
-
-;;;;;;;;;;;;;;
-;; scheme-mode
-
-;; Make parens less visible
-(font-lock-add-keywords 'scheme-mode '(("[()]" . 'paren-face)))
-(defface paren-face
-  '((t (:foreground "gray60")))
-  "The face used for parenthesises."
-  :group 'scheme)
-
-;;;;;;;;;;;;;
-;; shell-mode
-
-(load "shell" nil t)
-
-;; > may show up in some prompts
-(setq shell-prompt-pattern "^[^#$%\n]*[#$%>] *")
-
-(global-set-key (kbd "C-c s") 'fc/toggle-shell)
-(defun fc/toggle-shell ()
-  "Switch between the last active buffer and the shell."
-  (interactive)
-  (if (eq major-mode 'shell-mode)
-      (let ((buf (catch 'return
-                   (dolist (buf (cdr (buffer-list)))
-                     (when (not (string-prefix-p " " (buffer-name buf)))
-                       (throw 'return buf)))
-                   nil)))
-        (when buf
-          (switch-to-buffer buf)))
-    (shell)))
-
-(define-key shell-mode-map (kbd "C-c C-y") 'fc/shell-switch-dir)
-(defun fc/shell-switch-dir ()
-  "Switch `shell-mode' to the `default-directory' of the last buffer."
-  (interactive)
-  (when (eq major-mode 'shell-mode)
-    (let* ((dir (catch 'return
-                  (dolist (buf (buffer-list))
-                    (with-current-buffer buf
-                      (when buffer-file-name
-                        (throw 'return
-                               (expand-file-name default-directory))))))))
-      (goto-char (process-mark (get-buffer-process (current-buffer))))
-      (insert (format "cd %s" (shell-quote-argument dir)))
-      (let ((comint-eol-on-send nil))
-        (comint-send-input)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Third party extensions
+;;; Packages
 
 (when (file-directory-p "~/.emacs.d/lisp")
   (add-to-list 'load-path "~/.emacs.d/lisp")
@@ -827,10 +303,58 @@ glyph."
       package-enable-at-startup nil)
 (package-initialize)
 
+(defvar fc/missing-packages nil
+  "Packages not configured because they are missing")
+
+(defmacro pkg-config (name &rest config)
+  (declare (indent 1))
+  `(if (not (load ,name t t))
+       (push ,name fc/missing-packages)
+     ,@config))
+
+;;;;;;;;;;
+;; cc-mode
+
+(pkg-config "cc-mode"
+  (add-hook 'c-mode-hook 'fc/c-setup)
+  (defun fc/c-setup ()
+    "Set up C mode for my needs."
+    (c-set-style "k&r")
+    (setq c-basic-offset 4)
+    (c-set-offset 'case-label '+)
+    (c-set-offset 'inextern-lang 0)))
+
+;;;;;;;;;;;;;;
+;; comint-mode
+
+(pkg-config "comint"
+  (setq ansi-color-for-comint-mode t)
+
+  (add-hook 'comint-mode-hook 'fc/init-comint)
+  (defun fc/init-comint ()
+    ;; Don't jump around when output in a buffer happens
+    (set (make-local-variable 'scroll-conservatively) 1000)))
+
+;;;;;;;;;;;;;;;;;;;
+;; compilation-mode
+
+(pkg-config "compile"
+  (load "ansi-color" nil t)
+  (add-hook 'compilation-filter-hook 'fc/colorize-compilation-buffer)
+  (defun fc/colorize-compilation-buffer ()
+    (let ((inhibit-read-only t))
+      (ansi-color-apply-on-region (point-min) (point-max)))))
+
+;;;;;;;;;;;;;
+;; compile.el
+
+(pkg-config "compile"
+  (global-set-key (kbd "<f5>") 'recompile))
+
 ;;;;;;;;
 ;; Circe
 
-(when (load "circe" t t)
+(pkg-config "circe"
   (defun irc ()
     "Connect to IRC."
     (interactive)
@@ -954,7 +478,7 @@ Example uses:
       (let ((buffer (buffer-name))
             (target circe-chat-target)
             (network (with-circe-server-buffer
-                       circe-server-network))
+                      circe-server-network))
             ;; We're narrowed
             (text (buffer-string)))
         (with-current-buffer (get-buffer-create "*Highlights*")
@@ -982,19 +506,75 @@ Or other words I used repeatedly"
 ;;;;;;;;;;;;;;
 ;; coffee-mode
 
-(when (load "coffee-mode" t t)
+(pkg-config "coffee-mode"
   (setq coffee-tab-width 2))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; comint-scroll-to-bottom
 
-(when (load "comint-scroll-to-bottom" t t)
+(pkg-config "comint-scroll-to-bottom"
   (add-hook 'comint-mode-hook 'comint-add-scroll-to-bottom))
+
+;;;;;;;;;;;;
+;; delsel.el
+
+(pkg-config "delsel"
+  (delete-selection-mode 1))
+
+;;;;;;;;;;
+;; diff.el
+
+(pkg-config "diff"
+  (setq diff-switches "-u"))
+
+;;;;;;;;;;;;
+;; dumb-jump
+
+(pkg-config "dumb-jump"
+  (define-key prog-mode-map (kbd "M-.") 'dumb-jump-go)
+  (define-key prog-mode-map (kbd "M-,") 'dumb-jump-back))
+
+;;;;;;;;;;;;;;;
+;; elec-pair.el
+
+(pkg-config "elec-pair"
+  (electric-pair-mode 1)
+
+  (setq electric-pair-inhibit-predicate 'fc/electric-pair-inhibit)
+  (defun fc/electric-pair-inhibit (char)
+    "Return t if we want to not pair this char.
+
+Don't pair the closing paren in :-("
+    (or (and (eq char ?\()
+             (looking-back ":-("))
+        (electric-pair-default-inhibit char)))
+
+  (global-set-key (kbd "M-\"") 'fc/electric-pair-meta-quote)
+  (defun fc/electric-pair-meta-quote ()
+    "Wrap quotes around the following symbol."
+    (interactive)
+    (insert "\"")
+    (save-excursion
+      (forward-sexp 1)
+      (insert "\"")))
+
+  (global-set-key (kbd "M-(") 'fc/electric-pair-meta-paren)
+  (defun fc/electric-pair-meta-paren ()
+    "Wrap parens around the following symbol."
+    (interactive)
+    (insert "(")
+    (save-excursion
+      (forward-sexp 1)
+      (insert ")")))
+
+  (add-hook 'text-mode-hook 'fc/text-mode-init)
+  (defun fc/text-mode-init ()
+    (setq-local electric-pair-preserve-balance nil)))
 
 ;;;;;;;
 ;; elpy
 
-(when (load "elpy" t t)
+(pkg-config "elpy"
   (elpy-enable)
 
   (global-set-key (kbd "C-c ,") 'elpy-multiedit)
@@ -1008,10 +588,46 @@ Or other words I used repeatedly"
               (val (match-string 2 elt)))
           (set (intern var) (read val)))))))
 
+;;;;;;;;;;;;;;;;;;
+;; emacs-lisp-mode
+
+(pkg-config "elisp-mode"
+  (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+
+  (defun elisp-check ()
+    "Check the current buffer for possible elisp problems.
+
+This actually byte compiles the buffer, but throws away the
+result and keeps only the warnings."
+    (interactive)
+    (let ((lisp (buffer-substring-no-properties (point-min)
+                                                (point-max))))
+      (with-temp-buffer
+        (setq buffer-file-coding-system nil)
+        (set-buffer-multibyte t)
+        (insert lisp)
+        (let ((byte-compile-log-buffer (format "*Check for %s*"
+                                               (buffer-name)))
+              (byte-compile-verbose nil))
+          (byte-compile-from-buffer (current-buffer)))))))
+
+;;;;;;;;;
+;; eww.el
+
+(pkg-config "eww"
+  (when (not (getenv "DISPLAY"))
+    (setq browse-url-browser-function 'eww-browse-url)))
+
+;;;;;;;;;;
+;; ffap.el
+
+(pkg-config "ffap"
+  (global-set-key (kbd "C-c f") 'find-file-at-point))
+
 ;;;;;;;;;;
 ;; go-mode
 
-(when (load "go-mode" t t)
+(pkg-config "go-mode"
   ;; go get github.com/nsf/gocode
   ;; go get github.com/rogpeppe/godef
   ;; go get golang.org/x/tools/cmd/goimports
@@ -1047,7 +663,7 @@ Or other words I used repeatedly"
 ;;;;;;;;;;;;
 ;; haml-mode
 
-(when (load "haml-mode" t t)
+(pkg-config "haml-mode"
   (add-hook 'haml-mode-map 'fc/haml-mode)
   (defun fc/haml-mode ()
     (setq highlight-indentation-offset 2)))
@@ -1055,31 +671,160 @@ Or other words I used repeatedly"
 ;;;;;;;
 ;; helm
 
-(when (load "helm-ag" t t)
+(pkg-config "helm-ag"
   (setq helm-ag-insert-at-point 'symbol)
   (global-set-key (kbd "C-c a") 'helm-ag))
 
-(when (load "helm-projectile" t t)
+(pkg-config "helm-projectile"
   (global-set-key (kbd "C-c v") 'helm-projectile))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; highlight-indentation-mode
 
-(when (load "highlight-indentation-mode" t t)
+(pkg-config "highlight-indentation"
   (add-hook 'prog-mode-hook 'highlight-indentation-mode)
   (when (> (length (defined-colors))
            16)
     (add-hook 'prog-mode-hook 'highlight-indentation-current-column-mode)))
 
+;;;;;;;;;;;;;;;;
+;; hippie-exp.el
+
+(pkg-config "hippie-exp"
+  (global-set-key (kbd "M-/") 'hippie-expand)
+  ;; Full-line completion is *annoying*
+  (setq hippie-expand-try-functions-list
+        (delq 'try-expand-list
+              (delq 'try-expand-line
+                    hippie-expand-try-functions-list))))
+
+;;;;;;;;;;;;
+;; html-mode
+
+(pkg-config "sgml-mode"
+  (define-key html-mode-map (kbd "C-c RET") 'fc/html-toggle-paragraph)
+  (defun fc/html-toggle-paragraph ()
+    "Add or remove HTML paragraph tags from the current paragraph"
+    (interactive)
+    (save-excursion
+      (backward-paragraph)
+      (when (looking-at "^\\s-*$")
+        (forward-char 1))
+      (if (looking-at "<p>")
+          (replace-match "")
+        (insert "<p>"))
+      (forward-paragraph)
+      (when (looking-at "^\\s-*$")
+        (backward-char 1))
+      (if (looking-back "</p>")
+          (replace-match "")
+        (insert "</p>"))))
+
+  (define-key html-mode-map (kbd "&") 'fc/html-insert-quoted)
+  (defun fc/html-insert-quoted (char)
+    "Insert a & character.
+
+Depending on the subsequent character, insert an appropriate HTML
+glyph."
+    (interactive "cInsert: ")
+    (case char
+      ((?&)
+       (insert "&amp;"))
+      ((?<)
+       (insert "&lt;"))
+      ((?>)
+       (insert "&gt;"))
+      ((?\s)
+       (insert "&nbsp;"))
+      ((?\")
+       (insert "&quot;"))
+      (t
+       (insert (format "&#x%02x;" char))))))
+
+;;;;;;;;;;;;;
+;; ibuffer.el
+
+(pkg-config "ibuffer"
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+
+  (add-hook 'ibuffer-hook 'fc/ibuffer-group-buffers)
+  (defun fc/ibuffer-group-buffers ()
+    (setq ibuffer-show-empty-filter-groups nil)
+    (setq ibuffer-filter-groups
+          (append
+           (ibuffer-vc-generate-filter-groups-by-vc-root)
+           '(("Circe"
+              (or (mode . circe-channel-mode)
+                  (mode . circe-query-mode)
+                  (mode . circe-server-mode))))
+           (ibuffer-projectile-generate-filter-groups)))
+    (unless (eq ibuffer-sorting-mode 'alphabetic)
+      (ibuffer-do-sort-by-alphabetic))))
+
+;;;;;;;;;
+;; ido.el
+
+(pkg-config "ido"
+  (setq ido-everywhere t
+        ido-confirm-unique-completion t
+        ;; This is cute. Except when you want to open a new file, then
+        ;; it's annoying as hell.
+        ido-auto-merge-work-directories-length -1
+        ido-enable-flex-matching t)
+  (ido-mode 1)
+
+  (add-hook 'ido-setup-hook 'fc/ido-setup)
+  (defun fc/ido-setup ()
+    (define-key ido-common-completion-map (kbd "C-c")
+      (make-sparse-keymap))
+    (define-key ido-common-completion-map (kbd "C-c C-u")
+      'fc/ido-copy-selection)
+    (define-key ido-file-dir-completion-map (kbd "<up>")
+      'ido-prev-work-directory)
+    (define-key ido-file-dir-completion-map (kbd "<down>")
+      'ido-next-work-directory))
+
+  (defun fc/ido-copy-selection ()
+    "Copy the current ido selection to the kill ring."
+    (interactive)
+    (kill-new (abbreviate-file-name (concat ido-current-directory
+                                            ido-text)))))
+
+;;;;;;;;;;;;;;
+;;; isearch.el
+
+(pkg-config "isearch"
+  (define-key isearch-mode-map (kbd "C-d") 'fc/isearch-yank-symbol)
+  (defun fc/isearch-yank-symbol ()
+    "Yank the symbol at point into the isearch minibuffer.
+
+C-w does something similar in isearch, but it only looks for the
+rest of the word. I want to look for the whole string. And
+symbol, not word, as I need this for programming the most."
+    (interactive)
+    (isearch-yank-string
+     (save-excursion
+       (when (and (not isearch-forward)
+                  isearch-other-end)
+         (goto-char isearch-other-end))
+       (thing-at-point 'symbol)))))
+
 ;;;;;;;
 ;; ixio
 
-(load "ixio" t t)
+(pkg-config "ixio")
+
+;;;;;;;;;;
+;; js-mode
+
+;; For json only, really. js2-mode doesn't do a good job with json.
+(pkg-config "js"
+  (setq-default js-indent-level 2))
 
 ;;;;;;;;;;;
 ;; js2-mode
 
-(when (load "js2-mode" t t)
+(pkg-config "js2-mode"
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   (add-hook 'js2-mode-hook 'auto-complete-mode)
   (define-key js2-mode-map (kbd "M-.") 'dumb-jump-go)
@@ -1114,12 +859,12 @@ Or other words I used repeatedly"
 ;;;;;;;;;;;
 ;; legalese
 
-(load "legalese" t t)
+(pkg-config "legalese")
 
 ;;;;;;;;;;;;;;;;;
 ;;; markdown-mode
 
-(when (load "markdown-mode" t t)
+(pkg-config "markdown-mode"
   (add-hook 'markdown-mode-hook 'flyspell-mode)
   (setq markdown-command "markdown_py"
         markdown-italic-underscore t
@@ -1183,26 +928,37 @@ from `after-change-functions' fixes that."
     nil)
   )
 
+;;;;;;;;;;
+;; misc.el
+
+(pkg-config "misc"
+  (global-set-key (kbd "M-z") 'zap-up-to-char))
+
 ;;;;;;;;;;;;;;;;;
 ;; move-text-mode
 
-(when (load "move-text" t t)
+(pkg-config "move-text"
   (move-text-default-bindings))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Multiple Cursors Mode
 
-(when (load "multiple-cursors" t t)
+(pkg-config "multiple-cursors"
   (global-set-key (kbd "<C-down>") 'mc/mark-next-like-this)
   (global-set-key (kbd "<C-up>") 'mc/unmark-next-like-this)
   (global-set-key (kbd "<C-mouse-1>") 'mc/add-cursor-on-click))
 
+;;;;;;;;;;;;;;;;
+;; newcomment.el
+
+(pkg-config "newcomment"
+  (setq comment-style 'extra-line
+        comment-auto-fill-only-comments t))
+
 ;;;;;;;;;;;
 ;; Org Mode
 
-;; This actually comes with Emacs, but we want to use the one from GNU
-;; ELPA as it is more current, hence it's down here.
-(when (load "org" t t)
+(pkg-config "org"
   (modify-syntax-entry ?\' "." org-mode-syntax-table)
   (define-key org-mode-map (kbd "C-c a") 'fc/org-agenda)
   (define-key org-mode-map (kbd "C-c ,") nil)
@@ -1234,7 +990,7 @@ from `after-change-functions' fixes that."
 ;;;;;;;;;;
 ;; paredit
 
-(when (load "paredit" t t)
+(pkg-config "paredit"
   (define-key paredit-mode-map (kbd "RET") 'newline)
   (define-key paredit-mode-map (kbd "C-j") 'paredit-newline)
   (define-key paredit-mode-map (kbd "<C-left>") 'paredit-forward-barf-sexp)
@@ -1245,10 +1001,34 @@ from `after-change-functions' fixes that."
   (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
   (add-hook 'scheme-mode-hook 'enable-paredit-mode))
 
+;;;;;;;;;;;;;;;;
+;; paragraphs.el
+
+(pkg-config "paragraphs"
+  ;; Single dash starts a paragraph
+  (setq paragraph-start "- \\|\f\\|[ \t]*$"
+        sentence-end-double-space nil))
+
+;;;;;;;;;;;
+;; paren.el
+
+(pkg-config "paren"
+  ;; I tried 0.01 and the delay is still annoying the hell out of me.
+  (setq show-paren-delay 0
+        show-paren-style 'parenthesis)
+  (show-paren-mode 1))
+
+;;;;;;;;;;;;;;;
+;; pcomplete.el
+
+(pkg-config "pcomplete"
+  ;; I prefer bash-style to zsh-style
+  (setq pcomplete-cycle-completions nil))
+
 ;;;;;;;;;;;;;
 ;; projectile
 
-(when (load "projectile" t t)
+(pkg-config "projectile"
   (projectile-global-mode)
   (define-key projectile-mode-map (kbd "C-c p s") 'fc/helm-ag)
   (define-key projectile-mode-map (kbd "C-c p f") 'fc/project-find-file)
@@ -1271,49 +1051,207 @@ from `after-change-functions' fixes that."
 ;;;;;;;;;;;
 ;; pug-mode
 
-(when (load "pug-mode" t t)
+(pkg-config "pug-mode"
   (add-hook 'haml-mode-map 'fc/haml-mode)
   (defun fc/haml-mode ()
     (setq highlight-indentation-offset 2)))
 
+;;;;;;;;;;;;;;
+;; python-mode
+
+(pkg-config "python"
+  (when (executable-find "flake8")
+    (setq python-check-command "flake8"))
+
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (setq electric-indent-chars '(?\n)))))
+
 ;;;;;;;;;
 ;; pyvenv
 
-(when (load "pyvenv" t t)
+(pkg-config "pyvenv"
   (defalias 'workon 'pyvenv-workon)
   (pyvenv-mode))
 
 ;;;;;;;;;;;;;;;
 ;; rainbow-mode
 
-(when (load "rainbow-mode" t t)
+(pkg-config "rainbow-mode"
   (add-hook 'css-mode-hook 'rainbow-mode)
   (add-hook 'scss-mode-hook 'rainbow-mode))
 
+;;;;;;;;;;;;;;
+;; remember.el
+
+(pkg-config "remember"
+  (setq remember-notes-initial-major-mode 'org-mode)
+  (when (file-exists-p "~/Documents/Notes/Notes.org")
+    (setq remember-data-file "~/Documents/Notes/Notes.org")))
+
+;;;;;;;;;;;;
+;; ruby-mode
+
+(pkg-config "ruby-mode"
+  (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
+
+  (setq ruby-insert-encoding-magic-comment nil)
+
+  (define-key ruby-mode-map (kbd "M-.") nil)
+  (define-key ruby-mode-map (kbd "M-,") nil)
+
+  (define-key ruby-mode-map (kbd "C-c C-o") 'fc/ruby-overview)
+  (defun fc/ruby-overview ()
+    (interactive)
+    (let ((list-matching-lines-face nil))
+      (occur "^ *\\(module\\|class\\|def\\)\\_>")))
+
+  (defvar rspec-test-at-point-regex "^ *\\_<\\(it\\|describe\\|subject\\|workflow\\)\\_>")
+
+  (define-key ruby-mode-map (kbd "C-c C-t") 'rspec-test-at-point)
+  (defun rspec-test-at-point ()
+    (interactive)
+    (let* ((line (save-excursion
+                   (re-search-backward rspec-test-at-point-regex)
+                   (line-number-at-pos)))
+           (default-directory (locate-dominating-file default-directory "Gemfile")))
+      (compile (format "bundle exec rspec %s:%s" buffer-file-name line))))
+
+  (add-hook 'ruby-mode-hook 'flycheck-mode)
+  (add-hook 'ruby-mode-hook 'yas-minor-mode)
+  (when (load "inf-ruby" t t)
+    (add-hook 'ruby-mode-hook 'inf-ruby-minor-mode)
+    (define-key inf-ruby-minor-mode-map (kbd "C-c C-z") 'inf-ruby)))
+
+;;;;;;;;;;;;;;;
+;; saveplace.el
+
+(pkg-config "saveplace"
+  (if (fboundp 'save-place-mode)
+      (save-place-mode)
+    (toggle-save-place 1)))
+
 ;;;;;;;;;;;;
 ;; scss-mode
-(when (load "scss-mode" t t)
+
+(pkg-config "scss-mode"
   (setq css-indent-offset 2
-        scss-compile-at-save nil)
-  (define-key scss-mode-map (kbd "M-.") 'dumb-jump-go)
-  (define-key scss-mode-map (kbd "M-,") 'dumb-jump-back))
+        scss-compile-at-save nil))
+
+;;;;;;;;;;;;
+;; server.el
+
+(pkg-config "server"
+  (add-hook 'server-visit-hook 'raise-frame)
+  (when (not (server-running-p server-name))
+    (server-start)))
+
+;;;;;;;;;;;;;
+;; shell-mode
+
+(pkg-config "shell"
+  ;; > may show up in some prompts
+  (setq shell-prompt-pattern "^[^#$%\n]*[#$%>] *")
+
+  (global-set-key (kbd "C-c s") 'fc/toggle-shell)
+  (defun fc/toggle-shell ()
+    "Switch between the last active buffer and the shell."
+    (interactive)
+    (if (eq major-mode 'shell-mode)
+        (let ((buf (catch 'return
+                     (dolist (buf (cdr (buffer-list)))
+                       (when (not (string-prefix-p " " (buffer-name buf)))
+                         (throw 'return buf)))
+                     nil)))
+          (when buf
+            (switch-to-buffer buf)))
+      (shell)))
+
+  (define-key shell-mode-map (kbd "C-c C-y") 'fc/shell-switch-dir)
+  (defun fc/shell-switch-dir ()
+    "Switch `shell-mode' to the `default-directory' of the last buffer."
+    (interactive)
+    (when (eq major-mode 'shell-mode)
+      (let* ((dir (catch 'return
+                    (dolist (buf (buffer-list))
+                      (with-current-buffer buf
+                        (when buffer-file-name
+                          (throw 'return
+                                 (expand-file-name default-directory))))))))
+        (goto-char (process-mark (get-buffer-process (current-buffer))))
+        (insert (format "cd %s" (shell-quote-argument dir)))
+        (let ((comint-eol-on-send nil))
+          (comint-send-input))))))
+
+;;;;;;;;;;;;;
+;; subword.el
+
+(pkg-config "subword"
+  (global-subword-mode)
+  (let ((elt (assq 'subword-mode minor-mode-alist)))
+    (when elt
+      (setcdr (assq 'subword-mode minor-mode-alist) '("")))))
+
+;;;;;;;;;;
+;; time.el
+
+(pkg-config "time"
+  (setq display-time-24hr-format t)
+  (display-time)
+  ;; Some nice times for M-x display-time-world
+  (setq display-time-world-list '(("America/New_York" "Sarasota")
+                                  ("Europe/Berlin" "Hamburg")
+                                  ("Europe/Helsinki" "Helsinki")
+                                  ("Etc/GMT+12" "Wellington")
+                                  )))
+
+;;;;;;;;;;;;;;;;;
+;;; time-stamp.el
+
+(pkg-config "time-stamp"
+  (add-hook 'before-save-hook 'time-stamp))
+
+;;;;;;;;;;;;
+;;; tramp.el
+
+(load "cl-lib" nil t)
+;; Erase it with fire.
+(setq file-name-handler-alist
+      (cl-remove-if (lambda (elt)
+                      (string-match "tramp" (symbol-name (cdr elt))))
+                    file-name-handler-alist))
+
+;;;;;;;;;;;;;;;
+;;; uniquify.el
+
+(pkg-config "uniquify"
+  (setq-default uniquify-buffer-name-style 'post-forward))
+
+;;;;;;;;;;;;;;
+;; windmove.el
+
+(pkg-config "windmove"
+  (global-set-key (kbd "C-x <up>") 'windmove-up)
+  (global-set-key (kbd "C-x <down>") 'windmove-down)
+  (global-set-key (kbd "C-x <left>") 'windmove-left)
+  (global-set-key (kbd "C-x <right>") 'windmove-right))
+
+;;;;;;;;;;;;
+;; winner.el
+
+(pkg-config "winner"
+  (winner-mode 1))
 
 ;;;;;;;;;;;;
 ;; yaml-mode
 
-(when (load "yaml-mode" t t)
+(pkg-config "yaml-mode"
   (define-key yaml-mode-map (kbd "C-j") nil)
 
   (add-to-list 'auto-mode-alist '("\\.sls\\'" . yaml-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Start environment
-
-;; (when (file-exists-p "~/Documents/Notes/Notes.org")
-;;   (with-current-buffer (find-file "~/Documents/Notes/Notes.org")
-;;     (setq default-directory "~/")))
-
-;; Faces
+;;; Faces
 
 (face-spec-set 'font-lock-comment-face
                '((((class color)) (:foreground "red"))))
