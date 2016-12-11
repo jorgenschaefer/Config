@@ -1053,6 +1053,16 @@ Or other words I used repeatedly"
          '(company-go))
     (company-mode)))
 
+;;;;;;;;;;;;
+;; haml-mode
+
+(when (load "haml-mode" t t)
+  (add-hook 'haml-mode-map 'fc/haml-mode)
+  (defun fc/haml-mode ()
+    (setq highlight-indentation-offset 2)
+    (highlight-indentation-mode)
+    (highlight-indentation-current-column-mode)))
+
 ;;;;;;;
 ;; helm
 
