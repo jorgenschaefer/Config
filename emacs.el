@@ -745,7 +745,6 @@ glyph."
            (default-directory (locate-dominating-file default-directory "Gemfile")))
       (compile (format "bundle exec rspec %s:%s" buffer-file-name line))))
 
-  (add-hook 'ruby-mode-hook 'highlight-indentation-mode)
   (add-hook 'ruby-mode-hook 'flycheck-mode)
   (add-hook 'ruby-mode-hook 'yas-minor-mode)
   (add-hook 'ruby-mode-hook (lambda () (auto-fill-mode 0)))
@@ -984,7 +983,6 @@ Or other words I used repeatedly"
 ;; coffee-mode
 
 (when (load "coffee-mode" t t)
-  (add-hook 'coffee-mode-hook 'highlight-indentation-mode)
   (setq coffee-tab-width 2))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -992,13 +990,6 @@ Or other words I used repeatedly"
 
 (when (load "comint-scroll-to-bottom" t t)
   (add-hook 'comint-mode-hook 'comint-add-scroll-to-bottom))
-
-;;;;;;;;;;;;;;;;;;
-;; elisp-slime-nav
-
-(when (load "elisp-slime-nav" t t)
-  (add-hook 'emacs-lisp-mode-hook 'elisp-slime-nav-mode)
-  (add-hook 'lisp-interaction-mode-hook 'elisp-slime-nav-mode))
 
 ;;;;;;;
 ;; elpy
@@ -1059,9 +1050,7 @@ Or other words I used repeatedly"
 (when (load "haml-mode" t t)
   (add-hook 'haml-mode-map 'fc/haml-mode)
   (defun fc/haml-mode ()
-    (setq highlight-indentation-offset 2)
-    (highlight-indentation-mode)
-    (highlight-indentation-current-column-mode)))
+    (setq highlight-indentation-offset 2)))
 
 ;;;;;;;
 ;; helm
@@ -1076,7 +1065,11 @@ Or other words I used repeatedly"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; highlight-indentation-mode
 
-(load "highlight-indentation-mode" t t)
+(when (load "highlight-indentation-mode" t t)
+  (add-hook 'prog-mode-hook 'highlight-indentation-mode)
+  (when (> (length (defined-colors))
+           16)
+    (add-hook 'prog-mode-hook 'highlight-indentation-current-column-mode)))
 
 ;;;;;;;
 ;; ixio
@@ -1274,6 +1267,14 @@ from `after-change-functions' fixes that."
         (helm-projectile-find-file)
       (let ((projectile-switch-project-action 'helm-projectile-find-file))
         (helm-projectile-switch-project)))))
+
+;;;;;;;;;;;
+;; pug-mode
+
+(when (load "pug-mode" t t)
+  (add-hook 'haml-mode-map 'fc/haml-mode)
+  (defun fc/haml-mode ()
+    (setq highlight-indentation-offset 2)))
 
 ;;;;;;;;;
 ;; pyvenv
