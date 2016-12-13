@@ -969,22 +969,22 @@ from `after-change-functions' fixes that."
     (org-agenda nil (caar org-agenda-custom-commands)))
 
   (setq org-fontify-emphasized-text nil
-	org-tags-column -76
-	org-agenda-files nil
-	org-descriptive-links nil
-	org-agenda-include-diary nil
-	org-agenda-start-on-weekday nil
+        org-tags-column -76
+        org-agenda-files nil
+        org-descriptive-links nil
+        org-agenda-include-diary nil
+        org-agenda-start-on-weekday nil
         org-support-shift-select t
-	org-todo-keywords '((sequence "TODO"
+        org-todo-keywords '((sequence "TODO"
                                       "WAITING"
                                       "|"
                                       "DONE"))
-	org-agenda-custom-commands '(("t" "General TODO agenda"
-				      ((todo "TODO")
-				       (agenda "")
-				       (todo "WAITING")))))
+        org-agenda-custom-commands '(("t" "General TODO agenda"
+                                      ((todo "TODO")
+                                       (agenda "")
+                                       (todo "WAITING")))))
   (dolist (filename '("~/Documents/Notes/Todo"
-		      "~/Files/google-calendar.org"))
+                      "~/Files/google-calendar.org"))
     (when (file-exists-p filename)
       (add-to-list 'org-agenda-files filename t))))
 
