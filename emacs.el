@@ -974,6 +974,7 @@ from `after-change-functions' fixes that."
 	org-descriptive-links nil
 	org-agenda-include-diary nil
 	org-agenda-start-on-weekday nil
+        org-support-shift-select t
 	org-todo-keywords '((sequence "TODO"
                                       "WAITING"
                                       "|"
