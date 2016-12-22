@@ -6,7 +6,7 @@ GITREPO_URL="https://github.com/jorgenschaefer/Config.git"
 
 # Ignored for now: Music Pictures Videos
 for dir in .local/bin .cache/tmp \
-           Documents Downloads Files Programs Projects Public
+           Documents Downloads Files Programs Projects
 do
     test -d "$HOME/$dir" || mkdir -p "$HOME/$dir"
 done
