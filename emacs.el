@@ -664,7 +664,7 @@ result and keeps only the warnings."
 ;; haml-mode
 
 (pkg-config "haml-mode"
-  (add-hook 'haml-mode-map 'fc/haml-mode)
+  (add-hook 'haml-mode-hook 'fc/haml-mode)
   (defun fc/haml-mode ()
     (setq highlight-indentation-offset 2)))
 
@@ -1267,6 +1267,9 @@ from `after-change-functions' fixes that."
 (face-spec-set 'rst-level-2 '((t (:foreground "cyan" :background nil))))
 (face-spec-set 'rst-level-3 '((t (:foreground "cyan" :background nil))))
 (face-spec-set 'rst-level-4 '((t (:foreground "cyan" :background nil))))
+(face-spec-set 'highlight-indentation-current-column-face
+               '((((min-colors 64)) (:background "#c3c3c3"))
+                 (t (:background "black"))))
 
 (put 'narrow-to-region 'disabled nil)
 (put 'scroll-left 'disabled nil)
