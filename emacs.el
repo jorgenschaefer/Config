@@ -827,8 +827,6 @@ symbol, not word, as I need this for programming the most."
 (pkg-config "js2-mode"
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   (add-hook 'js2-mode-hook 'auto-complete-mode)
-  (define-key js2-mode-map (kbd "M-.") 'dumb-jump-go)
-  (define-key js2-mode-map (kbd "M-,") 'dumb-jump-back)
   (setq-default js2-highlight-level 3
                 js2-mode-indent-ignore-first-tab t
                 js2-mode-indent-inhibit-undo t
