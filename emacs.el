@@ -1051,8 +1051,8 @@ from `after-change-functions' fixes that."
 ;; pug-mode
 
 (pkg-config "pug-mode"
-  (add-hook 'haml-mode-map 'fc/haml-mode)
-  (defun fc/haml-mode ()
+  (add-hook 'pug-mode-map 'fc/pug-mode)
+  (defun fc/pug-mode ()
     (setq highlight-indentation-offset 2)))
 
 ;;;;;;;;;;;;;;
