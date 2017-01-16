@@ -507,7 +507,8 @@ Or other words I used repeatedly"
 ;; coffee-mode
 
 (pkg-config "coffee-mode"
-  (setq coffee-tab-width 2))
+  (setq coffee-tab-width 2)
+  (add-hook 'coffee-mode-hook 'flycheck-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; comint-scroll-to-bottom
