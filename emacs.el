@@ -380,7 +380,7 @@ two prefix arguments, write out the day and month name."
                       "#elpy" "#emacs-beginners" "#emacs-offtopic"
                       :after-auth "#emacs-ops"))
           ("IRCnet"
-           :host "irc.uni-erlangen.de" :port 6667
+           :host "irc.us.ircnet.net" :port 6667
            :nick "forcer"
            :channels ("#kollektiv")
            )
