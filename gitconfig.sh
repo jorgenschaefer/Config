@@ -6,6 +6,7 @@ then
 fi
 
 git config --global --replace alias.pr "pull --rebase"
+git config --global --replace alias.pf "push --force-with-lease"
 git config --global --replace alias.st "status"
 git config --global --replace color.ui "auto"
 git config --global --replace commit.verbose "true"
