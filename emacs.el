@@ -947,6 +947,13 @@ from `after-change-functions' fixes that."
   (global-set-key (kbd "<C-up>") 'mc/unmark-next-like-this)
   (global-set-key (kbd "<C-mouse-1>") 'mc/add-cursor-on-click))
 
+;;;;;;;;;;;;;
+;; neotree.el
+
+(pkg-config "neotree"
+  (setq neo-smart-open t)
+  (global-set-key (kbd "C-c n") 'neotree-show))
+
 ;;;;;;;;;;;;;;;;
 ;; newcomment.el
 
