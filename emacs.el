@@ -1104,9 +1104,6 @@ from `after-change-functions' fixes that."
 
   (setq ruby-insert-encoding-magic-comment nil)
 
-  (define-key ruby-mode-map (kbd "M-.") nil)
-  (define-key ruby-mode-map (kbd "M-,") nil)
-
   (define-key ruby-mode-map (kbd "C-c C-o") 'fc/ruby-overview)
   (defun fc/ruby-overview ()
     (interactive)
