@@ -1061,7 +1061,8 @@ from `after-change-functions' fixes that."
 (pkg-config "pug-mode"
   (add-hook 'pug-mode-hook 'fc/pug-mode)
   (defun fc/pug-mode ()
-    (setq highlight-indentation-offset 2)))
+    (setq tab-width 2
+          highlight-indentation-offset 2)))
 
 ;;;;;;;;;;;;;;
 ;; python-mode
