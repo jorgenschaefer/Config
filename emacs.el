@@ -966,14 +966,7 @@ from `after-change-functions' fixes that."
 
 (pkg-config "org"
   (modify-syntax-entry ?\' "." org-mode-syntax-table)
-  (define-key org-mode-map (kbd "C-c a") 'fc/org-agenda)
   (define-key org-mode-map (kbd "C-c ,") nil)
-  (defun fc/org-agenda ()
-    (interactive)
-    (when (get-buffer "google-calendar.org")
-      (kill-buffer "google-calendar.org"))
-    (org-agenda nil (caar org-agenda-custom-commands)))
-
   (setq org-fontify-emphasized-text nil
         org-tags-column -76
         org-agenda-files nil
