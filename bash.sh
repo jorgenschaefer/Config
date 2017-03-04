@@ -27,8 +27,6 @@ fi
 export HISTCONTROL=ignoredups
 export LESS="-MIRnX"
 export LESSCHARSET=utf-8
-export TMP="$HOME/.cache/tmp/"
-export TMPDIR="$TMP"
 export SCREENDIR="$HOME/.cache/screen"
 
 export PYTHONSTARTUP="$HOME/Projects/Config/pythonrc.py"
