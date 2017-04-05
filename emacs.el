@@ -366,6 +366,9 @@ two prefix arguments, write out the day and month name."
 
   (setq circe-default-realname "http://www.jorgenschaefer.de/"
         circe-format-server-topic "*** Topic change by {nick} ({userhost}): {topic-diff}"
+        ;; With the EC2 DNS name, 426 for #emacs, give it a bit more
+        ;; for longer channel names
+        circe-split-line-length 420
         lui-flyspell-p t
         lui-flyspell-alist '(("#kollektiv" "german8")
                              ("##emacs.de" "german8")
