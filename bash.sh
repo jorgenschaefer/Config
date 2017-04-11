@@ -32,7 +32,11 @@ export SCREENDIR="$HOME/.cache/screen"
 export PYTHONSTARTUP="$HOME/Projects/Config/pythonrc.py"
 unset PYTHONDONTWRITEBYTECODE
 
-export PROJECT_HOME=$HOME/Projects
+# Utterly ridiculous Debian whackery:
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=852398
+export CHROMIUM_FLAGS="--enable-remote-extensions"
+
+export PROJECT_HOME="$HOME/Projects"
 
 alias rot13='tr a-zA-Z n-za-mN-ZA-M'
 alias mv='mv -i'
