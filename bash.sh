@@ -260,11 +260,18 @@ then
             fi
         fi
 
-        local na_docker_type=""
-        local na_docker_env=""
+        local na_docker_info=""
         if [ -n "$DOCKER_HOST" ]
         then
-            docker_host=$(echo "$DOCKER_HOST")
+            local na_docker_host
+            local na_docker_env="$(echo "$DOCKER_HOST" | awk -F. '{print $3}')"
+            if [[ "$DOCKER_HOST" == *'swarm'* ]]
+            then
+                na_docker_host=swarm
+            else
+                na_docker_host="$(echo "$DOCKER_HOST" | sed -e 's,tcp://\([^.]*\)\..*,\1,')"
+            fi
+            na_docker_info="${na_docker_env}@${na_docker_host}"
         fi
 
 
@@ -283,6 +290,7 @@ then
         add_info "$c_blue" venv "$venv_info"
         add_info "$c_blue" git "$git_clean_info"
         add_info "$c_magenta" git "$git_dirty_info"
+        add_info "$c_blue" docker "$na_docker_info"
 
         if [[ -n "$info_line" ]]
         then
