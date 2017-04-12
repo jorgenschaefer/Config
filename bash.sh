@@ -260,6 +260,14 @@ then
             fi
         fi
 
+        local na_docker_type=""
+        local na_docker_env=""
+        if [ -n "$DOCKER_HOST" ]
+        then
+            docker_host=$(echo "$DOCKER_HOST")
+        fi
+
+
         local info_line=""
         function add_info () {
             local col="$1"
