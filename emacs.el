@@ -823,6 +823,7 @@ symbol, not word, as I need this for programming the most."
 
 ;; For json only, really. js2-mode doesn't do a good job with json.
 (pkg-config "js"
+  (setq js2-indent-switch-body t)
   (setq-default js-indent-level 2))
 
 ;;;;;;;;;;;
