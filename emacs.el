@@ -12,8 +12,8 @@
     (funcall mode -1)))
 
 (when (window-system)
-  (set-frame-font
-   "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
+  ;; (set-frame-font
+  ;;  "-bitstream-bitstream vera sans mono-*-r-*-*-17-*-*-*-*-*-*-*")
   (setq mouse-yank-at-point t))
 
 (mapc (lambda (map)
