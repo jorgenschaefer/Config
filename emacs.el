@@ -831,6 +831,7 @@ symbol, not word, as I need this for programming the most."
 
 (pkg-config "js2-mode"
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  (add-to-list 'auto-mode-alist '("\\.es\\'" . js2-mode))
   (add-hook 'js2-mode-hook 'auto-complete-mode)
   (setq-default js2-highlight-level 3
                 js2-mode-indent-ignore-first-tab t
