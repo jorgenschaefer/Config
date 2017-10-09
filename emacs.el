@@ -950,6 +950,8 @@ from `after-change-functions' fixes that."
 (pkg-config "multiple-cursors"
   (global-set-key (kbd "<C-down>") 'mc/mark-next-like-this)
   (global-set-key (kbd "<C-up>") 'mc/unmark-next-like-this)
+  (global-set-key (kbd "C-c <down>") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-c <up>") 'mc/unmark-next-like-this)
   (global-set-key (kbd "<C-mouse-1>") 'mc/add-cursor-on-click))
 
 ;;;;;;;;;;;;;
