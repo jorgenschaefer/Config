@@ -358,8 +358,7 @@ two prefix arguments, write out the day and month name."
   (defun irc ()
     "Connect to IRC."
     (interactive)
-    (circe "Freenode")
-    (circe "IRCnet"))
+    (circe "Freenode"))
   (setq freenode-password nil)
   (when (file-exists-p "~/.private.el")
     (load "~/.private.el" nil t))
