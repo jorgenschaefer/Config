@@ -822,7 +822,6 @@ symbol, not word, as I need this for programming the most."
 
 ;; For json only, really. js2-mode doesn't do a good job with json.
 (pkg-config "js"
-  (setq js2-indent-switch-body t)
   (setq-default js-indent-level 2))
 
 ;;;;;;;;;;;
@@ -832,11 +831,13 @@ symbol, not word, as I need this for programming the most."
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   (add-to-list 'auto-mode-alist '("\\.es\\'" . js2-mode))
   (add-hook 'js2-mode-hook 'auto-complete-mode)
-  (setq-default js2-highlight-level 3
+  (setq-default js2-basic-offset 2
+                js2-global-externs '("$")
+                js2-highlight-level 3
+                js2-indent-switch-body t
                 js2-mode-indent-ignore-first-tab t
                 js2-mode-indent-inhibit-undo t
-                js2-global-externs '("$")
-                js2-basic-offset 2
+                js2-strict-missing-semi-warning nil
                 js2-global-externs
                 '(;; AngularJS
                   "angular" "module" "inject"
