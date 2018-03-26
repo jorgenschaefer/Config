@@ -301,7 +301,6 @@ two prefix arguments, write out the day and month name."
         ("elpy" . "http://jorgenschaefer.github.io/packages/")))
 (setq package-archive-priorities '(("melpa" . -100))
       package-enable-at-startup nil)
-(package-initialize)
 
 (defvar fc/missing-packages nil
   "Packages not configured because they are missing")
