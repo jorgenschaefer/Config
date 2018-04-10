@@ -59,6 +59,11 @@ then
     . /etc/bash_completion
 fi
 
+if [ -f "$HOME/.virtualenvs/aws/bin/aws_bash_completer" ]
+then
+    . "$HOME/.virtualenvs/aws/bin/aws_bash_completer"
+fi
+
 if [ -d "$HOME/Programs/pyenv" ]
 then
     export PYENV_ROOT="$HOME/Programs/pyenv"
