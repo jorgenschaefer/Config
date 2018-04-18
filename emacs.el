@@ -1110,7 +1110,7 @@ from `after-change-functions' fixes that."
     (let ((list-matching-lines-face nil))
       (occur "^ *\\(module\\|class\\|def\\)\\_>")))
 
-  (defvar rspec-test-at-point-regex "^ *\\_<\\(it\\|context\\|describe\\|subject\\|workflow\\)\\_>")
+  (defvar rspec-test-at-point-regex "^ *\\_<\\(it\\|context\\|describe\\|subject\\|workflow\\|scenario\\)\\_>")
 
   (define-key ruby-mode-map (kbd "C-c C-t") 'rspec-test-at-point)
   (defun rspec-test-at-point ()
