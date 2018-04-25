@@ -859,6 +859,9 @@ symbol, not word, as I need this for programming the most."
        (invisible (goto-char invisible))
        (brace (goto-char brace))))))
 
+(pkg-config "jsx-mode"
+  (setq-default js-indent-level 2))
+
 ;;;;;;;;;;;
 ;; legalese
 
