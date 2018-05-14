@@ -960,7 +960,8 @@ from `after-change-functions' fixes that."
 ;; neotree.el
 
 (pkg-config "neotree"
-  (setq neo-smart-open t)
+  (setq neo-smart-open t
+        neo-autorefresh nil)
   (global-set-key (kbd "C-c n") 'neotree-show))
 
 ;;;;;;;;;;;;;;;;
