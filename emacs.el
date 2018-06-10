@@ -80,7 +80,8 @@
  cursor-in-non-selected-windows nil
  kill-whole-line t
  switch-to-buffer-preserve-window-point t
- load-prefer-newer t)
+ load-prefer-newer t
+ display-raw-bytes-as-hex t)
 
 (when (file-exists-p "~/.email")
   (setq user-mail-address
