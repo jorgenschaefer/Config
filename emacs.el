@@ -1124,7 +1124,7 @@ from `after-change-functions' fixes that."
                    (re-search-backward rspec-test-at-point-regex)
                    (line-number-at-pos)))
            (default-directory (locate-dominating-file default-directory "Gemfile")))
-      (compile (format "bundle exec rspec %s:%s" buffer-file-name line))))
+      (compile (format "bin/rspec %s:%s" (file-relative-name buffer-file-name default-directory) line))))
 
   (add-hook 'ruby-mode-hook 'flycheck-mode)
   (add-hook 'ruby-mode-hook 'yas-minor-mode)
