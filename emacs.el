@@ -1231,6 +1231,12 @@ from `after-change-functions' fixes that."
                       (string-match "tramp" (symbol-name (cdr elt))))
                     file-name-handler-alist))
 
+;;;;;;;;;;;;;;;;;;;;;;
+;;; typescript-mode.el
+
+(pkg-config "typescript-mode"
+  (setq typescript-indent-level 2))
+
 ;;;;;;;;;;;;;;;
 ;;; uniquify.el
 
