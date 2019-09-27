@@ -3,7 +3,7 @@
 
 export PATH="$HOME/.local/bin:${PATH}"
 
-export LANG=POSIX
+# export LANG=POSIX
 export LC_CTYPE=de_DE.UTF-8
 export LC_NUMERIC=POSIX
 export LC_TIME=POSIX
