@@ -1,7 +1,7 @@
 # Combined bash configuration file, sourced by both bashrc and
 # bash_profile.
 
-export PATH="$HOME/.local/bin:${PATH}"
+export PATH="$HOME/.local/bin:$HOME/.cache/npm/bin:${PATH}"
 
 # export LANG=POSIX
 export LC_CTYPE=de_DE.UTF-8
