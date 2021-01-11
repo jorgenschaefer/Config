@@ -380,13 +380,7 @@ two prefix arguments, write out the day and month name."
            :sasl-password ,freenode-password
            :channels ("#emacs" "#emacs-circe" "#emacs-elpy" "##emacs.de"
                       "#elpy" "#emacs-beginners" "#emacs-offtopic"
-                      :after-auth "#emacs-ops"))
-          ("IRCnet"
-           :host "irc.us.ircnet.net" :port 6667
-           :nick "forcer"
-           :channels ("#kollektiv")
-           )
-          ))
+                      :after-auth "#emacs-ops"))))
 
   (add-hook 'circe-chat-mode-hook 'fc/circe-chat-mode-init)
   (defun fc/circe-chat-mode-init ()
