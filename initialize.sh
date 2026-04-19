@@ -49,12 +49,6 @@ test -e "$HOME/.inputrc" || ln -s "Projects/Config/inputrc" "$HOME/.inputrc"
 # gitconfig
 "$HOME/Projects/Config/gitconfig.sh"
 
-# GTK config
-if [ -d "$HOME/.config/gtk-3.0" -a ! -e "$HOME/.config/gtk-3.0/gtk.css" ]
-then
-    ln -sf "../../Projects/Config/gtk.css" "$HOME/.config/gtk-3.0/gtk.css"
-fi
-
 # maintenance cronjob
 TEMPFILE=$(mktemp)
 trap "rm -f $TEMPFILE" EXIT

@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -e
+
+export GIT_PAGER=
+
+git ls-files --modified \
+| while read filename
+  do
+    REF=$(git log --max-count=1 --pretty=format:%H -- "$filename")
+    if [ -z "$REF" ]
+    then
+      echo "Can't find commit for $filename" >&2
+      continue
+    fi
+    git add "$filename"
+    git commit --quiet --fixup "$REF"
+    COMMITS=$(git rev-list --count "^$REF" HEAD)
+    echo "Fixup $filename - $COMMITS behind"
+  done

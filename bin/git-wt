@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+	exec git worktree
+fi
+
+subcommand="$1"
+
+parse_add_path() {
+	shift
+	local args=("$@")
+	local i=0
+	local path=""
+
+	while [[ $i -lt ${#args[@]} ]]; do
+		local arg="${args[$i]}"
+		case "$arg" in
+		--)
+			i=$((i + 1))
+			if [[ $i -lt ${#args[@]} ]]; then
+				path="${args[$i]}"
+			fi
+			break
+			;;
+		-b|-B|--reason)
+			i=$((i + 2))
+			;;
+		--*)
+			i=$((i + 1))
+			;;
+		-*)
+			i=$((i + 1))
+			;;
+		*)
+			path="$arg"
+			break
+			;;
+		esac
+	done
+
+	printf '%s' "$path"
+}
+
+if [[ "$subcommand" != "add" ]]; then
+	exec git worktree "$@"
+fi
+
+src_root="$(git rev-parse --show-toplevel)"
+wt_path_arg="$(parse_add_path "$@")"
+
+git worktree "$@"
+
+if [[ ! -d "$wt_path_arg" ]]; then
+	exit 0
+fi
+
+copy_list="$(mktemp)"
+trap 'rm -f "$copy_list"' EXIT
+git -C "$src_root" ls-files -z --others --ignored --exclude-standard > "$copy_list"
+
+if [[ -s "$copy_list" ]]; then
+	(cd "$src_root" && tar --null -T "$copy_list" -cf -) | (cd "$wt_path_arg" && tar -xf -)
+fi
