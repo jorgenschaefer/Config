@@ -24,85 +24,45 @@ if [ -f "$HOME/.email" ]
 then
     export EMAIL=$(cat "$HOME/.email")
 fi
-export HISTCONTROL=ignoredups
+
 export LESS="-MIRnX"
 export LESSCHARSET=utf-8
-export SCREENDIR="$HOME/.cache/screen"
-
-export PYTHONSTARTUP="$HOME/Projects/Config/pythonrc.py"
-unset PYTHONDONTWRITEBYTECODE
-
-# Utterly ridiculous Debian whackery:
-# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=852398
-export CHROMIUM_FLAGS="--enable-remote-extensions"
-
-export PROJECT_HOME="$HOME/Projects"
 
 alias rot13='tr a-zA-Z n-za-mN-ZA-M'
 alias mv='mv -i'
 alias %='fg'
-alias sc="screen -rd"
-alias be="bundle exec"
-alias fr="bundle exec foreman run"
 
-if type virtualenvwrapper.sh &>/dev/null
-then
-    if [ -z "$VIRTUALENVWRAPPER_PYTHON" ]
-    then
-        export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
-    fi
-    . virtualenvwrapper.sh
-fi
-
-if [ -f "/etc/bash_completion" ]
-then
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
-fi
-
-if [ -f "$HOME/.virtualenvs/aws/bin/aws_bash_completer" ]
-then
-    . "$HOME/.virtualenvs/aws/bin/aws_bash_completer"
-fi
-
-if [ -d "$HOME/Programs/pyenv" ]
-then
-    export PYENV_ROOT="$HOME/Programs/pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    # eval "$(pyenv init -)"
-fi
-
-if [ -d "$HOME/Programs/go" ]
-then
-    export GOROOT="$HOME/Programs/go"
-    export PATH="$GOROOT/bin:$PATH"
-fi
-
-if [ -d "$HOME/.local/gopath/" ]
-then
-    export GOPATH="$HOME/.local/gopath/"
-    export PATH="$GOPATH/bin:$PATH"
+  fi
 fi
 
 if [ -d "$HOME/.nvm" ]
 then
     export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 fi
 
-if [ -d "$HOME/.rbenv" ]
-then
-    export PATH="$HOME/.rbenv/bin:$PATH"
-    eval "$(rbenv init -)"
+# OPENSPEC:START
+# OpenSpec shell completions configuration
+if [ -d "$HOME/.local/share/bash-completion/completions" ]; then
+  for f in "$HOME/.local/share/bash-completion/completions"/*; do
+    [ -f "$f" ] && . "$f"
+  done
 fi
-
-if [ -d "/usr/lib/chromium" ]
-then
-    export PATH="/usr/lib/chromium:$PATH"
-fi
+# OPENSPEC:END
 
 # Only in interactive shells
 if [ -n "$PS1" ]
 then
+    HISTCONTROL=ignoreboth
+    HISTSIZE=1000
+    HISTFILESIZE=2000
+    shopt -s histappend
     shopt -s checkwinsize
     set nocaseglob
 
@@ -123,51 +83,11 @@ then
         fi
     }
 
-    # Colors in non-dumb terminals or in Emacs
-    if [ "$EMACS" = "t" ] || [ "$TERM" != "dumb" ]
-    then
-        eval `dircolors -b`
-        alias ls='ls -F --color=auto'
-        alias grep='grep --color --exclude-dir=.svn --exclude-dir=.git --exclude="*.pyc"'
-    else
-        alias ls='ls -F'
-        alias grep='grep --exclude-dir=.svn --exclude-dir=.git'
+    if [ -x /usr/bin/dircolors ]; then
+        test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+        alias ls='ls --color=auto'
     fi
 
-    # A workon command for generic projects
-    function wo () {
-        local name="$1"
-        if [ -z "$name" ]
-        then
-            echo "usage: wo <project>" >&2
-            echo >&2
-            echo "Possible projects:" >&2
-            echo >&2
-            /bin/ls "$HOME/Projects" >&2
-        fi
-        if [ ! -d "$HOME/Projects/$name" ]
-        then
-            echo "No such project: $name" >&2
-            return 1
-        fi
-        cd "$HOME/Projects/$name"
-        if [ -f ".env" ]
-        then
-            set -a
-            . .env
-            set +a
-        fi
-        if [ -d "$HOME/.virtualenvs/$name" ]
-        then
-            workon "$name"
-        fi
-    }
-    complete -o default -o nospace -F _projects wo
-    function _projects () {
-        COMPREPLY=($(compgen -W "`/bin/ls "$HOME/Projects"`" -- "$2"))
-    }
-
-    # And now, the prompt
     if type tput &>/dev/null && tput setaf 1 >&/dev/null
     then
         c_reset="\\[`tput sgr0`\\]"
