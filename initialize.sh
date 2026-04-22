@@ -5,13 +5,10 @@
 GITREPO_URL="https://github.com/jorgenschaefer/Config.git"
 
 # Ignored for now: Music Pictures Videos
-for dir in .local/bin .cache/tmp \
-           Documents Downloads Files Programs Projects
-do
-    test -d "$HOME/$dir" || mkdir -p "$HOME/$dir"
-done
+mkdir "$HOME/.local/bin"
+mkdir "$HOME/Projects"
 
-if [ ! -f "$HOME/Projects/Config/initialize.sh" ]
+if [ ! -d "$HOME/Projects/Config" ]
 then
   git clone "$GITREPO_URL" "$HOME/Projects/Config"
 fi
@@ -38,21 +35,8 @@ ensure_contains "$HOME/.bashrc" \
 ensure_contains "$HOME/.bash_logout" \
                 '. ~/Projects/Config/bash_logout.sh'
 
-# emacs.el
-test -d "$HOME/.emacs.d" || mkdir "$HOME/.emacs.d"
-ensure_contains "$HOME/.emacs.d/init.el" \
-                '(load "~/Projects/Config/emacs.el" t t t)'
-
 # inputrc
 test -e "$HOME/.inputrc" || ln -s "Projects/Config/inputrc" "$HOME/.inputrc"
 
 # gitconfig
 "$HOME/Projects/Config/gitconfig.sh"
-
-# maintenance cronjob
-TEMPFILE=$(mktemp)
-trap "rm -f $TEMPFILE" EXIT
-
-crontab -l > "$TEMPFILE"
-ensure_contains "$TEMPFILE" '10 * * * * ~/Projects/Config/maintenance.py'
-crontab < "$TEMPFILE"
