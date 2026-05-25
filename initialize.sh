@@ -38,5 +38,10 @@ ensure_contains "$HOME/.bash_logout" \
 # inputrc
 test -e "$HOME/.inputrc" || ln -s "Projects/Config/inputrc" "$HOME/.inputrc"
 
+# claude/CLAUDE.md
+mkdir -p "$HOME/.claude"
+test -e "$HOME/.claude/CLAUDE.md" || \
+  ln -s "../Projects/Config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+
 # gitconfig
 "$HOME/Projects/Config/gitconfig.sh"
