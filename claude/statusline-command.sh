@@ -5,6 +5,7 @@ input=$(cat)
 cwd=$(echo "$input" | jq -r '.cwd')
 model=$(echo "$input" | jq -r '.model.display_name // empty')
 remaining=$(echo "$input" | jq -r '.context_window.remaining_percentage // empty')
+used_tokens=$(echo "$input" | jq -r '.context_window.used_tokens // empty')
 
 # ANSI colors (same palette as bash prompt)
 c_reset="\033[0m"
@@ -21,8 +22,8 @@ cwd_info="${cwd/#$HOME/\~}"
 git_dirty_info=""
 git_clean_info=""
 if git -C "$cwd" rev-parse --git-dir > /dev/null 2>&1; then
-    git_branch=$(git -C "$cwd" branch --no-optional-locks 2>/dev/null | sed -ne 's/^\* //p')
-    if [ "$(git -C "$cwd" status --porcelain --no-optional-locks 2>/dev/null | wc -l)" -gt 0 ]; then
+    git_branch=$(git -C "$cwd" --no-optional-locks branch 2>/dev/null | sed -ne 's/^\* //p')
+    if [ "$(git -C "$cwd" --no-optional-locks status --porcelain 2>/dev/null | wc -l)" -gt 0 ]; then
         git_dirty_info="$git_branch"
     else
         git_clean_info="$git_branch"
@@ -44,13 +45,27 @@ add_info() {
 add_info "$c_blue"    "git"    "$git_clean_info"
 add_info "$c_magenta" "git"    "$git_dirty_info"
 
-# context remaining: yellow when below 20%
+# format token count: 12345 -> 12k, 1234567 -> 1.2M
+format_tokens() {
+    awk -v n="$1" 'BEGIN {
+        if (n >= 1000000) printf "%.1fM", n/1000000
+        else if (n >= 1000) printf "%.0fk", n/1000
+        else printf "%d", n
+    }'
+}
+
+# context: show % used (not remaining), yellow when > 80%
 if [ -n "$remaining" ]; then
-    remaining_int=$(printf "%.0f" "$remaining")
-    if [ "$remaining_int" -lt 20 ]; then
-        add_info "$c_yellow" "ctx" "${remaining_int}%"
+    used_int=$(awk -v r="$remaining" 'BEGIN { printf "%.0f", 100 - r }')
+    if [ -n "$used_tokens" ]; then
+        ctx_val="$(format_tokens "$used_tokens")/${used_int}%"
     else
-        add_info "$c_blue"   "ctx" "${remaining_int}%"
+        ctx_val="${used_int}%"
+    fi
+    if [ "$used_int" -gt 80 ]; then
+        add_info "$c_yellow" "ctx" "$ctx_val"
+    else
+        add_info "$c_blue"   "ctx" "$ctx_val"
     fi
 fi
 
@@ -58,7 +73,7 @@ add_info "$c_blue" "model" "$model"
 
 # --- render ---
 if [ -n "$info_line" ]; then
-    printf "${c_reset}[${info_line# }${c_reset}] ${c_blue}%s${c_reset}" "$cwd_info"
+    printf "%b[%b%b] %b%s%b" "$c_reset" "${info_line# }" "$c_reset" "$c_blue" "$cwd_info" "$c_reset"
 else
-    printf "${c_blue}%s${c_reset}" "$cwd_info"
+    printf "%b%s%b" "$c_blue" "$cwd_info" "$c_reset"
 fi
