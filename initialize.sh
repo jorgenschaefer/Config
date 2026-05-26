@@ -38,10 +38,14 @@ ensure_contains "$HOME/.bash_logout" \
 # inputrc
 test -e "$HOME/.inputrc" || ln -s "Projects/Config/inputrc" "$HOME/.inputrc"
 
-# claude/CLAUDE.md
+# claude/
 mkdir -p "$HOME/.claude"
 test -e "$HOME/.claude/CLAUDE.md" || \
   ln -s "../Projects/Config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+test -e "$HOME/.claude/statusline-command.sh" || \
+  ln -s "../Projects/Config/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
+test -e "$HOME/.claude/settings.json" || \
+  ln -s "../Projects/Config/claude/settings.json" "$HOME/.claude/settings.json"
 
 # gitconfig
 "$HOME/Projects/Config/gitconfig.sh"

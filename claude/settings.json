@@ -1,0 +1,27 @@
+{
+  "env": {
+    "ENABLE_LSP_TOOL": "1"
+  },
+  "permissions": {
+    "defaultMode": "auto"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash /home/jorgen/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "vtsls@claude-code-lsps": true,
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": false
+  },
+  "extraKnownMarketplaces": {
+    "claude-code-lsps": {
+      "source": {
+        "source": "github",
+        "repo": "boostvolt/claude-code-lsps"
+      }
+    }
+  },
+  "theme": "light",
+  "skipAutoPermissionPrompt": true
+}
