@@ -71,6 +71,21 @@ fi
 
 add_info "$c_blue" "model" "$model"
 
+# rate limit budgets: % used, yellow when > 80%
+for window in five_hour:5h seven_day:7d; do
+    key="${window%%:*}"
+    label="${window##*:}"
+    pct=$(echo "$input" | jq -r ".rate_limits.${key}.used_percentage // empty")
+    if [ -n "$pct" ]; then
+        pct_int=$(awk -v p="$pct" 'BEGIN { printf "%.0f", p }')
+        if [ "$pct_int" -gt 80 ]; then
+            add_info "$c_yellow" "$label" "${pct_int}%"
+        else
+            add_info "$c_blue"   "$label" "${pct_int}%"
+        fi
+    fi
+done
+
 # --- render ---
 if [ -n "$info_line" ]; then
     printf "%b[%b%b] %b%s%b" "$c_reset" "${info_line# }" "$c_reset" "$c_blue" "$cwd_info" "$c_reset"

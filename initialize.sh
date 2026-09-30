@@ -4,9 +4,8 @@
 
 GITREPO_URL="https://github.com/jorgenschaefer/Config.git"
 
-# Ignored for now: Music Pictures Videos
-mkdir "$HOME/.local/bin"
-mkdir "$HOME/Projects"
+mkdir -p "$HOME/.local/bin"
+mkdir -p "$HOME/Projects"
 
 if [ ! -d "$HOME/Projects/Config" ]
 then

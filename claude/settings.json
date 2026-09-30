@@ -20,8 +20,28 @@
         "source": "github",
         "repo": "boostvolt/claude-code-lsps"
       }
+    },
+    "jorgen": {
+      "source": {
+        "source": "directory",
+        "path": "/home/jorgen/Projects/claude-plugin"
+      }
     }
   },
+  "modelSettings": {
+    "claude-opus-5": {
+      "effortLevel": "medium"
+    }
+  },
+  "tui": "fullscreen",
+  "skipWorkflowUsageWarning": true,
   "theme": "light",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(npm run db:restore:*) in ~/Projects/haushaltsbuch — restores overwrite the live local DB and the docs note it refuses only when a dev server is running, not a general safety check",
+      "Bash(npx drizzle-kit push:*) or other non-generate migration-apply commands in ~/Projects/haushaltsbuch — schema.ts is documented as the required source of truth; direct SQL/schema pushes bypass the generate step"
+    ]
+  }
 }

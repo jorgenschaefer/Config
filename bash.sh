@@ -47,14 +47,11 @@ then
     [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 fi
 
-# OPENSPEC:START
-# OpenSpec shell completions configuration
-if [ -d "$HOME/.local/share/bash-completion/completions" ]; then
-  for f in "$HOME/.local/share/bash-completion/completions"/*; do
-    [ -f "$f" ] && . "$f"
-  done
+if [ -d "$HOME/Android" ]
+then
+    export ANDROID_HOME="$HOME/Android/Sdk"
+    export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin"
 fi
-# OPENSPEC:END
 
 # Only in interactive shells
 if [ -n "$PS1" ]
