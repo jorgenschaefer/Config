@@ -1,18 +1,8 @@
-# XY Problem
-
-Users often ask for a solution before fully understanding the problem. If a better approach might exist, help figure out the problem before settling on a solution.
-
-# Development
-
-Follow TDD for all bug fixes and feature work: write a failing test first, then implement, then verify the full suite is green before committing.
-
-# Scope
-
-When you notice something outside the requested task (adjacent bug, smell, missing test), use your judgment and fix it if it clearly improves the change. I prefer a better diff over a narrower one. This deliberately relaxes the default "stay strictly in scope" rule.
-
 # Version Control
 
 Never use `git add -A`; stage only the files relevant to the current change, and split unrelated changes into separate logical commits.
+
+Never push to origin unless the user explicitly asks you to.
 
 # German
 
