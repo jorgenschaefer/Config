@@ -5,7 +5,7 @@ input=$(cat)
 cwd=$(echo "$input" | jq -r '.cwd')
 model=$(echo "$input" | jq -r '.model.display_name // empty')
 remaining=$(echo "$input" | jq -r '.context_window.remaining_percentage // empty')
-used_tokens=$(echo "$input" | jq -r '.context_window.used_tokens // empty')
+window_size=$(echo "$input" | jq -r '.context_window.context_window_size // empty')
 
 # ANSI colors (same palette as bash prompt)
 c_reset="\033[0m"
@@ -45,35 +45,18 @@ add_info() {
 add_info "$c_blue"    "git"    "$git_clean_info"
 add_info "$c_magenta" "git"    "$git_dirty_info"
 
-# format token count: 12345 -> 12k, 1234567 -> 1.2M
-format_tokens() {
-    awk -v n="$1" 'BEGIN {
-        if (n >= 1000000) printf "%.1fM", n/1000000
-        else if (n >= 1000) printf "%.0fk", n/1000
-        else printf "%d", n
-    }'
-}
-
-# context: show % used (not remaining); yellow above 150k tokens, red above 250k
-# (without a token count: yellow when > 80%)
+# context: show % used (not remaining); yellow from 150k tokens, red from 250k
+# (without a window size, assume 1M tokens)
 if [ -n "$remaining" ]; then
     used_int=$(awk -v r="$remaining" 'BEGIN { printf "%.0f", 100 - r }')
-    if [ -n "$used_tokens" ]; then
-        ctx_val="$(format_tokens "$used_tokens")/${used_int}%"
-        if [ "$used_tokens" -gt 250000 ]; then
-            ctx_col="$c_red"
-        elif [ "$used_tokens" -gt 150000 ]; then
-            ctx_col="$c_yellow"
-        else
-            ctx_col="$c_blue"
-        fi
+    used_tokens=$(awk -v r="$remaining" -v w="${window_size:-1000000}" 'BEGIN { printf "%.0f", (100 - r) * w / 100 }')
+    ctx_val="${used_int}%"
+    if [ "$used_tokens" -ge 250000 ]; then
+        ctx_col="$c_red"
+    elif [ "$used_tokens" -ge 150000 ]; then
+        ctx_col="$c_yellow"
     else
-        ctx_val="${used_int}%"
-        if [ "$used_int" -gt 80 ]; then
-            ctx_col="$c_yellow"
-        else
-            ctx_col="$c_blue"
-        fi
+        ctx_col="$c_blue"
     fi
     add_info "$ctx_col" "ctx" "$ctx_val"
 fi
