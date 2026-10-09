@@ -54,19 +54,28 @@ format_tokens() {
     }'
 }
 
-# context: show % used (not remaining), yellow when > 80%
+# context: show % used (not remaining); yellow above 150k tokens, red above 250k
+# (without a token count: yellow when > 80%)
 if [ -n "$remaining" ]; then
     used_int=$(awk -v r="$remaining" 'BEGIN { printf "%.0f", 100 - r }')
     if [ -n "$used_tokens" ]; then
         ctx_val="$(format_tokens "$used_tokens")/${used_int}%"
+        if [ "$used_tokens" -gt 250000 ]; then
+            ctx_col="$c_red"
+        elif [ "$used_tokens" -gt 150000 ]; then
+            ctx_col="$c_yellow"
+        else
+            ctx_col="$c_blue"
+        fi
     else
         ctx_val="${used_int}%"
+        if [ "$used_int" -gt 80 ]; then
+            ctx_col="$c_yellow"
+        else
+            ctx_col="$c_blue"
+        fi
     fi
-    if [ "$used_int" -gt 80 ]; then
-        add_info "$c_yellow" "ctx" "$ctx_val"
-    else
-        add_info "$c_blue"   "ctx" "$ctx_val"
-    fi
+    add_info "$ctx_col" "ctx" "$ctx_val"
 fi
 
 add_info "$c_blue" "model" "$model"
