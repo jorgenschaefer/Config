@@ -141,6 +141,8 @@ then
         # Store this for later
         local last_exit="$?"
 
+        set_terminal_title
+
         local cwd_info=""
         if [[ "$USER" != 'forcer' && "$USER" != 'schaefer' && "$USER" != 'jorgen' ]]
         then
@@ -225,5 +227,38 @@ then
             local line2="$c_blue\\\$$c_reset "
             PS1="$c_reset\n$line1\n$line2"
         fi
+    }
+
+    # Printed directly rather than splicing the expanded title into PS1,
+    # where prompt expansion would run a directory named $(...).
+    function set_terminal_title () {
+        case "$TERM" in
+            xterm*|screen*|tmux*)
+                printf '\e]0;%s\a' "$(terminal_title "$PWD")"
+                ;;
+        esac
+    }
+
+    function terminal_title () {
+        local dir="$1"
+        if [[ "$dir" == "$HOME" || "$dir" == "$HOME"/* ]]
+        then
+            dir="~${dir#"$HOME"}"
+        fi
+        local max=40
+        if (( ${#dir} > max ))
+        then
+            local tail="${dir: -$((max - 1))}"
+            if [[ "$tail" == */* ]]
+            then
+                tail="/${tail#*/}"
+            fi
+            dir="…$tail"
+        fi
+        if [[ -n "$SSH_CONNECTION" ]]
+        then
+            dir="${HOSTNAME%%.*}:$dir"
+        fi
+        echo "${dir//[[:cntrl:]]/?}"
     }
 fi
