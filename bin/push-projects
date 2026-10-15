@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# Push main of every git repository in ~/Projects (or the given
+# directory) to origin, and warn about repositories without a remote.
+
+set -uo pipefail
+
+projects="${1:-$HOME/Projects}"
+failed=()
+
+for dir in "$projects"/*/; do
+	dir="${dir%/}"
+	name="$(basename "$dir")"
+	if [[ ! -e "$dir/.git" ]]; then
+		continue
+	fi
+	if [[ -z "$(git -C "$dir" remote)" ]]; then
+		echo "Warning: $name has no remote" >&2
+		continue
+	fi
+	echo "Pushing $name"
+	if ! git -C "$dir" push --quiet origin refs/heads/main:refs/heads/main; then
+		failed+=("$name")
+	fi
+done
+
+if [[ ${#failed[@]} -gt 0 ]]; then
+	echo "Push failed for: ${failed[*]}" >&2
+	exit 1
+fi
