@@ -12,7 +12,8 @@
   "enabledPlugins": {
     "vtsls@claude-code-lsps": true,
     "frontend-design@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": false
+    "superpowers@claude-plugins-official": false,
+    "patientenakte@patientenakte": false
   },
   "extraKnownMarketplaces": {
     "claude-code-lsps": {
@@ -25,6 +26,12 @@
       "source": {
         "source": "directory",
         "path": "/home/jorgen/Projects/claude-plugin"
+      }
+    },
+    "patientenakte": {
+      "source": {
+        "source": "directory",
+        "path": "/home/jorgen/Projects/patientenakte"
       }
     }
   },
