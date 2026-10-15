@@ -245,15 +245,10 @@ then
         then
             dir="~${dir#"$HOME"}"
         fi
-        local max=20
+        local max=12
         if (( ${#dir} > max ))
         then
-            local tail="${dir: -$((max - 1))}"
-            if [[ "$tail" == */* ]]
-            then
-                tail="/${tail#*/}"
-            fi
-            dir="…$tail"
+            dir="…/${dir##*/}"
         fi
         if [[ -n "$SSH_CONNECTION" ]]
         then
