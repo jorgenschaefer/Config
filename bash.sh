@@ -245,7 +245,7 @@ then
         then
             dir="~${dir#"$HOME"}"
         fi
-        local max=40
+        local max=20
         if (( ${#dir} > max ))
         then
             local tail="${dir: -$((max - 1))}"
