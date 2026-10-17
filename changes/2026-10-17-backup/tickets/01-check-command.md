@@ -29,7 +29,7 @@ A single check command for this repository, declared in a new project `CLAUDE.md
 ## Context
 The repository is a set of bash and sh scripts for a home directory: `bash.sh`, `bash_logout.sh`, `initialize.sh`, `gitconfig.sh`, `claude/statusline-command.sh` and the scripts in `bin/`. It has no tests, no project `CLAUDE.md` and no check command. `claude/CLAUDE.md` is not the project's: `initialize.sh` links it to `~/.claude/CLAUDE.md` as the user's global instructions, so the project's goes at the root.
 
-`shellcheck` is installed; no bash test framework is. The existing scripts have shellcheck findings today.
+`shellcheck` is installed; no bash test framework is. The existing scripts pass shellcheck.
 
 The later tickets of this change add `bin/backup` and its tests, tests for `bash.sh`, and systemd unit files, and add to this command whatever they need checked. Tests must not go into `bin/`: `initialize.sh` links every file in `bin/` into `~/.local/bin`, which is on `PATH`.
 
