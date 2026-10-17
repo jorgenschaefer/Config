@@ -57,6 +57,24 @@ then
 fi
 end_test
 
+start_test "the service runs when the last backup succeeded late yesterday"
+touch -d 'yesterday 23:59' "$scratch/home/.local/state/backup/last-backup"
+run_condition
+if [[ $status != 0 ]]
+then
+  fail "condition exited $status"
+fi
+end_test
+
+start_test "the service skips the run when a backup succeeded just after midnight"
+touch -d 'today 00:01' "$scratch/home/.local/state/backup/last-backup"
+run_condition
+if [[ $status == 0 || $status -ge 255 ]]
+then
+  fail "condition exited $status, not a skip (1 to 254)"
+fi
+end_test
+
 start_test "the service skips the run when a backup already succeeded today"
 touch "$scratch/home/.local/state/backup/last-backup"
 run_condition
@@ -66,7 +84,7 @@ then
 fi
 end_test
 
-start_test "the timer also starts the service at every login"
+start_test "the timer also starts the service when the user manager starts"
 if ! grep -qE '^OnStartupSec=' "$repo/systemd/backup.timer"
 then
   fail "backup.timer has no OnStartupSec"

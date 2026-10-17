@@ -6,8 +6,9 @@ OnCalendar=daily
 # Catch up on a day missed while the machine was off, once the user's
 # session starts again.
 Persistent=true
-# A run at every login, for a failed run whose retries ended with the
-# session. backup.service skips it once a backup has succeeded today.
+# A run whenever the user manager starts, i.e. at the first login
+# after all sessions ended, for a failed run whose retries ended with
+# the session. backup.service skips it once a backup has succeeded today.
 OnStartupSec=1min
 
 [Install]
