@@ -3,8 +3,8 @@ criteria:  CRITERIA.md
 closes:    AC-1, AC-2, AC-3, AC-6, AC-11
 advances:  AC-12, AC-14
 after:     01-check-command
-status:    ready
-attempts:  0
+status:    done
+attempts:  1
 ---
 
 ## Build
@@ -67,3 +67,22 @@ Shared with the other tickets:
 - Out of scope: Backing up anything beyond the lists in AC-1.
 
 ## Left standing
+- **Review findings not fixed.** Two nits from round one. (1) Move `object_key` below its callers: kept at the top, because the nudge puts the object key pattern among the constants there. (2) One source file, `bin/backup`, has two test files, `tests/backup_test.sh` and `tests/restore_test.sh`, which together with `tests/backup_helpers.sh` come to over 500 lines. They split along the two subcommands. Splitting `bin/backup` itself is awkward, because `initialize.sh` puts every file in `bin/` onto `PATH`, so a sourced library can't live there. Round two had no blockers or nits; its one should-fix (an existing read-only directory blamed the key) is fixed.
+- **Checks not run: real AWS.** The bucket and the `backup` profile come with ticket 03, so no run has reached S3. Every upload and download in the tests goes to a fake `aws` (`tests/backup_helpers.sh`). It models what this code relies on: put-object rejects a wrong Content-MD5, objects are versioned, `--query VersionId --output text` prints the version id, a profile can be missing, and there is no default region. The first real run after ticket 03 is the first time any of that meets real S3.
+- **AC-1 on njord itself:** the tests prove the lists with a scratch home. I also ran a copy of the script on njord's real home with a throwaway key and the fake S3. The archive held all 93 `~/.claude/projects/*/memory/` directories, both `.pfx` files, `.myinvoice` and `haushaltsbuch.db`, and no `-wal` or `-shm` file. Both snapshots passed `integrity_check`. I deleted the `last-backup` it wrote. `~/Documents/Certificates/` does not exist on njord today, so the real run could not show it. It is packed as part of `~/Documents`, not listed on its own, so it is not checked as a missing path; the test puts one there and finds it in the archive.
+- **AC-6, the user journal:** the tests check the journal through a fake `logger`. On njord, I checked by hand that `logger -t … -p user.err` lands in `journalctl --user`.
+- **AC-3, no private key on any backed-up machine:** the tests prove that nothing in the repository holds one, and that a restore leaves no copy in the scratch home, the runtime directory or the restore target. The key reaches `age` through a process substitution (a pipe). Where else the user keeps the key is up to them.
+- **AC-11, works on a fresh machine:** no test can prove this; I checked it by reading the code. A restore uses only bash, coreutils, `tar`/`gzip`, `age` and `aws`. It passes `--region eu-central-1` itself, so the profile needs no region, and the profile defaults to `default`, which is the one `aws configure` writes. One precondition: it puts the downloaded, still-encrypted object in `$XDG_RUNTIME_DIR`, and stops with "unbound variable" if that isn't set. A graphical or systemd login session sets it.
+- **Formats and names other code will be written against:**
+  - Journal lines, under the syslog tag `backup` with the PID as the run id: `backup_failed reason=<r> [path=|database=|key=]` for a run, and `restore_failed reason=<r> [dir=|key=]` for a restore.
+  - Run reasons: `public_key_missing`, `path_missing`, `snapshot_failed`, `database_damaged`, `pack_failed`, `encrypt_failed`, `upload_failed`.
+  - Restore reasons: `directory_not_empty`, `directory_unusable`, `download_failed`, `unpack_failed`.
+  - Exit codes: 1 on failure, 2 on a usage error.
+  - Test layout: tests of `bin/backup` live in `tests/`, not next to the script, because of `bin/`. The fakes for `aws`, `logger` and `hostname` are bash functions exported by `tests/backup_helpers.sh`, and ticket 03's tests can extend them. The fake `aws` uses `openssl` to check Content-MD5 independently of the script; `openssl` is needed only by the tests.
+- **Decisions beyond the nudges:**
+  - **An extra constant, `SQLITE_DATABASES`.** The nudge names the path lists, the bucket, the key pattern and the public key as the constants. Snapshotting needs to know which listed files are databases, so this list is a fifth constant beside them. A database inside a listed path that is missing fails the run (`snapshot_failed`), just as a missing listed path does.
+  - **`-journal` excluded too.** Besides `-wal` and `-shm`, any `-journal` file of a snapshotted database is left out, for the same reason.
+  - **Content-MD5 without a new dependency.** The value is computed with `md5sum` and `base64` from coreutils.
+  - **A file changing during a run fails it.** If a file changes while tar reads it (tar exit 1), the run fails with `pack_failed` instead of uploading. The retry from ticket 04 is what covers this.
+  - **A missing restore directory is created.** `backup restore <dir>` creates `<dir>` if it doesn't exist. It refuses a non-empty directory, and one it can't write, before asking for the key.
+- **Ticket 01's open item:** ticket 01 left open a structural rule against tests in `bin/`. It is outside this ticket's Done when and is still open.

@@ -43,10 +43,23 @@ run_tests () {
 }
 
 # Each structural rule of the project is a check called from here,
-# and returns non-zero when the code breaks the rule. There are no
-# rules yet.
+# and returns non-zero when the code breaks the rule.
 check_structure () {
-  return 0
+  check_backup_reads_clock_only_in_now
+}
+
+# bin/backup reads the clock in its function now() and nowhere else.
+check_backup_reads_clock_only_in_now () {
+  local reads
+  reads="$(grep -nE '\bdate\b|EPOCHSECONDS|EPOCHREALTIME|\bSECONDS\b|%\([^)]*\)T' \
+                bin/backup \
+             | grep -vxE '[0-9]+:now \(\) \{ date \+%s; \}')"
+  if [[ -n $reads ]]
+  then
+    echo "bin/backup reads the clock outside now():" >&2
+    echo "$reads" >&2
+    return 1
+  fi
 }
 
 main

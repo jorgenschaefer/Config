@@ -1,0 +1,278 @@
+#!/usr/bin/env bash
+
+# Back up this machine's paths to S3, encrypted with age, or restore a
+# backup into an empty directory.
+#
+#   backup                      pack, encrypt and upload this machine's paths
+#   backup restore <dir> [--host H] [version-id] [--profile P]
+
+set -uo pipefail
+
+# The public half of the backup key. Its private half lives only in the
+# password manager and is typed in at restore.
+AGE_PUBLIC_KEY=''
+
+BUCKET='jorgenschaefer-backup'
+REGION='eu-central-1'
+UPLOAD_PROFILE='backup'
+
+# Paths relative to $HOME. A pattern that matches nothing is not
+# missing; every other path must exist.
+COMMON_PATHS=(
+  Documents
+  .ssh
+  .aws
+  .local/share/keyrings
+  '.claude/projects/*/memory'
+)
+NJORD_PATHS=(
+  .myinvoice
+  Projects/haushaltsbuch/haushaltsbuch.db
+)
+
+# SQLite databases, relative to $HOME. One that lies within a host's
+# paths is packed as a snapshot under its own name, never as the live
+# file with its -wal and -shm.
+SQLITE_DATABASES=(
+  .myinvoice/myinvoice.db
+  Projects/haushaltsbuch/haushaltsbuch.db
+)
+
+object_key () {
+  local host="$1"
+  echo "$host/backup.tar.age"
+}
+
+main () {
+  case "${1:-}" in
+    "") run_backup ;;
+    restore) shift; restore "$@" ;;
+    *) usage ;;
+  esac
+}
+
+run_backup () {
+  local host listing paths work
+  if [[ -z $AGE_PUBLIC_KEY ]]
+  then
+    fail backup_failed public_key_missing "" \
+         "bin/backup has no age public key; create a key pair with age-keygen, keep the secret key only in the password manager, and put the public key into AGE_PUBLIC_KEY at the top of bin/backup"
+  fi
+  host="$(hostname -s)"
+  # backed_up_paths has already reported why when it fails.
+  listing="$(backed_up_paths "$host")" || exit 1
+  mapfile -t paths <<< "$listing"
+  work="$(mktemp -d "$XDG_RUNTIME_DIR/backup.XXXXXX")"
+  # shellcheck disable=SC2064 # $work is fixed by now
+  trap "rm -rf '$work'" EXIT
+  pack "$work" "${paths[@]}"
+  age -r "$AGE_PUBLIC_KEY" -o "$work/backup.tar.age" "$work/backup.tar.gz" \
+    || fail backup_failed encrypt_failed "" "could not encrypt the archive, see age's error above"
+  upload "$work/backup.tar.age" "$(object_key "$host")"
+  record_time last-backup
+}
+
+# Download a version of a host's object, decrypt it with the private
+# key the user types in, and unpack it into an empty directory.
+restore () {
+  local dir="" host="" version="" profile="default" key work restored
+  local -a version_option=()
+  while [[ $# -gt 0 ]]
+  do
+    case "$1" in
+      --host) host="${2:?--host needs a hostname}"; shift 2 ;;
+      --profile) profile="${2:?--profile needs an AWS profile name}"; shift 2 ;;
+      -*) usage ;;
+      *)
+        if [[ -z $dir ]]
+        then
+          dir="$1"
+        elif [[ -z $version ]]
+        then
+          version="$1"
+          version_option=(--version-id "$version")
+        else
+          usage
+        fi
+        shift
+        ;;
+    esac
+  done
+  [[ -n $dir ]] || usage
+  [[ -n $host ]] || host="$(hostname -s)"
+  if [[ -e $dir && -n $(ls -A -- "$dir") ]]
+  then
+    fail restore_failed directory_not_empty "dir=$dir" \
+         "$dir is not empty; restore into an empty or a new directory"
+  fi
+  mkdir -p "$dir" \
+    || fail restore_failed directory_unusable "dir=$dir" \
+            "could not create $dir, see mkdir's error above"
+  if [[ ! -w $dir ]]
+  then
+    fail restore_failed directory_unusable "dir=$dir" \
+         "can't write into $dir; restore into a directory you can write"
+  fi
+  read -rsp "Age private key: " key
+  echo >&2
+  work="$(mktemp -d "$XDG_RUNTIME_DIR/backup.XXXXXX")"
+  # shellcheck disable=SC2064 # $work is fixed by now
+  trap "rm -rf '$work'" EXIT
+  restored="$(aws s3api get-object --bucket "$BUCKET" \
+                 --key "$(object_key "$host")" "${version_option[@]}" \
+                 --profile "$profile" --region "$REGION" \
+                 --query VersionId --output text "$work/backup.tar.age")" \
+    || fail restore_failed download_failed "key=$(object_key "$host")" \
+            "could not download $(object_key "$host") with AWS profile $profile, see aws's error above"
+  # The key reaches age through a pipe, so it is never written to disk.
+  age -d -i <(echo "$key") "$work/backup.tar.age" | tar -xzf - -C "$dir" \
+    || fail restore_failed unpack_failed "dir=$dir" \
+            "could not decrypt and unpack into $dir, see the error above; was it the right key?"
+  echo "Restored version $restored of $host's backup into $dir"
+  record_time last-restore
+}
+
+# The paths this host backs up, relative to $HOME, with the patterns
+# expanded. Fails the run if a path that is not a pattern is missing.
+backed_up_paths () {
+  local host="$1" path
+  local -a listed=("${COMMON_PATHS[@]}")
+  case "$host" in
+    njord) listed+=("${NJORD_PATHS[@]}") ;;
+  esac
+  cd "$HOME" || exit 1
+  shopt -s nullglob
+  for path in "${listed[@]}"
+  do
+    if [[ $path == *[*?[]* ]]
+    then
+      local match
+      # The expansion is the point; nullglob makes no match no path.
+      # shellcheck disable=SC2231
+      for match in $path
+      do
+        echo "$match"
+      done
+    elif [[ -e $path ]]
+    then
+      echo "$path"
+    else
+      fail backup_failed path_missing "path=$path" \
+           "$HOME/$path is missing; restore it, or remove it from the paths at the top of bin/backup"
+    fi
+  done
+}
+
+# Pack the paths into $work/backup.tar.gz, with the databases among
+# them as snapshots. tar's excludes match every member name, so the
+# snapshots are appended by a second tar.
+pack () {
+  local work="$1"; shift
+  local -a databases excludes=()
+  local db
+  mapfile -t databases < <(databases_within "$@")
+  for db in "${databases[@]}"
+  do
+    snapshot_database "$db" "$work/snapshots"
+    excludes+=(--exclude="$db" --exclude="$db-wal" --exclude="$db-shm"
+               --exclude="$db-journal")
+  done
+  tar -cf "$work/backup.tar" -C "$HOME" --anchored --no-wildcards \
+      "${excludes[@]}" -- "$@" \
+    || fail backup_failed pack_failed "" "could not pack the paths, see tar's error above"
+  if [[ ${#databases[@]} -gt 0 ]]
+  then
+    tar -rf "$work/backup.tar" -C "$work/snapshots" -- "${databases[@]}" \
+      || fail backup_failed pack_failed "" \
+              "could not pack the database snapshots, see tar's error above"
+  fi
+  gzip "$work/backup.tar" \
+    || fail backup_failed pack_failed "" "could not compress the archive, see gzip's error above"
+}
+
+# The databases in SQLITE_DATABASES that are, or lie within, one of the
+# given paths.
+databases_within () {
+  local db path
+  for db in "${SQLITE_DATABASES[@]}"
+  do
+    for path in "$@"
+    do
+      if [[ $db == "$path" || $db == "$path"/* ]]
+      then
+        echo "$db"
+        break
+      fi
+    done
+  done
+}
+
+# Copy a database, with whatever is still in its -wal file, into a
+# consistent snapshot under the same relative path in the given
+# directory, and check the snapshot's integrity.
+snapshot_database () {
+  local db="$1" dir="$2" integrity
+  mkdir -p "$(dirname "$dir/$db")"
+  sqlite3 -readonly "$HOME/$db" ".backup '$dir/$db'" \
+    || fail backup_failed snapshot_failed "database=$db" \
+            "could not snapshot $HOME/$db, see sqlite3's error above"
+  integrity="$(sqlite3 "$dir/$db" 'PRAGMA integrity_check' 2>&1)"
+  if [[ $integrity != ok ]]
+  then
+    fail backup_failed database_damaged "database=$db" \
+         "the snapshot of $HOME/$db fails its integrity check: $integrity"
+  fi
+}
+
+# Upload a file to a key in the bucket. With --content-md5, S3 itself
+# rejects an upload that doesn't match what was sent.
+upload () {
+  local file="$1" key="$2" version
+  version="$(aws s3api put-object --bucket "$BUCKET" --key "$key" \
+                 --body "$file" --content-md5 "$(content_md5 "$file")" \
+                 --profile "$UPLOAD_PROFILE" --region "$REGION" \
+                 --query VersionId --output text)" \
+    || fail backup_failed upload_failed "key=$key" \
+            "S3 did not confirm the upload of $key, see aws's error above"
+  echo "Uploaded s3://$BUCKET/$key, version $version"
+}
+
+# The base64 of a file's binary MD5 digest, as S3's Content-MD5 wants it.
+content_md5 () {
+  local file="$1" hex escaped="" i
+  hex="$(md5sum "$file" | cut -d ' ' -f 1)"
+  for ((i = 0; i < ${#hex}; i += 2))
+  do
+    escaped+="\\x${hex:i:2}"
+  done
+  # shellcheck disable=SC2059 # the format is the digest as \x escapes
+  printf "$escaped" | base64
+}
+
+# Write the current time to a timestamp file in ~/.local/state/backup:
+# one line, seconds since the epoch.
+record_time () {
+  local name="$1" dir="$HOME/.local/state/backup"
+  mkdir -p "$dir"
+  now > "$dir/$name"
+}
+
+# The only place this script reads the clock.
+now () { date +%s; }
+
+# Report why the command failed, on stderr and in the user journal, and
+# end it with a non-zero exit. The journal gets the event, the reason
+# and the fields; stderr gets the message.
+fail () {
+  local event="$1" reason="$2" fields="$3" message="$4"
+  echo "backup: $message" >&2
+  logger -t backup --id=$$ -p user.err "$event reason=$reason $fields"
+  exit 1
+}
+
+usage () {
+  echo "Usage: backup | backup restore <dir> [--host H] [version-id] [--profile P]" >&2
+  exit 2
+}
+
+main "$@"
