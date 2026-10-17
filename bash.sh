@@ -1,6 +1,10 @@
 # Combined bash configuration file, sourced by both bashrc and
 # bash_profile.
 
+# shellcheck shell=bash
+# The files sourced here live outside this repository.
+# shellcheck disable=SC1091
+
 export PATH="$HOME/.local/bin:$HOME/.cache/npm/bin:${PATH}"
 
 # export LANG=POSIX
@@ -22,7 +26,8 @@ export EDITOR=vi
 
 if [ -f "$HOME/.email" ]
 then
-    export EMAIL=$(cat "$HOME/.email")
+    EMAIL=$(cat "$HOME/.email")
+    export EMAIL
 fi
 
 export LESS="-MIRnX"
@@ -67,73 +72,42 @@ then
     cd () {
         if [ "$1" = "-" ]
         then
-            popd &>/dev/null
+            popd &>/dev/null || return
         elif [ "$1" = "" ]
         then
-            pushd ~ &>/dev/null
+            pushd ~ &>/dev/null || return
         elif [ ! -d "$1" ]
         then
             echo "cd: $1: Not a directory" >&2
             return 1
         else
-            pushd "$@" &>/dev/null
+            pushd "$@" &>/dev/null || return
         fi
     }
 
     if [ -x /usr/bin/dircolors ]; then
-        test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+        if [ -r ~/.dircolors ]
+        then
+            eval "$(dircolors -b ~/.dircolors)"
+        else
+            eval "$(dircolors -b)"
+        fi
         alias ls='ls --color=auto'
     fi
 
     if type tput &>/dev/null && tput setaf 1 >&/dev/null
     then
-        c_reset="\\[`tput sgr0`\\]"
-        c_bold="\\[`tput bold`\\]"
-        c_underline="\\[`tput smul`\\]"
-        c_nounderline="\\[`tput rmul`\\]"
-        c_reverse="\\[`tput rev`\\]"
-        c_standout="\\[`tput smso`\\]"
-        c_nostandout="\\[`tput rmso`\\]"
-        c_black="\\[`tput setaf 0`\\]"
-        c_red="\\[`tput setaf 1`\\]"
-        c_green="\\[`tput setaf 2`\\]"
-        c_yellow="\\[`tput setaf 3`\\]"
-        c_blue="\\[`tput setaf 4`\\]"
-        c_magenta="\\[`tput setaf 5`\\]"
-        c_cyan="\\[`tput setaf 6`\\]"
-        c_white="\\[`tput setaf 7`\\]"
-        c_bgblack="\\[`tput setab 0`\\]"
-        c_bgred="\\[`tput setab 1`\\]"
-        c_bggreen="\\[`tput setab 2`\\]"
-        c_bgyellow="\\[`tput setab 3`\\]"
-        c_bgblue="\\[`tput setab 4`\\]"
-        c_bgmagenta="\\[`tput setab 5`\\]"
-        c_bgcyan="\\[`tput setab 6`\\]"
-        c_bgwhite="\\[`tput setab 7`\\]"
+        c_reset="\\[$(tput sgr0)\\]"
+        c_bold="\\[$(tput bold)\\]"
+        c_red="\\[$(tput setaf 1)\\]"
+        c_blue="\\[$(tput setaf 4)\\]"
+        c_magenta="\\[$(tput setaf 5)\\]"
     else
         c_reset=""
         c_bold=""
-        c_underline=""
-        c_nounderline=""
-        c_reverse=""
-        c_standout=""
-        c_nostandout=""
-        c_black=""
         c_red=""
-        c_green=""
-        c_yellow=""
         c_blue=""
         c_magenta=""
-        c_cyan=""
-        c_white=""
-        c_bgblack=""
-        c_bgred=""
-        c_bggreen=""
-        c_bgyellow=""
-        c_bgblue=""
-        c_bgmagenta=""
-        c_bgcyan=""
-        c_bgwhite=""
     fi
 
     export PROMPT_COMMAND=set_prompt
@@ -173,8 +147,9 @@ then
         local git_clean_info=""
         if git rev-parse --git-dir > /dev/null 2>&1
         then
-            local git_branch=$(git branch 2>/dev/null | sed -ne 's/^\* //p')
-            if [ $(git status --porcelain 2>/dev/null | wc -l) -gt 0 ]
+            local git_branch
+            git_branch=$(git branch 2>/dev/null | sed -ne 's/^\* //p')
+            if [ "$(git status --porcelain 2>/dev/null | wc -l)" -gt 0 ]
             then
                 git_dirty_info="$git_branch"
                 git_clean_info=""
@@ -188,12 +163,16 @@ then
         if [ -n "$DOCKER_HOST" ]
         then
             local na_docker_host
-            local na_docker_env="$(echo "$DOCKER_HOST" | awk -F. '{print $3}')"
+            local na_docker_env
+            na_docker_env="$(echo "$DOCKER_HOST" | awk -F. '{print $3}')"
             if [[ "$DOCKER_HOST" == *'swarm'* ]]
             then
                 na_docker_host=swarm
+            elif [[ "$DOCKER_HOST" =~ ^tcp://([^.]*)\. ]]
+            then
+                na_docker_host="${BASH_REMATCH[1]}"
             else
-                na_docker_host="$(echo "$DOCKER_HOST" | sed -e 's,tcp://\([^.]*\)\..*,\1,')"
+                na_docker_host="$DOCKER_HOST"
             fi
             na_docker_info="${na_docker_env}@${na_docker_host}"
         fi
@@ -218,7 +197,7 @@ then
 
         if [[ -n "$info_line" ]]
         then
-            local line1="$c_reset[${info_line# }]$c_reset"
+            local line1="${c_reset}[${info_line# }]$c_reset"
             local line2="$c_blue$cwd_info$c_reset"
             local line3="$c_blue\\\$$c_reset "
             PS1="$c_reset\n$line1\n$line2\n$line3"

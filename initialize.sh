@@ -13,9 +13,9 @@ then
 fi
 
 ensure_contains () {
-  local FILE="$1"
-  local LINE="$2"
-  if ! [ -f "$FILE" ] || ! fgrep -q "$LINE" "$FILE"
+  FILE="$1"
+  LINE="$2"
+  if ! [ -f "$FILE" ] || ! grep -Fq "$LINE" "$FILE"
   then
     echo "$LINE" >> "$FILE"
   fi

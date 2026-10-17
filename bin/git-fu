@@ -5,7 +5,7 @@ set -e
 export GIT_PAGER=
 
 git ls-files --modified \
-| while read filename
+| while read -r filename
   do
     REF=$(git log --max-count=1 --pretty=format:%H -- "$filename")
     if [ -z "$REF" ]
