@@ -3,8 +3,8 @@ criteria:  CRITERIA.md
 closes:
 advances:
 after:
-status:    ready
-attempts:  0
+status:    done
+attempts:  1
 ---
 
 ## Build
@@ -37,3 +37,6 @@ The later tickets of this change add `bin/backup` and its tests, tests for `bash
 `bin/backup`, the unit files and the shell warnings are tickets 02 to 04.
 
 ## Left standing
+- **No automated test proves the command's failure paths** (lint, test or structural failure gives a non-zero exit). A test of `check.sh` would be a test the command itself runs, and the ticket asks for none yet. Checked by hand in a scratch copy: a shellcheck finding in `bin/` and in a `*.sh` file, a failing `*_test.sh`, and a structural check returning 1 each made `./check.sh` exit 1. A passing test ran and exited 0. Running from another directory works.
+- **Formats later code is written against:** the command is `./check.sh` at the root (it is not in `bin/`, so `initialize.sh` does not put it on `PATH`). Tests are any file named `*_test.sh` anywhere in the repository, run with `bash` and failing by exiting non-zero; there is no framework. Lint covers every `*.sh` file and every file in `bin/`, found by `find`, so new scripts are picked up without editing the command. Structural rules are checks called from `check_structure` in `check.sh`.
+- **Review nit, not fixed (raised as should-fix in round one, as a nit in round two):** nothing stops a test going into `bin/`, where `initialize.sh` would link it onto `PATH`. A passing `bin/backup_test.sh` would stay green. The rule is not in `CLAUDE.md` because a rule written there comes with its check, and this ticket's structural check has no rules. Ticket 02, which adds `bin/backup` and its tests, should add the rule to `CLAUDE.md` together with its check in `check_structure`.
