@@ -235,4 +235,47 @@ then
         fi
         echo "${dir//[[:cntrl:]]/?}"
     }
+
+    # Warn when this machine's last successful backup, or the last
+    # restore that checked it, is too old. bin/backup records both
+    # times; reading them needs no network.
+    function warn_about_old_backup () {
+        local state="$HOME/.local/state/backup"
+        warn_if_older_than "$state/last-backup" 3 \
+            "no backup has succeeded on this machine yet" \
+            "the last successful backup was" \
+            "see journalctl --user -t backup for why"
+        warn_if_older_than "$state/last-restore" 90 \
+            "no restore of the backup has been done on this machine" \
+            "the last restore of the backup was" \
+            "check that it restores with: backup restore <empty dir>"
+    }
+
+    function warn_if_older_than () {
+        local file="$1" max_days="$2" never="$3" last="$4" next_step="$5"
+        if [[ ! -e "$file" ]]
+        then
+            echo "Warning: $never; $next_step" >&2
+            return
+        fi
+        local recorded
+        recorded="$(< "$file")"
+        # Checked before the arithmetic below, which would run code
+        # from a value like x[$(...)].
+        if ! [[ "$recorded" =~ ^[0-9]+$ ]]
+        then
+            echo "Warning: $file does not hold a time; $next_step" >&2
+            return
+        fi
+        local age=$(( $(seconds_since_epoch) - recorded ))
+        if (( age > max_days * 86400 ))
+        then
+            echo "Warning: $last $(( age / 86400 )) days ago; $next_step" >&2
+        fi
+    }
+
+    # The only place bash.sh reads the clock, which check.sh checks.
+    function seconds_since_epoch () { date +%s; }
+
+    warn_about_old_backup
 fi

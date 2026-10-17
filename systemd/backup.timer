@@ -1,0 +1,11 @@
+[Unit]
+Description=Back up this machine's paths to S3 once a day
+
+[Timer]
+OnCalendar=daily
+# Catch up on a day missed while the machine was off, once the user's
+# session starts again.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

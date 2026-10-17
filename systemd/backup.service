@@ -1,0 +1,14 @@
+[Unit]
+Description=Back up this machine's paths to S3
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/backup
+# A failed run is retried until one succeeds. The first retries come
+# within minutes, for the run at login that starts before the network
+# is up; the delay then grows to an hour, for a machine that stays
+# offline.
+Restart=on-failure
+RestartSec=1min
+RestartSteps=6
+RestartMaxDelaySec=1h

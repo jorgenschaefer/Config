@@ -46,5 +46,17 @@ test -e "$HOME/.claude/statusline-command.sh" || \
 test -e "$HOME/.claude/settings.json" || \
   ln -s "../Projects/Config/claude/settings.json" "$HOME/.claude/settings.json"
 
+# systemd/: the daily backup. The reload picks up unit files a pull
+# has changed; enabling an enabled timer, or starting a started one,
+# changes nothing.
+mkdir -p "$HOME/.config/systemd/user"
+for unit in backup.service backup.timer
+do
+  test -e "$HOME/.config/systemd/user/$unit" || \
+    ln -s "../../../Projects/Config/systemd/$unit" "$HOME/.config/systemd/user/$unit"
+done
+systemctl --user daemon-reload
+systemctl --user enable --now backup.timer
+
 # gitconfig
 "$HOME/Projects/Config/gitconfig.sh"

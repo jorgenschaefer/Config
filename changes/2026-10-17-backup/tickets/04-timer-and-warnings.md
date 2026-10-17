@@ -3,8 +3,8 @@ criteria:  CRITERIA.md
 closes:    AC-4, AC-5, AC-7, AC-12, AC-13
 advances:
 after:     01-check-command, 02-backup-and-restore
-status:    ready
-attempts:  0
+status:    done
+attempts:  1
 ---
 
 ## Build
@@ -52,3 +52,21 @@ The new `systemd/` directory is a new kind of file in the repository; this ticke
 - Out of scope: Installing `age` and `aws` on a new machine.
 
 ## Left standing
+- **Review findings not fixed:**
+  - **Blocker (round two): retries do not survive the end of a session.** The pending retry lives in the running user manager. The timer's stamp records when the timer fired, not whether the run succeeded. Suppose a day's run fails, for example offline on a train, and the user shuts down before a retry succeeds. On the next login that day, nothing runs until the next midnight, or until the next day's catch-up at login. That day gets no backup. At most one day is lost each time this happens; the next day's run is unaffected, and the 3-day shell warning is the backstop. I did not fix this, for two reasons. The fix is a run at every login (`OnStartupSec=` on the timer). Each extra run uploads a version, so the 90 kept versions would cover fewer days, and that tradeoff is the user's to make. Running only when `last-backup` is more than a day old would avoid that, but it puts a freshness rule into the unit file. That is new logic, it would get no review (both rounds were used), and it is close to ticket 02's ground (when a run happens). In my judgement this is should-fix rather than blocker, because AC-5 holds within a session. It needs a decision: a run at every login, a run at login only when the last backup is stale, or accept the gap.
+  - Nit (rounds one and two): no test fails if `Restart=`, the retry delays or `Persistent=` are removed. `check_units` only checks syntax. A real test would need a systemd user manager, and a test that greps the settings back out of the file would only restate it. Instead I checked by hand, see below.
+- **AC-4 and AC-5 have no automated test; checked by hand on njord (systemd 262), with throwaway units, all since removed:**
+  - I linked a copy of the timer into `~/.config/systemd/user/` through the same relative link as `initialize.sh`. `systemctl --user enable --now` succeeded twice, the unit showed as enabled with its next elapse at midnight, and `~/.local/share/systemd/timers/stamp-<timer>` was written at enable time. That stamp is what lets `Persistent=true` catch up a missed day when the user manager next starts, i.e. at login.
+  - A copy of the service with `ExecStart=/bin/false` and scaled-down delays (1s, 3 steps, at most 8s) restarted after 1, 2, 4, 8 and 8 seconds. The real settings give about 1, 2, 4, 7, 13 and 30 minutes, then 60 minutes per retry.
+  - Not checked: a real missed day, i.e. the laptop off at midnight followed by a login. The retry delay is counted in awake time, so a suspended laptop retries within an hour of resuming, not every two hours of wall-clock time.
+- **Checks not run:** the real `backup.timer` is not enabled on njord. `initialize.sh` has not been re-run here, and that is the step that enables it. Every run would fail until `AGE_PUBLIC_KEY` is set and `backup setup` has run, and each failure goes to the journal (once an hour, once the backoff has grown). `initialize.sh` is tested against a fake `systemctl`.
+- **Departures from the nudges:**
+  - The nudge says `RestartSec=1h` and `StartLimitIntervalSec=0`. Built instead: `RestartSec=1min`, `RestartSteps=6` and `RestartMaxDelaySec=1h`, with no start limit setting. Review round one pointed out that the catch-up run at login can start before the network is up. With a flat hour, the first retry could come only after the user had already shut down. The backoff still retries at least hourly, as AC-5 asks. `StartLimitIntervalSec=0` would be dead: the default limit is 5 starts in 10 seconds, and retries a minute or more apart never reach it.
+  - Not in the nudges: `initialize.sh` runs `systemctl --user daemon-reload` before enabling, so a re-run picks up unit files that a pull has changed.
+- **Decisions that would be costly to reverse:**
+  - The service runs `%h/.local/bin/backup`, the link `initialize.sh` creates, not the repository path.
+  - The unit links in `~/.config/systemd/user/` are relative (`../../../Projects/Config/systemd/<unit>`), like the other links `initialize.sh` makes.
+  - The warnings go to stderr, one line each, beginning with `Warning:`. `bash.sh` defines `warn_about_old_backup`, `warn_if_older_than` and `seconds_since_epoch`, and they stay defined in every interactive shell. The clock rule in `check.sh` pins the name `seconds_since_epoch`.
+  - The check command now verifies `systemd/*` with `systemd-analyze --user verify`, against a scratch home that holds a copy of `bin/backup`, and fails on any output. Unknown keys are only warnings, with exit 0.
+  - Tests of `bash.sh` and `initialize.sh` live in `tests/`, following the existing layout.
+- **Ticket 01's open item** (a structural rule against tests in `bin/`) is outside this ticket's Done when and is still open.
