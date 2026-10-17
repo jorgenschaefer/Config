@@ -3,6 +3,10 @@ Description=Back up this machine's paths to S3
 
 [Service]
 Type=oneshot
+# The timer also starts a run at every login, so a run that failed and
+# was cut off by the end of the session is retried. It goes ahead only
+# when no backup has succeeded today, so logins add no versions.
+ExecCondition=/bin/sh -c '! find %h/.local/state/backup/last-backup -newermt 00:00 2>/dev/null | grep -q .'
 ExecStart=%h/.local/bin/backup
 # A failed run is retried until one succeeds. The first retries come
 # within minutes, for the run at login that starts before the network
