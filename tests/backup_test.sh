@@ -139,6 +139,14 @@ then
 fi
 end_test
 
+start_test "a run without the backup profile still reports a missing path"
+make_common_home
+export FAKE_AWS_PROFILES="default"
+rm -r "$HOME/.ssh"
+assert_backup_fails
+assert_journal_mentions "path=.ssh"
+end_test
+
 start_test "a run fails and says so while the age public key is missing"
 make_common_home
 cp "$repo/bin/backup" "$backup"

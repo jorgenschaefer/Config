@@ -61,14 +61,14 @@ run_backup () {
   then
     fail backup_failed public_key_missing "" "$AGE_KEY_MISSING"
   fi
+  host="$(hostname -s)"
+  # backed_up_paths has already reported why when it fails.
+  listing="$(backed_up_paths "$host")" || exit 1
   if ! aws configure get aws_access_key_id --profile "$UPLOAD_PROFILE" > /dev/null 2>&1
   then
     fail backup_failed profile_missing "" \
          "AWS profile $UPLOAD_PROFILE holds no access key; run backup setup with an admin profile"
   fi
-  host="$(hostname -s)"
-  # backed_up_paths has already reported why when it fails.
-  listing="$(backed_up_paths "$host")" || exit 1
   mapfile -t paths <<< "$listing"
   work="$(mktemp -d "$XDG_RUNTIME_DIR/backup.XXXXXX")"
   # shellcheck disable=SC2064 # $work is fixed by now
@@ -421,7 +421,9 @@ content_md5 () {
 }
 
 # Write the current time to a timestamp file in ~/.local/state/backup:
-# one line, seconds since the epoch.
+# one line, seconds since the epoch. bash.sh reads that line;
+# backup.service reads last-backup's mtime, so it is written only on
+# success.
 record_time () {
   local name="$1" dir="$HOME/.local/state/backup"
   mkdir -p "$dir"
