@@ -107,7 +107,12 @@ restore () {
     esac
   done
   [[ -n $dir ]] || usage
-  [[ -n $host ]] || host="$(hostname -s)"
+  local host_hint=""
+  if [[ -z $host ]]
+  then
+    host="$(hostname -s)"
+    host_hint="; to restore another machine's backup, name it with --host"
+  fi
   if [[ -e $dir && -n $(ls -A -- "$dir") ]]
   then
     fail restore_failed directory_not_empty "dir=$dir" \
@@ -131,7 +136,7 @@ restore () {
                  --profile "$profile" --region "$REGION" \
                  --query VersionId --output text "$work/backup.tar.age")" \
     || fail restore_failed download_failed "key=$(object_key "$host")" \
-            "could not download $(object_key "$host") with AWS profile $profile, see aws's error above"
+            "could not download $(object_key "$host") with AWS profile $profile, see aws's error above$host_hint"
   # The key reaches age through a pipe, so it is never written to disk.
   age -d -i <(echo "$key") "$work/backup.tar.age" | tar -xzf - -C "$dir" \
     || fail restore_failed unpack_failed "dir=$dir" \

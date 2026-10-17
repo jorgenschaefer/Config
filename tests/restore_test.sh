@@ -147,6 +147,18 @@ then
 fi
 end_test
 
+start_test "a restore that finds no object for this machine suggests --host"
+make_common_home
+export FAKE_HOSTNAME=laptop
+"$backup" > /dev/null 2>&1
+export FAKE_HOSTNAME=debian
+restore "$scratch/restored"
+if [[ $status == 0 || $output != *--host* ]]
+then
+  fail "restore did not fail with a pointer to --host: $output"
+fi
+end_test
+
 start_test "a restore leaves no copy of the private key on disk"
 make_common_home
 "$backup" > /dev/null 2>&1
