@@ -3,8 +3,8 @@ criteria:  CRITERIA.md
 closes:    AC-8, AC-9, AC-10, AC-14
 advances:
 after:     01-check-command, 02-backup-and-restore
-status:    ready
-attempts:  0
+status:    done
+attempts:  1
 ---
 
 ## Build
@@ -45,3 +45,19 @@ Ticket 02 builds `bin/backup` with the run and `restore`, and the constants at i
 - Enabling the timer belongs to `initialize.sh` in ticket 04, not to setup.
 
 ## Left standing
+- **Real AWS credentials exposed during review.** In review round two, the reviewer's probe script had a wrong path, so `$HOME` stayed the real one. It printed the real `~/.aws/credentials` into the reviewing agent's tool output, including the access key and secret of the `[default]` profile. No AWS call was made, but the key is now in a local session transcript. Whether to rotate it is the user's decision.
+- **Review findings not fixed:**
+  - Nit, round one and round two: `aws configure set aws_secret_access_key "$secret"` puts the new secret in the process arguments for the moment the command runs, where another local account could read it from `/proc`. `aws configure` has no other way to take it. Writing `~/.aws/credentials` by hand would avoid this, at the cost of an INI editor in bash. On a single-user laptop that did not seem worth it.
+  - Nit, round two: not every setup failure message names the AWS profile. The list and create steps name it, but the bucket-setting, policy and key steps do not. I renamed the test that claimed they all did, rather than changing the messages.
+  - Nit, round two: `setup --profile` without a value stops through bash's `${2:?…}`, not through `fail`, so it does not reach the journal. `restore` handles its options the same way, and I kept setup consistent with it.
+- **Checks not run: real AWS.** Setup has never run against AWS. Every S3 and IAM call in the tests goes to a fake (`fake_aws_admin` in `tests/setup_test.sh`). The fake answers each `--query` only in the exact form setup sends it. `aws configure` is the real CLI, writing into a scratch `$HOME`. The reviewer read every call and query against the real CLI's behaviour and found nothing that would differ. Two edge cases are known and not handled. With more than 100 IAM users, the user lookup can miss, because the CLI applies the query page by page. Right after a create call, AWS can lag briefly before the next call sees the new bucket or user; running setup again fixes that. The first real `backup setup` with the admin profile is the first time any of this meets AWS.
+- **AC-8 and AC-14 (retention):** the test pins the exact lifecycle rule that setup sends. It is a single rule, covers every object, has only `NoncurrentVersionExpiration` with `NoncurrentDays=30` and `NewerNoncurrentVersions=90`, and has no `Expiration`. That S3 applies it per object, and never to the current version, is S3's behaviour, and no test here can prove it. S3 keeps 90 noncurrent versions plus the current one, so a version expires only once 91 newer versions exist, which still meets "at least 90".
+- **AC-9 and AC-14 (permissions):** the tests prove that each machine's user ends up with exactly one policy statement: `s3:PutObject` on its own `<hostname>/backup.tar.age`. That IAM enforces this is AWS's behaviour. Setup does not look for policies or groups someone attached to `backup-<hostname>` by hand. If any exist, AC-9 does not hold for that user.
+- **Decisions that would be costly to reverse:**
+  - **Names in AWS:** the IAM user is `backup-<hostname>`, its inline policy is `put-own-backup`, and the lifecycle rule ID is `keep-90-versions-for-30-days`.
+  - **Bucket settings are put on every run.** Putting the same settings again changes nothing, so a second run still leaves everything as it was. It also means setup does not report each setting as created or already there: it prints one line saying the settings are in place. `put-bucket-lifecycle-configuration` replaces every lifecycle rule on the bucket, so setup removes any rule someone adds by hand.
+  - **A `backup` profile holding a key that is not one of the user's keys counts as missing**, for example a `~/.aws` restored from another machine. This goes beyond AC-10's "no profile" case. Setup then revokes the user's keys, creates a new one and writes it into the profile. A profile that holds the user's key id with a wrong secret is not detected. Setup writes the secret before the id, so a profile left half-written by a failure is replaced on the next run.
+  - **Journal reasons**, under the event `setup_failed`: `bucket_unreadable`, `bucket_create_failed`, `bucket_settings_failed` (with `setting=`), `user_unreadable`, `user_create_failed`, `policy_failed`, `key_list_failed`, `key_revoke_failed`, `key_create_failed`, `profile_failed`.
+  - **Test tooling:** the setup tests use `jq` to read the JSON that setup sends. Like `openssl` for the run's tests, `jq` is needed only by the tests; `bin/backup` does not use it.
+- **Ticket 01's open item** (a structural rule against tests in `bin/`) is outside this ticket's Done when and is still open.
+

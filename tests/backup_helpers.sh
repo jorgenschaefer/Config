@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 
 # Shared setup for the tests of bin/backup, sourced by
-# backup_test.sh and restore_test.sh.
+# backup_test.sh, restore_test.sh and setup_test.sh.
 #
 # Each test runs bin/backup against a scratch $HOME, with fakes for the
 # commands that reach outside the machine: `aws` keeps a versioned

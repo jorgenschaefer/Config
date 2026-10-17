@@ -5,12 +5,15 @@
 #
 #   backup                      pack, encrypt and upload this machine's paths
 #   backup restore <dir> [--host H] [version-id] [--profile P]
+#   backup setup [--profile P]  create, or find in place, the bucket, this
+#                               machine's IAM user and the backup profile
 
 set -uo pipefail
 
 # The public half of the backup key. Its private half lives only in the
 # password manager and is typed in at restore.
 AGE_PUBLIC_KEY=''
+AGE_KEY_MISSING="bin/backup has no age public key; create a key pair with age-keygen, keep the secret key only in the password manager, and put the public key into AGE_PUBLIC_KEY at the top of bin/backup"
 
 BUCKET='jorgenschaefer-backup'
 REGION='eu-central-1'
@@ -47,6 +50,7 @@ main () {
   case "${1:-}" in
     "") run_backup ;;
     restore) shift; restore "$@" ;;
+    setup) shift; setup "$@" ;;
     *) usage ;;
   esac
 }
@@ -55,8 +59,7 @@ run_backup () {
   local host listing paths work
   if [[ -z $AGE_PUBLIC_KEY ]]
   then
-    fail backup_failed public_key_missing "" \
-         "bin/backup has no age public key; create a key pair with age-keygen, keep the secret key only in the password manager, and put the public key into AGE_PUBLIC_KEY at the top of bin/backup"
+    fail backup_failed public_key_missing "" "$AGE_KEY_MISSING"
   fi
   host="$(hostname -s)"
   # backed_up_paths has already reported why when it fails.
@@ -130,6 +133,164 @@ restore () {
             "could not decrypt and unpack into $dir, see the error above; was it the right key?"
   echo "Restored version $restored of $host's backup into $dir"
   record_time last-restore
+}
+
+# Create, or find already in place, what a run uploads with: the
+# bucket and its settings, this machine's IAM user with its put-only
+# policy, and the backup profile holding that user's key. Uses the
+# admin credentials of the given profile.
+setup () {
+  local profile="default"
+  while [[ $# -gt 0 ]]
+  do
+    case "$1" in
+      --profile) profile="${2:?--profile needs an AWS profile name}"; shift 2 ;;
+      *) usage ;;
+    esac
+  done
+  local host user
+  host="$(hostname -s)"
+  user="backup-$host"
+  set_up_bucket "$profile"
+  set_bucket_settings "$profile"
+  set_up_machine_user "$profile" "$user" "$host"
+  set_up_upload_profile "$profile" "$user"
+  if [[ -z $AGE_PUBLIC_KEY ]]
+  then
+    echo "Before the first run: $AGE_KEY_MISSING"
+  fi
+}
+
+# Create the bucket if it is not there yet.
+set_up_bucket () {
+  local profile="$1" found
+  found="$(aws s3api list-buckets --query "Buckets[?Name=='$BUCKET'].Name" \
+               --output text --profile "$profile" --region "$REGION")" \
+    || fail setup_failed bucket_unreadable "" \
+            "could not list the buckets with AWS profile $profile, see aws's error above"
+  if [[ $found == "$BUCKET" ]]
+  then
+    echo "Bucket $BUCKET was already there"
+    return
+  fi
+  aws s3api create-bucket --bucket "$BUCKET" \
+      --create-bucket-configuration "LocationConstraint=$REGION" \
+      --profile "$profile" --region "$REGION" > /dev/null \
+    || fail setup_failed bucket_create_failed "" \
+            "could not create bucket $BUCKET with AWS profile $profile, see aws's error above"
+  echo "Created bucket $BUCKET in $REGION"
+}
+
+# Put the bucket's settings, whether or not they are already in place:
+# putting the same settings again changes nothing. The retention rule
+# expires a version only once it has been superseded for 30 days and 90
+# newer noncurrent versions exist, counted per object, so a stopped
+# timer or a burst of uploads never empties a machine's history. It
+# never touches the current version.
+set_bucket_settings () {
+  local profile="$1"
+  local retention='{"Rules": [{"ID": "keep-90-versions-for-30-days", "Status": "Enabled", "Filter": {"Prefix": ""}, "NoncurrentVersionExpiration": {"NoncurrentDays": 30, "NewerNoncurrentVersions": 90}}]}'
+  aws s3api put-bucket-versioning --bucket "$BUCKET" \
+      --versioning-configuration Status=Enabled \
+      --profile "$profile" --region "$REGION" \
+    || fail setup_failed bucket_settings_failed "setting=versioning" \
+            "could not turn on versioning for bucket $BUCKET, see aws's error above"
+  aws s3api put-bucket-lifecycle-configuration --bucket "$BUCKET" \
+      --lifecycle-configuration "$retention" \
+      --profile "$profile" --region "$REGION" \
+    || fail setup_failed bucket_settings_failed "setting=lifecycle" \
+            "could not put the retention rule on bucket $BUCKET, see aws's error above"
+  aws s3api put-public-access-block --bucket "$BUCKET" \
+      --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true" \
+      --profile "$profile" --region "$REGION" \
+    || fail setup_failed bucket_settings_failed "setting=public_access_block" \
+            "could not block public access to bucket $BUCKET, see aws's error above"
+  aws s3api put-bucket-encryption --bucket "$BUCKET" \
+      --server-side-encryption-configuration '{"Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]}' \
+      --profile "$profile" --region "$REGION" \
+    || fail setup_failed bucket_settings_failed "setting=encryption" \
+            "could not turn on SSE-S3 encryption for bucket $BUCKET, see aws's error above"
+  echo "Bucket $BUCKET has versioning, the retention rule (NoncurrentDays=30, NewerNoncurrentVersions=90), public access blocked and SSE-S3 encryption"
+}
+
+# Create the machine's IAM user if it is not there yet, and put its
+# policy. The policy grants s3:PutObject on the machine's own object and
+# nothing else. It must never grant reading, listing or deleting: these
+# credentials sit on the laptop, and whoever holds the laptop would
+# then read every machine's backups or wipe every version of them.
+# Verifying a backup automatically is not worth that; restore with
+# admin credentials instead.
+set_up_machine_user () {
+  local profile="$1" user="$2" host="$3" found policy
+  found="$(aws iam list-users --query "Users[?UserName=='$user'].UserName" \
+               --output text --profile "$profile" --region "$REGION")" \
+    || fail setup_failed user_unreadable "user=$user" \
+            "could not list the IAM users with AWS profile $profile, see aws's error above"
+  if [[ $found == "$user" ]]
+  then
+    echo "IAM user $user was already there"
+  else
+    aws iam create-user --user-name "$user" \
+        --profile "$profile" --region "$REGION" > /dev/null \
+      || fail setup_failed user_create_failed "user=$user" \
+              "could not create IAM user $user with AWS profile $profile, see aws's error above"
+    echo "Created IAM user $user"
+  fi
+  policy='{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "s3:PutObject", "Resource": "arn:aws:s3:::'"$BUCKET/$(object_key "$host")"'"}]}'
+  aws iam put-user-policy --user-name "$user" --policy-name put-own-backup \
+      --policy-document "$policy" --profile "$profile" --region "$REGION" \
+    || fail setup_failed policy_failed "user=$user" \
+            "could not put the policy of IAM user $user, see aws's error above"
+  echo "IAM user $user may only put s3://$BUCKET/$(object_key "$host")"
+}
+
+# Make sure the profile a run uploads with holds an access key of the
+# machine's IAM user. If it does not, write a new key into it.
+set_up_upload_profile () {
+  local profile="$1" user="$2" listed held created id secret
+  local -a keys
+  listed="$(aws iam list-access-keys --user-name "$user" \
+                --query 'AccessKeyMetadata[].AccessKeyId' --output text \
+                --profile "$profile" --region "$REGION")" \
+    || fail setup_failed key_list_failed "user=$user" \
+            "could not list the access keys of IAM user $user, see aws's error above"
+  read -ra keys <<< "$listed"
+  # A missing profile is the case this handles, not an error.
+  held="$(aws configure get aws_access_key_id --profile "$UPLOAD_PROFILE" 2>/dev/null)"
+  if [[ -n $held && " ${keys[*]} " == *" $held "* ]]
+  then
+    echo "Profile $UPLOAD_PROFILE already holds access key $held of IAM user $user"
+    return
+  fi
+  # Keys the profile does not hold are lost or stolen, and an IAM user
+  # can have only two, so they go before the new one is created.
+  if [[ ${#keys[@]} -gt 0 ]]
+  then
+    for id in "${keys[@]}"
+    do
+      aws iam delete-access-key --user-name "$user" --access-key-id "$id" \
+          --profile "$profile" --region "$REGION" \
+        || fail setup_failed key_revoke_failed "user=$user key=$id" \
+                "could not revoke access key $id of IAM user $user, see aws's error above"
+    done
+    echo "Revoked the old access keys of IAM user $user: ${keys[*]}"
+  fi
+  created="$(aws iam create-access-key --user-name "$user" \
+                 --query 'AccessKey.[AccessKeyId,SecretAccessKey]' --output text \
+                 --profile "$profile" --region "$REGION")" \
+    || fail setup_failed key_create_failed "user=$user" \
+            "could not create an access key for IAM user $user, see aws's error above"
+  read -r id secret <<< "$created"
+  # The id goes in last: a profile with the id is taken as complete, so
+  # one left half-written by a failure here is replaced by the next setup.
+  if ! { aws configure set aws_secret_access_key "$secret" \
+             --profile "$UPLOAD_PROFILE" \
+           && aws configure set aws_access_key_id "$id" --profile "$UPLOAD_PROFILE"; }
+  then
+    fail setup_failed profile_failed "user=$user key=$id" \
+         "could not write access key $id of $user into AWS profile $UPLOAD_PROFILE, see aws's error above; run setup again to replace the key"
+  fi
+  echo "Created profile $UPLOAD_PROFILE with access key $id of IAM user $user"
 }
 
 # The paths this host backs up, relative to $HOME, with the patterns
@@ -271,7 +432,7 @@ fail () {
 }
 
 usage () {
-  echo "Usage: backup | backup restore <dir> [--host H] [version-id] [--profile P]" >&2
+  echo "Usage: backup | backup restore <dir> [--host H] [version-id] [--profile P] | backup setup [--profile P]" >&2
   exit 2
 }
 
