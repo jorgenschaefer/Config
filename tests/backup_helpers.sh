@@ -195,8 +195,16 @@ logger () {
 # reached by a machine with the profiles in $FAKE_AWS_PROFILES and no
 # default region. Like S3, put-object rejects a body whose MD5 differs
 # from --content-md5; unlike S3 it also rejects a put without one, so a
-# test notices if the check is dropped.
+# test notices if the check is dropped. `aws configure get` answers
+# with a key id for each profile in $FAKE_AWS_PROFILES.
 aws () {
+  if [[ "$1 $2" == "configure get" ]]
+  then
+    [[ $3 == aws_access_key_id && $4 == --profile \
+         && " $FAKE_AWS_PROFILES " == *" $5 "* ]] || return 1
+    echo "AKIAFAKE$5"
+    return
+  fi
   local command="$1 $2" bucket="" key="" body="" md5="" version=""
   local profile="" region="" query="" outfile=""
   shift 2

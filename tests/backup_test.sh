@@ -128,6 +128,17 @@ assert_journal_mentions "reason=upload_failed"
 assert_journal_mentions "key=otherhost/backup.tar.age"
 end_test
 
+start_test "a run without the backup profile fails and says to run backup setup"
+make_common_home
+export FAKE_AWS_PROFILES="default"
+assert_backup_fails
+assert_journal_mentions "reason=profile_missing"
+if [[ $("$backup" 2>&1) != *"backup setup"* ]]
+then
+  fail "the run's error does not say to run backup setup"
+fi
+end_test
+
 start_test "a run fails and says so while the age public key is missing"
 make_common_home
 cp "$repo/bin/backup" "$backup"
