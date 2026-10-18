@@ -18,6 +18,20 @@ restore () {
   status=$?
 }
 
+# Run a restore on a terminal that types nothing, and keep what the
+# terminal shows in $terminal. The prompt for the key shows only on a
+# terminal.
+restore_on_terminal () {
+  local command="'$backup' restore"
+  local argument
+  for argument in "$@"
+  do
+    command+=" '$argument'"
+  done
+  terminal="$(SHELL=/bin/bash timeout 10 script -qec "$command" /dev/null \
+                < /dev/null 2>&1)"
+}
+
 start_test "a restore unpacks the current version into the directory and records the time"
 make_common_home
 "$backup" > /dev/null 2>&1
@@ -40,6 +54,48 @@ recorded="$(cat "$HOME/.local/state/backup/last-restore" 2>/dev/null)"
 if ! [[ $recorded =~ ^[0-9]+$ ]] || (( recorded < before || recorded > after ))
 then
   fail "last-restore holds '$recorded', not a time between $before and $after"
+fi
+end_test
+
+start_test "a restore says how to revoke the key of the machine it replaces"
+make_common_home
+"$backup" > /dev/null 2>&1
+restore "$scratch/restored"
+if [[ $output != *"delete the backup profile from ~/.aws/credentials and run backup setup"* ]]
+then
+  fail "restore does not say to delete the backup profile and run backup setup: $output"
+fi
+end_test
+
+start_test "a restore of another host's backup says how to revoke that host's key"
+make_common_home
+"$backup" > /dev/null 2>&1
+export FAKE_HOSTNAME=newhost
+restore "$scratch/restored" --host otherhost
+if [[ $output != *"aws iam delete-access-key --user-name backup-otherhost"* ]]
+then
+  fail "restore does not say how to revoke backup-otherhost's key: $output"
+fi
+if [[ $output == *"run backup setup"* ]]
+then
+  fail "restore says backup setup revokes another host's key: $output"
+fi
+end_test
+
+start_test "a restore fails and says so without XDG_RUNTIME_DIR"
+make_common_home
+"$backup" > /dev/null 2>&1
+unset XDG_RUNTIME_DIR
+restore "$scratch/restored"
+if [[ $status == 0 ]]
+then
+  fail "restore succeeded"
+fi
+assert_journal_mentions "restore_failed reason=runtime_dir_missing"
+restore_on_terminal "$scratch/restored-on-terminal"
+if [[ $terminal == *"private key"* ]]
+then
+  fail "restore asked for the key before checking XDG_RUNTIME_DIR: $terminal"
 fi
 end_test
 
@@ -221,9 +277,10 @@ if [[ $status == 0 || $output != *"can't write into $scratch/read-only"* ]]
 then
   fail "restore did not say it can't write into the directory: $output"
 fi
-if [[ $output == *"private key"* ]]
+restore_on_terminal "$scratch/read-only"
+if [[ $terminal == *"private key"* ]]
 then
-  fail "restore asked for the key before checking the directory: $output"
+  fail "restore asked for the key before checking the directory: $terminal"
 fi
 chmod 755 "$scratch/read-only"
 end_test

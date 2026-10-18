@@ -110,6 +110,45 @@ printf 'garbage%.0s' {1..200} \
 assert_backup_fails
 assert_journal_mentions "reason=database_damaged"
 assert_journal_mentions "database=Projects/haushaltsbuch/haushaltsbuch.db"
+errors="$("$backup" 2>&1 > /dev/null)"
+if [[ $(wc -l <<< "$errors") != 1 || $errors != *"integrity check"* ]]
+then
+  fail "stderr is not one line naming the integrity check: $errors"
+fi
+end_test
+
+start_test "a run names the damage when a database opens but fails its integrity check"
+make_njord_home
+export FAKE_HOSTNAME=njord
+db="$HOME/Projects/haushaltsbuch/haushaltsbuch.db"
+rm "$db" "$db-wal" "$db-shm"
+sqlite3 "$db" "CREATE TABLE t (x); CREATE INDEX i ON t (x);
+               INSERT INTO t VALUES ('a'), ('b');"
+index_page="$(sqlite3 "$db" "SELECT rootpage FROM sqlite_master WHERE name = 'i'")"
+page_size="$(sqlite3 "$db" 'PRAGMA page_size')"
+# Turn the index's root page into a page of no known type.
+printf '\x7f\x7f' \
+  | dd of="$db" bs=1 seek=$(( (index_page - 1) * page_size + 3 )) conv=notrunc \
+       2>/dev/null
+errors="$("$backup" 2>&1 > /dev/null)"
+if [[ $errors != *"integrity check: Tree"* ]]
+then
+  fail "stderr does not name the damage the integrity check found: $errors"
+fi
+end_test
+
+start_test "a run fails and says so without XDG_RUNTIME_DIR"
+make_common_home
+unset XDG_RUNTIME_DIR
+assert_backup_fails
+assert_journal_mentions "backup_failed reason=runtime_dir_missing"
+end_test
+
+start_test "a run fails and says so when it can't make a directory in XDG_RUNTIME_DIR"
+make_common_home
+export XDG_RUNTIME_DIR="$scratch/no-such-dir"
+assert_backup_fails
+assert_journal_mentions "backup_failed reason=runtime_dir_unusable"
 end_test
 
 start_test "a run fails and says so when a database within a listed path is missing"

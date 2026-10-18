@@ -70,7 +70,8 @@ run_backup () {
          "AWS profile $UPLOAD_PROFILE holds no access key; run backup setup with an admin profile"
   fi
   mapfile -t paths <<< "$listing"
-  work="$(mktemp -d "$XDG_RUNTIME_DIR/backup.XXXXXX")"
+  # make_work_dir has already reported why when it fails.
+  work="$(make_work_dir backup_failed)" || exit 1
   # shellcheck disable=SC2064 # $work is fixed by now
   trap "rm -rf '$work'" EXIT
   pack "$work" "${paths[@]}"
@@ -126,11 +127,12 @@ restore () {
     fail restore_failed directory_unusable "dir=$dir" \
          "can't write into $dir; restore into a directory you can write"
   fi
-  read -rsp "Age private key: " key
-  echo >&2
-  work="$(mktemp -d "$XDG_RUNTIME_DIR/backup.XXXXXX")"
+  # make_work_dir has already reported why when it fails.
+  work="$(make_work_dir restore_failed)" || exit 1
   # shellcheck disable=SC2064 # $work is fixed by now
   trap "rm -rf '$work'" EXIT
+  read -rsp "Age private key: " key
+  echo >&2
   restored="$(aws s3api get-object --bucket "$BUCKET" \
                  --key "$(object_key "$host")" "${version_option[@]}" \
                  --profile "$profile" --region "$REGION" \
@@ -142,7 +144,21 @@ restore () {
     || fail restore_failed unpack_failed "dir=$dir" \
             "could not decrypt and unpack into $dir, see the error above; was it the right key?"
   echo "Restored version $restored of $host's backup into $dir"
+  explain_revoking_lost_key "$host"
   record_time last-restore
+}
+
+# Tell how to revoke the upload key of the machine whose backup was
+# restored, in case this machine replaces it: backup setup revokes only
+# the keys of this machine's own IAM user.
+explain_revoking_lost_key () {
+  local host="$1"
+  if [[ $host == "$(hostname -s)" ]]
+  then
+    echo "If this machine replaces a lost one, revoke the lost one's key: delete the $UPLOAD_PROFILE profile from ~/.aws/credentials and run backup setup"
+  else
+    echo "If this machine replaces $host, revoke its key with an admin profile: aws iam list-access-keys --user-name backup-$host, then aws iam delete-access-key --user-name backup-$host --access-key-id <id> for each"
+  fi
 }
 
 # Create, or find already in place, what a run uploads with: the
@@ -382,17 +398,34 @@ databases_within () {
 # consistent snapshot under the same relative path in the given
 # directory, and check the snapshot's integrity.
 snapshot_database () {
-  local db="$1" dir="$2" integrity
+  local db="$1" dir="$2" integrity finding
   mkdir -p "$(dirname "$dir/$db")"
   sqlite3 -readonly "$HOME/$db" ".backup '$dir/$db'" \
     || fail backup_failed snapshot_failed "database=$db" \
             "could not snapshot $HOME/$db, see sqlite3's error above"
-  integrity="$(sqlite3 "$dir/$db" 'PRAGMA integrity_check' 2>&1)"
+  # sqlite3's stderr only says that the statement failed; the findings
+  # are on stdout, after a "*** in database main ***" header.
+  integrity="$(sqlite3 "$dir/$db" 'PRAGMA integrity_check' 2>/dev/null)"
   if [[ $integrity != ok ]]
   then
+    finding="$(grep -v -m 1 '^\*\*\*' <<< "$integrity")"
     fail backup_failed database_damaged "database=$db" \
-         "the snapshot of $HOME/$db fails its integrity check: $integrity"
+         "the snapshot of $HOME/$db fails its integrity check: ${finding:-sqlite3 cannot read it as a database}"
   fi
+}
+
+# Make a directory for the intermediate files in $XDG_RUNTIME_DIR, a
+# tmpfs, so they never reach the disk, and print its path.
+make_work_dir () {
+  local event="$1"
+  if [[ -z ${XDG_RUNTIME_DIR:-} ]]
+  then
+    fail "$event" runtime_dir_missing "" \
+         "XDG_RUNTIME_DIR is not set, so there is no tmpfs for the intermediate files; run backup from a login session"
+  fi
+  mktemp -d "$XDG_RUNTIME_DIR/backup.XXXXXX" \
+    || fail "$event" runtime_dir_unusable "dir=$XDG_RUNTIME_DIR" \
+            "could not make a directory in $XDG_RUNTIME_DIR, see mktemp's error above"
 }
 
 # Upload a file to a key in the bucket. With --content-md5, S3 itself
