@@ -39,11 +39,11 @@ start_test () {
 # public key, as if it were the constant at the top of the script.
 backup_with_public_key () {
   local key="$1"
-  if ! grep -q "^AGE_PUBLIC_KEY=''$" "$repo/bin/backup"
+  if ! grep -q "^AGE_PUBLIC_KEY='[^']*'$" "$repo/bin/backup"
   then
-    fail "bin/backup has no line AGE_PUBLIC_KEY='' to put the test key in"
+    fail "bin/backup has no line AGE_PUBLIC_KEY='...' to put the test key in"
   fi
-  sed "s/^AGE_PUBLIC_KEY=''$/AGE_PUBLIC_KEY='$key'/" "$repo/bin/backup" \
+  sed "s/^AGE_PUBLIC_KEY='[^']*'$/AGE_PUBLIC_KEY='$key'/" "$repo/bin/backup" \
       > "$backup"
   chmod +x "$backup"
 }

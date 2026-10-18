@@ -149,7 +149,7 @@ end_test
 
 start_test "a run fails and says so while the age public key is missing"
 make_common_home
-cp "$repo/bin/backup" "$backup"
+backup_with_public_key ""
 assert_backup_fails
 assert_journal_mentions "reason=public_key_missing"
 end_test
