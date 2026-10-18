@@ -71,7 +71,21 @@ check_structure () {
     '[0-9]+:now \(\) \{ date \+%s; \}' || failed=1
   check_reads_clock_only_in bash.sh seconds_since_epoch \
     '[0-9]+: *function seconds_since_epoch \(\) \{ date \+%s; \}' || failed=1
+  check_no_tests_in_bin || failed=1
   return "$failed"
+}
+
+# initialize.sh links every file in bin/ into ~/.local/bin, which is on
+# PATH, so a test there would become a command.
+check_no_tests_in_bin () {
+  local tests
+  tests="$(find bin -name '*_test.sh')"
+  if [[ -n $tests ]]
+  then
+    echo "tests in bin/ would be linked onto PATH; move them to tests/:" >&2
+    echo "$tests" >&2
+    return 1
+  fi
 }
 
 # A script reads the clock in one named function, defined on the one
