@@ -12,7 +12,7 @@ set -uo pipefail
 
 # The public half of the backup key. Its private half lives only in the
 # password manager and is typed in at restore.
-AGE_PUBLIC_KEY=''
+AGE_PUBLIC_KEY='age1lyp4z9nluqam93zmdyjvpzu9zmt26qmc3l5735lfsnrhvn539yks4s43dt'
 AGE_KEY_MISSING="bin/backup has no age public key; create a key pair with age-keygen, keep the secret key only in the password manager, and put the public key into AGE_PUBLIC_KEY at the top of bin/backup"
 
 BUCKET='jorgenschaefer-backup'
